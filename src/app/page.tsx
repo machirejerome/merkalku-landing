@@ -435,9 +435,9 @@ function Footer() {
     <footer className="py-8 px-6 text-center" style={{ borderTop: "1px solid var(--color-border)" }}>
       <p className="text-xs" style={{ color: "var(--color-text-faint)" }}>
         © 2026 MerKalku – Mehr Aufträge. Weniger Büro. &nbsp;|&nbsp;{" "}
-        <a href="#" className="underline hover:opacity-70" style={{ color: "var(--color-text-muted)" }}>Impressum</a>
+        <a href="/impressum" className="underline hover:opacity-70" style={{ color: "var(--color-text-muted)" }}>Impressum</a>
         {" "}&nbsp;|&nbsp;{" "}
-        <a href="#" className="underline hover:opacity-70" style={{ color: "var(--color-text-muted)" }}>Datenschutz</a>
+        <a href="/datenschutz" className="underline hover:opacity-70" style={{ color: "var(--color-text-muted)" }}>Datenschutz</a>
       </p>
     </footer>
   );
