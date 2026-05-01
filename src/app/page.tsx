@@ -82,8 +82,8 @@ function Hero() {
         </h1>
 
         <p className="hero-animate hero-delay-3 text-lg max-w-xl mx-auto mb-10 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-          Objektdaten hochladen – egal ob PDF, Bauplan, Excel oder Fließtext.
-          Die KI erkennt alles, rechnet alles, liefert das fertige Angebot. Ohne Abtippen.
+          Stundenlang Daten abtippen. Fehler in der Kalkulation. Aufträge, die liegen bleiben,
+          weil das Büro nicht hinterherkommt. <span className="font-semibold" style={{ color: "var(--color-text)" }}>Das ist ab jetzt vorbei.</span>
         </p>
 
         <div className="hero-animate hero-delay-4">
