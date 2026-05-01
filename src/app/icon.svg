@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>MerKalku Icon – Color on White</title>
+  <defs>
+    <!-- Diagonal split: top-right to bottom-left -->
+    <clipPath id="clip-left">
+      <polygon points="0,0 300,0 212,512 0,512"/>
+    </clipPath>
+    <clipPath id="clip-right">
+      <polygon points="300,0 512,0 512,512 212,512"/>
+    </clipPath>
+  </defs>
+  
+  <!-- M Letter Shape -->
+  <!-- Left half: Dark Green #05703C -->
+  <g clip-path="url(#clip-left)">
+    <path d="M40,460 L40,52 L140,52 L256,310 L372,52 L472,52 L472,460 L388,460 L388,180 L256,440 L124,180 L124,460 Z" fill="#05703C"/>
+  </g>
+  
+  <!-- Right half: Mint Green #2DE89A -->
+  <g clip-path="url(#clip-right)">
+    <path d="M40,460 L40,52 L140,52 L256,310 L372,52 L472,52 L472,460 L388,460 L388,180 L256,440 L124,180 L124,460 Z" fill="#2DE89A"/>
+  </g>
+</svg>
