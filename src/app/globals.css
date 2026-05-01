@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #05703C;
+  --color-primary-light: #2DE89A;
+  --color-bg: #F7FBF9;
+  --color-bg-card: #FFFFFF;
+  --color-text: #1C211F;
+  --color-text-muted: #6A7B73;
+  --color-text-faint: #9AABA2;
+  --color-border: #DBE4DF;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #F7FBF9;
+  color: #1C211F;
+}
+
+/* ── Fade-in for scroll sections ── */
+.fade-section {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Hero entrance ── */
+@keyframes heroFadeUp {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.hero-animate {
+  opacity: 0;
+  animation: heroFadeUp 0.65s ease forwards;
+}
+.hero-delay-1 { animation-delay: 0.05s; }
+.hero-delay-2 { animation-delay: 0.15s; }
+.hero-delay-3 { animation-delay: 0.25s; }
+.hero-delay-4 { animation-delay: 0.35s; }
+.hero-delay-5 { animation-delay: 0.45s; }
