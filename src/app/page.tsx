@@ -70,21 +70,35 @@ function Hero() {
       <div className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(45,232,154,0.06)" }} />
       <div className="absolute -bottom-60 -left-20 w-[500px] h-[500px] rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(5,112,60,0.04)" }} />
 
-      <div className="relative z-10 max-w-2xl text-center">
+      <div className="relative z-10 max-w-3xl text-center">
         <div className="hero-animate hero-delay-1 inline-block px-4 py-1.5 mb-8 text-xs font-semibold tracking-wide uppercase rounded-full" style={{ color: "var(--color-primary)", background: "rgba(5,112,60,0.07)", border: "1px solid rgba(5,112,60,0.15)" }}>
           Für Gebäudereiniger mit 50+ Mitarbeitern
         </div>
 
         <h1 className="hero-animate hero-delay-2 text-4xl sm:text-5xl lg:text-[3.5rem] font-bold leading-[1.12] tracking-tight mb-6">
-          Mehr Aufträge.
+          Ausschreibung hochladen.
           <br />
-          <span style={{ color: "var(--color-primary)" }}>Weniger Büro.</span>
+          <span style={{ color: "var(--color-primary)" }}>KI kalkuliert. Fertig.</span>
         </h1>
 
         <p className="hero-animate hero-delay-3 text-lg max-w-xl mx-auto mb-10 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-          Stundenlang Daten abtippen. Fehler in der Kalkulation. Aufträge, die liegen bleiben,
-          weil das Büro nicht hinterherkommt. <span className="font-semibold" style={{ color: "var(--color-text)" }}>Das ist ab jetzt vorbei.</span>
+          PDF, Excel, CSV, GAEB – egal welches Format. MerKalku erkennt alle Räume automatisch und liefert Ihnen die{" "}
+          <span className="font-semibold" style={{ color: "var(--color-text)" }}>fertige Kalkulation in Sekunden.</span>
         </p>
+
+        {/* Hero GIF Animation */}
+        <a
+          href="#termin"
+          className="hero-animate hero-delay-3 mx-auto mb-10 rounded-2xl overflow-hidden shadow-xl block hover:shadow-2xl transition-shadow cursor-pointer"
+          style={{ border: "1px solid var(--color-border)", maxWidth: "720px" }}
+        >
+          <img
+            src="/hero-animation.gif"
+            alt="MerKalku Demo: Verschiedene Dateiformate werden automatisch zur fertigen Kalkulation mit Umsatz, Stunden und Deckungsbeitrag verarbeitet"
+            className="w-full h-auto block"
+            loading="eager"
+          />
+        </a>
 
         <div className="hero-animate hero-delay-4">
           <CtaButton />
