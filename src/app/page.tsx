@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const LOGO_URL =
-  "https://assets.cdn.filesafe.space/sRRsx7vsmU8JNdRtaxx0/media/20bc56c1-b9a1-4a60-afa7-cd602d4b9ff3.png";
+const LOGO_URL = "/logo.webp";
 
 const CALENDAR_URL =
   "https://api.leadconnectorhq.com/widget/booking/ulqrL3P8HU0BkQLF8jcR";
@@ -22,6 +21,39 @@ function FadeIn({ children, className = "" }: { children: React.ReactNode; class
     return () => obs.disconnect();
   }, []);
   return <div ref={ref} className={`fade-section ${className}`}>{children}</div>;
+}
+
+/* ── Lazy Calendar – only loads iframe when in viewport ── */
+function LazyCalendar() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [load, setLoad] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setLoad(true); obs.disconnect(); } },
+      { rootMargin: "200px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{ minHeight: "750px" }}>
+      {load ? (
+        <iframe
+          src={CALENDAR_URL}
+          className="w-full border-0"
+          style={{ minHeight: "750px" }}
+          scrolling="no"
+          title="Termin buchen"
+        />
+      ) : (
+        <div className="flex items-center justify-center" style={{ minHeight: "750px", color: "var(--color-text-muted)" }}>
+          <p className="text-sm">Kalender wird geladen…</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* ── Reusable CTA Button ── */
@@ -370,15 +402,9 @@ function Calendar() {
             </div>
           </div>
 
-          {/* Right: Calendar */}
+          {/* Right: Calendar – lazy loaded for performance */}
           <div className="rounded-2xl overflow-hidden shadow-xl" style={{ border: "1px solid var(--color-border)" }}>
-            <iframe
-              src={CALENDAR_URL}
-              className="w-full border-0"
-              style={{ minHeight: "750px" }}
-              scrolling="no"
-              title="Termin buchen"
-            />
+            <LazyCalendar />
           </div>
         </div>
 
