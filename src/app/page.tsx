@@ -86,18 +86,25 @@ function Hero() {
           <span className="font-semibold" style={{ color: "var(--color-text)" }}>fertige Kalkulation in Sekunden.</span>
         </p>
 
-        {/* Hero GIF Animation */}
+        {/* Hero Animation – Video for performance (poster = instant LCP) */}
         <a
           href="#termin"
           className="hero-animate hero-delay-3 mx-auto mb-10 rounded-2xl overflow-hidden shadow-xl block hover:shadow-2xl transition-shadow cursor-pointer"
           style={{ border: "1px solid var(--color-border)", maxWidth: "720px" }}
         >
-          <img
-            src="/hero-animation.gif"
-            alt="MerKalku Demo: Verschiedene Dateiformate werden automatisch zur fertigen Kalkulation mit Umsatz, Stunden und Deckungsbeitrag verarbeitet"
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="/hero-poster.webp"
             className="w-full h-auto block"
-            loading="eager"
-          />
+            preload="auto"
+          >
+            <source src="/hero-animation.mp4" type="video/mp4" />
+            <source src="/hero-animation.webm" type="video/webm" />
+            <img src="/hero-poster.webp" alt="MerKalku Demo" className="w-full h-auto block" />
+          </video>
         </a>
 
         <div className="hero-animate hero-delay-4">

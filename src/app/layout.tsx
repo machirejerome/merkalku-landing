@@ -183,6 +183,10 @@ export default function RootLayout({
   return (
     <html lang="de" className={inter.variable}>
       <head>
+        {/* Preload hero poster for instant LCP */}
+        <link rel="preload" as="image" href="/hero-poster.webp" type="image/webp" />
+        {/* Preconnect to LeadConnector (saves ~360ms LCP per Lighthouse) */}
+        <link rel="preconnect" href="https://stcdn.leadconnectorhq.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
