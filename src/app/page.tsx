@@ -26,7 +26,10 @@ function FadeIn({ children, className = "" }: { children: React.ReactNode; class
 /* ── Lazy Calendar – only loads iframe when in viewport ── */
 function LazyCalendar() {
   const ref = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [load, setLoad] = useState(false);
+  const [iframeHeight, setIframeHeight] = useState(1000);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -37,18 +40,37 @@ function LazyCalendar() {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+
+  /* Listen for GHL widget resize messages */
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (typeof e.data === "object" && e.data.type === "resize" && e.data.height) {
+        setIframeHeight(Math.max(e.data.height, 800));
+      }
+      // GHL also sends string messages like "loaded"
+      if (typeof e.data === "string" && e.data.includes("height")) {
+        try {
+          const parsed = JSON.parse(e.data);
+          if (parsed.height) setIframeHeight(Math.max(parsed.height, 800));
+        } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
   return (
-    <div ref={ref} style={{ minHeight: "750px" }}>
+    <div ref={ref} style={{ minHeight: `${iframeHeight}px` }}>
       {load ? (
         <iframe
+          ref={iframeRef}
           src={CALENDAR_URL}
           className="w-full border-0"
-          style={{ minHeight: "750px" }}
-          scrolling="no"
+          style={{ height: `${iframeHeight}px`, minHeight: "1000px" }}
           title="Termin buchen"
         />
       ) : (
-        <div className="flex items-center justify-center" style={{ minHeight: "750px", color: "var(--color-text-muted)" }}>
+        <div className="flex items-center justify-center" style={{ minHeight: "1000px", color: "var(--color-text-muted)" }}>
           <p className="text-sm">Kalender wird geladen…</p>
         </div>
       )}
