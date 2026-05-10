@@ -23,13 +23,13 @@ function FadeIn({ children, className = "" }: { children: React.ReactNode; class
   return <div ref={ref} className={`fade-section ${className}`}>{children}</div>;
 }
 
-/* ── Lazy Calendar – only loads iframe when in viewport ── */
+/* ── Lazy Calendar – auto-resizes via iframe-resizer (GHL widget supports it natively) ── */
 function LazyCalendar() {
   const ref = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [load, setLoad] = useState(false);
-  const [iframeHeight, setIframeHeight] = useState(1000);
 
+  /* Lazy-load: only render iframe when section scrolls into view */
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -41,36 +41,43 @@ function LazyCalendar() {
     return () => obs.disconnect();
   }, []);
 
-  /* Listen for GHL widget resize messages */
+  /* Load iframe-resizer host script & init once iframe is mounted */
   useEffect(() => {
-    const handler = (e: MessageEvent) => {
-      if (typeof e.data === "object" && e.data.type === "resize" && e.data.height) {
-        setIframeHeight(Math.max(e.data.height, 800));
-      }
-      // GHL also sends string messages like "loaded"
-      if (typeof e.data === "string" && e.data.includes("height")) {
-        try {
-          const parsed = JSON.parse(e.data);
-          if (parsed.height) setIframeHeight(Math.max(parsed.height, 800));
-        } catch { /* ignore */ }
+    if (!load || !iframeRef.current) return;
+
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.11/iframeResizer.min.js";
+    script.onload = () => {
+      // @ts-expect-error – iFrameResize is added globally by the script
+      if (window.iFrameResize) {
+        // @ts-expect-error
+        window.iFrameResize(
+          {
+            checkOrigin: false,
+            heightCalculationMethod: "lowestElement",
+            log: false,
+          },
+          iframeRef.current
+        );
       }
     };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, []);
+    document.head.appendChild(script);
+
+    return () => { script.remove(); };
+  }, [load]);
 
   return (
-    <div ref={ref} style={{ minHeight: `${iframeHeight}px` }}>
+    <div ref={ref}>
       {load ? (
         <iframe
           ref={iframeRef}
           src={CALENDAR_URL}
           className="w-full border-0"
-          style={{ height: `${iframeHeight}px`, minHeight: "1000px" }}
+          style={{ width: "1px", minWidth: "100%", minHeight: "600px" }}
           title="Termin buchen"
         />
       ) : (
-        <div className="flex items-center justify-center" style={{ minHeight: "1000px", color: "var(--color-text-muted)" }}>
+        <div className="flex items-center justify-center" style={{ minHeight: "700px", color: "var(--color-text-muted)" }}>
           <p className="text-sm">Kalender wird geladen…</p>
         </div>
       )}
