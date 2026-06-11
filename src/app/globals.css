@@ -1,15 +1,23 @@
 @import "tailwindcss";
 
+/* Font tokens reference next/font runtime variables → must live in @theme inline */
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
 @theme {
   --color-primary: #05703C;
+  --color-primary-hover: #045A30;
   --color-primary-light: #2DE89A;
   --color-bg: #F7FBF9;
   --color-bg-card: #FFFFFF;
+  --color-surface-sunken: #EEF3F0;
   --color-text: #1C211F;
-  --color-text-muted: #6A7B73;
-  --color-text-faint: #9AABA2;
+  --color-text-muted: #56685F;   /* darkened for AA contrast on light surfaces */
+  --color-text-faint: #76887E;   /* darkened for AA contrast */
   --color-border: #DBE4DF;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-danger: #BF4A3F;        /* desaturated, harmonises with green-tinted neutrals */
 }
 
 html {
@@ -17,8 +25,49 @@ html {
 }
 
 body {
-  background-color: #F7FBF9;
-  color: #1C211F;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+/* Display face for headlines; body stays on Inter */
+h1, h2, h3 {
+  font-family: var(--font-display);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* ── Buttons (background set here so :hover can override; inline style would win) ── */
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+.btn-light {
+  background: #fff;
+  color: var(--color-primary);
+}
+.btn-light:hover {
+  background: #EAF3EE;
+}
+
+/* ── Consistent keyboard focus ── */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Subtle hero texture: brand-tinted dot grid, fades out (replaces AI-glow blobs) ── */
+.hero-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(5, 112, 60, 0.07) 1px, transparent 0);
+  background-size: 30px 30px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 70% 25%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 75% 65% at 70% 25%, #000 30%, transparent 75%);
 }
 
 /* ── Fade-in for scroll sections ── */
@@ -46,3 +95,15 @@ body {
 .hero-delay-3 { animation-delay: 0.25s; }
 .hero-delay-4 { animation-delay: 0.35s; }
 .hero-delay-5 { animation-delay: 0.45s; }
+
+/* ── Respect reduced-motion (also a no-JS safety net so fade-in content stays visible) ── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fade-section { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .hero-animate { opacity: 1 !important; animation: none !important; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
