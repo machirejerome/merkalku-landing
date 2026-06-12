@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Display face for headlines — full Latin-ext coverage (ä ö ü ß), loaded with swap so it
+// never blocks the LCP poster. Body text stays on Inter.
+const sora = Sora({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-sora",
   display: "swap",
 });
 
@@ -181,7 +190,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de" className={inter.variable}>
+    <html lang="de" className={`${inter.variable} ${sora.variable}`}>
       <head>
         {/* Preload hero poster for instant LCP */}
         <link rel="preload" as="image" href="/hero-poster.webp" type="image/webp" />
