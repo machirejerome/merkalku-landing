@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Impressum – MerKalku",
-  description: "Impressum der MerKalku Webseite. Angaben gemäß § 5 TMG.",
+  description: "Impressum der MerKalku Webseite. Angaben gemäß § 5 DDG.",
 };
 
 export default function Impressum() {
@@ -23,13 +23,15 @@ export default function Impressum() {
         <div className="space-y-8 text-sm leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
           <section>
             <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
-              Angaben gemäß § 5 TMG
+              Angaben gemäß § 5 DDG
             </h2>
             <p>
-              Jerome Machire<br />
-              Jerome Machire Leadgainers Agency e.K.<br />
+              IntelligenzWerk UG (haftungsbeschränkt)<br />
               Schmalzgasse 4<br />
               75228 Ispringen
+            </p>
+            <p className="mt-3">
+              Vertreten durch den Geschäftsführer: Jérôme Machire
             </p>
           </section>
 
@@ -47,38 +49,31 @@ export default function Impressum() {
 
           <section>
             <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
-              Rechtsform
-            </h2>
-            <p>Eingetragener Kaufmann (e.K.)</p>
-          </section>
-
-          <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
-              Umsatzsteuer-ID
+              Registereintrag
             </h2>
             <p>
-              Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz:<br />
-              DE362922044
+              Rechtsform: Unternehmergesellschaft (haftungsbeschränkt)<br />
+              Registergericht: Amtsgericht Mannheim<br />
+              Registernummer: HRB 759441
             </p>
           </section>
 
           <section>
             <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
-              Online-Streitbeilegung
+              Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
             </h2>
             <p>
-              Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{" "}
-              <a
-                href="https://ec.europa.eu/consumers/odr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:opacity-70"
-                style={{ color: "var(--color-primary)" }}
-              >
-                https://ec.europa.eu/consumers/odr
-              </a>
+              Jérôme Machire<br />
+              Schmalzgasse 4<br />
+              75228 Ispringen
             </p>
-            <p className="mt-3">
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
+              Verbraucherstreitbeilegung
+            </h2>
+            <p>
               Hinweis gemäß § 36 Verbraucherstreitbeilegungsgesetz (VSBG): Wir sind nicht bereit oder verpflichtet,
               an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
             </p>

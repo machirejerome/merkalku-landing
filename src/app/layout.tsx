@@ -42,8 +42,8 @@ export const metadata: Metadata = {
     "Kalkulationstool Reinigung",
     "Unterhaltsreinigung Kalkulation",
   ],
-  authors: [{ name: "Jerome Machire" }],
-  creator: "Jerome Machire Leadgainers Agency e.K.",
+  authors: [{ name: "Jérôme Machire" }],
+  creator: "IntelligenzWerk UG (haftungsbeschränkt)",
   publisher: "MerKalku",
 
   // ── Canonical + Alternates ──
@@ -116,7 +116,7 @@ const jsonLd = {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
       name: "MerKalku",
-      legalName: "Jerome Machire Leadgainers Agency e.K.",
+      legalName: "IntelligenzWerk UG (haftungsbeschränkt)",
       url: SITE_URL,
       logo: `${SITE_URL}/icon.svg`,
       description:

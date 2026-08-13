@@ -42,8 +42,8 @@ export default function Datenschutz() {
               Verantwortlicher
             </h2>
             <p>
-              Jerome Machire<br />
-              Jerome Machire Leadgainers Agency e.K.<br />
+              IntelligenzWerk UG (haftungsbeschränkt)<br />
+              Vertreten durch den Geschäftsführer: Jérôme Machire<br />
               Schmalzgasse 4, 75228 Ispringen<br />
               E-Mail:{" "}
               <a href="mailto:info@merkalku.de" className="underline hover:opacity-70" style={{ color: "var(--color-primary)" }}>
