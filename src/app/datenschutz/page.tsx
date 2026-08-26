@@ -303,6 +303,19 @@ export default function Datenschutz() {
               Grundlage einer pseudonymen Nutzeridentifikationsnummer. Dienstanbieter: Google Ireland Limited,
               Gordon House, Barrow Street, Dublin 4, Irland.
             </p>
+
+            <h3 className="text-sm font-semibold mt-4 mb-2" style={{ color: "var(--color-text)" }}>
+              Leadinfo
+            </h3>
+            <p>
+              Wir verwenden Leadinfo, einen Dienst zur Erkennung von Unternehmensbesuchern unserer Webseite.
+              Leadinfo verarbeitet hierzu die IP-Adresse des Besuchers und gleicht diese mit einer Datenbank ab,
+              um zu erkennen, von welchem Unternehmen ein Besuch stammt; hierfür wird ein Cookie eingesetzt.
+              Profile einzelner natürlicher Personen erstellen wir hierüber nicht. Dienstanbieter: Leadinfo B.V.,
+              Rivium Quadrant 141, 2909 LC Capelle aan den IJssel, Niederlande. Rechtsgrundlagen: Berechtigte
+              Interessen (Art. 6 Abs. 1 S. 1 lit. f) DSGVO) an der Ansprache gewerblicher Interessenten;
+              Einwilligung, soweit gesetzlich erforderlich.
+            </p>
           </section>
 
           {/* Onlinemarketing */}

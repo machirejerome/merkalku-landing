@@ -200,6 +200,13 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Leadinfo – B2B-Besuchererkennung */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(l,e,a,d,i,n,f,o){if(!l[i]){l.GlobalLeadinfoNamespace=l.GlobalLeadinfoNamespace||[];l.GlobalLeadinfoNamespace.push(i);l[i]=function(){(l[i].q=l[i].q||[]).push(arguments)};l[i].t=l[i].t||n;l[i].q=l[i].q||[];o=e.createElement(a);f=e.getElementsByTagName(a)[0];o.async=1;o.src=d;f.parentNode.insertBefore(o,f);}}(window,document,'script','https://cdn.leadinfo.eu/ping.js','leadinfo','LI-6A8EC9B923EA8'));",
+          }}
+        />
         <meta name="geo.region" content="DE-BW" />
         <meta name="geo.placename" content="Ispringen" />
         <meta name="geo.position" content="48.9123;8.6628" />
