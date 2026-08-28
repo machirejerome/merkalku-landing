@@ -284,6 +284,23 @@ export default function Datenschutz() {
             </p>
           </section>
 
+          {/* Preisrechner */}
+          <section>
+            <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
+              Preisrechner
+            </h2>
+            <p>
+              Bei Nutzung unseres Preisrechners verarbeiten wir die von Ihnen im Formular angegebenen Daten
+              (Name, Firma, E-Mail-Adresse, Telefonnummer) sowie Ihre Angaben zu Ausschreibungsvolumen und
+              Kalkulationsaufwand. Zweck der Verarbeitung ist die Erstellung Ihrer Auswertung, die Zusendung des
+              von Ihnen angeforderten Preisangebots per E-Mail und WhatsApp sowie die anschließende
+              Kontaktaufnahme zu Ihrer Anfrage. Die Daten werden in unserem CRM-System gespeichert
+              (HighLevel Inc., USA; die Übermittlung ist durch EU-Standardvertragsklauseln abgesichert).
+              Rechtsgrundlagen: Durchführung vorvertraglicher Maßnahmen (Art. 6 Abs. 1 S. 1 lit. b) DSGVO)
+              sowie berechtigte Interessen (Art. 6 Abs. 1 S. 1 lit. f) DSGVO).
+            </p>
+          </section>
+
           {/* Webanalyse */}
           <section>
             <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>

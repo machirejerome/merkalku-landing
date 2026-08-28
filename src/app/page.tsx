@@ -162,9 +162,14 @@ function Nav() {
         <img src={LOGO_URL} alt="MerKalku" width={34} height={34} className="rounded-lg" />
         <span className="text-lg font-bold tracking-tight hidden sm:inline">MerKalku</span>
       </a>
-      <a href="#termin" className="btn-primary px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
-        Termin sichern
-      </a>
+      <div className="flex items-center gap-5">
+        <a href="/preisrechner" className="hidden sm:inline text-sm font-semibold hover:opacity-70 transition-opacity" style={{ color: "var(--color-text)" }}>
+          Preisrechner
+        </a>
+        <a href="#termin" className="btn-primary px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
+          Termin sichern
+        </a>
+      </div>
     </nav>
   );
 }
@@ -440,6 +445,37 @@ function Stats() {
 }
 
 /* ═══════════════════════════════════════════
+   PREISRECHNER TEASER – Interactive lead magnet
+   ═══════════════════════════════════════════ */
+function PreisrechnerTeaser() {
+  return (
+    <section className="py-16 px-6">
+      <FadeIn className="max-w-5xl mx-auto">
+        <div className="rounded-2xl p-8 sm:p-12 text-center" style={{ background: "rgba(5,112,60,0.06)", border: "1px solid rgba(5,112,60,0.2)" }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-3" style={{ color: "var(--color-primary)" }}>
+            Preisrechner
+          </p>
+          <h2 className="text-3xl sm:text-[2.25rem] font-bold tracking-tight mb-4 leading-tight">
+            Was kosten euch Ausschreibungen wirklich?
+          </h2>
+          <p className="text-base max-w-xl mx-auto mb-8 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
+            Beantworte fünf kurze Fragen und sieh in 60 Sekunden, wie viel Zeit und Geld dein Betrieb
+            bei Ausschreibungen sparen kann – inklusive persönlichem Preisangebot.
+          </p>
+          <a
+            href="/preisrechner"
+            className="btn-primary inline-flex items-center gap-2 px-7 py-4 text-base font-semibold rounded-xl shadow-[0_12px_30px_-10px_rgba(5,112,60,0.5)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+          >
+            Jetzt Ersparnis berechnen
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </FadeIn>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
    CALENDAR – Full-width embedded booking
    ═══════════════════════════════════════════ */
 function Calendar() {
@@ -605,6 +641,8 @@ export default function Home() {
         <HowItWorks />
         {/* 6. AUTHORITY – Hard facts */}
         <Stats />
+        {/* 6b. LEAD MAGNET – Interactive Preisrechner */}
+        <PreisrechnerTeaser />
         {/* 7. CONVERT – Calendar with copy side-by-side */}
         <Calendar />
         {/* 8. HANDLE OBJECTIONS */}
