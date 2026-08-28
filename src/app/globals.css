@@ -96,6 +96,13 @@ p {
 .hero-delay-4 { animation-delay: 0.35s; }
 .hero-delay-5 { animation-delay: 0.45s; }
 
+/* ── Preisrechner: schneller Fragen-Übergang ── */
+@keyframes stepIn {
+  0%   { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.step-enter { animation: stepIn 0.3s ease forwards; }
+
 /* ── Respect reduced-motion (also a no-JS safety net so fade-in content stays visible) ── */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

@@ -34,7 +34,8 @@ const WANTED = [
   { name: "Stunden pro Ausschreibung", key: "stunden_pro_ausschreibung", dataType: "NUMERICAL" },
   { name: "Kalkulation Wer", key: "kalkulation_wer", dataType: "SINGLE_OPTIONS", options: ["Inhaber selbst", "Kalkulator", "Büro", "Extern"] },
   { name: "Kalkulation Tool", key: "kalkulation_tool", dataType: "SINGLE_OPTIONS", options: ["Excel", "Software", "Papier und Erfahrung"] },
-  { name: "Ersparnis pro Monat EUR", key: "ersparnis_monat_eur", dataType: "NUMERICAL" },
+  { name: "Ersparnis pro Monat EUR", key: "ersparnis_pro_monat_eur", dataType: "NUMERICAL" },
+  { name: "Liegen gelassene Ausschreibungen", key: "liegen_gelassene_ausschreibungen", dataType: "SINGLE_OPTIONS", options: ["Keine", "1–2 pro Monat", "3–5 pro Monat", "mehr als 5"] },
 ];
 
 (async () => {
