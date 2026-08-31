@@ -140,8 +140,8 @@ function Ergebnis({
 
       <div className="rounded-xl p-5 mb-10" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}>
         <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-          📬 <strong style={{ color: "var(--color-text)" }}>Dein persönliches Preisangebot ist unterwegs</strong>{" "}
-          – in wenigen Minuten per E-Mail und WhatsApp.
+          📬 <strong style={{ color: "var(--color-text)" }}>Deine Auswertung kommt gleich per E-Mail.</strong>{" "}
+          Dein persönliches Preisangebot schickt dir Jérôme in wenigen Minuten per WhatsApp.
         </p>
       </div>
 
