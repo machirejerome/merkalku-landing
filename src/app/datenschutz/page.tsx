@@ -297,7 +297,42 @@ export default function Datenschutz() {
               Kontaktaufnahme zu Ihrer Anfrage. Die Daten werden in unserem CRM-System gespeichert
               (HighLevel Inc., USA; die Übermittlung ist durch EU-Standardvertragsklauseln abgesichert).
               Rechtsgrundlagen: Durchführung vorvertraglicher Maßnahmen (Art. 6 Abs. 1 S. 1 lit. b) DSGVO)
-              sowie berechtigte Interessen (Art. 6 Abs. 1 S. 1 lit. f) DSGVO).
+              sowie berechtigte Interessen (Art. 6 Abs. 1 S. 1 lit. f) DSGVO). Ihre Antworten im Rechner werden
+              für die Dauer der Browsersitzung im Sitzungsspeicher Ihres Browsers (sessionStorage) gehalten, damit
+              Sie nach einem Neuladen nicht von vorn beginnen müssen; das ist für die Nutzung des Rechners
+              erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG) und wird beim Schließen des Browsers gelöscht.
+            </p>
+          </section>
+
+          {/* Ads-Landingpage + WhatsApp-Einwilligung */}
+          <section>
+            <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
+              Landingpage für Anzeigen (merkalku.de/ausschreibung)
+            </h2>
+            <p>
+              Wir schalten Anzeigen in KI-Assistenten und Suchmaschinen (z.&nbsp;B. Anzeigen in ChatGPT, OpenAI Ireland
+              Ltd., Dublin), die auf eine gesonderte Seite unseres Angebots führen. Beim Aufruf über eine Anzeige enthält
+              die Seitenadresse Kampagnenparameter (utm-Parameter) und ggf. eine Klick-Kennung des Anzeigenanbieters
+              (z.&nbsp;B. „oppref“). Diese Werte lesen wir nur aus der Adresse aus und halten sie für die Dauer des
+              Seitenbesuchs im Arbeitsspeicher Ihres Browsers; Cookies oder sonstige Speichervermerke auf Ihrem Endgerät
+              setzen wir hierfür nicht. Leadinfo wird auf dieser Seite nicht eingesetzt.
+            </p>
+            <p className="mt-3">
+              Senden Sie den Ersparnis-Rechner ab, speichern wir die Kampagnenparameter zusammen mit Ihrer Anfrage in
+              unserem CRM-System, um zu erkennen, über welche Anzeige die Anfrage entstanden ist (Art. 6 Abs. 1 S. 1
+              lit. f) DSGVO, berechtigtes Interesse an der Erfolgsmessung unserer Werbung). Zusätzlich übermitteln wir
+              dem Anzeigenanbieter serverseitig die Information, dass über den betreffenden Anzeigenklick eine Anfrage
+              entstanden ist (Ereignis „Lead“, Klick-Kennung, Zeitpunkt, Seitenadresse, rechnerische Ersparnis). Name,
+              Firma, E-Mail-Adresse und Telefonnummer werden dabei nicht übermittelt.
+            </p>
+            <p className="mt-3">
+              <strong>Preisangebot per WhatsApp:</strong> Nur wenn Sie im Rechner ausdrücklich zustimmen, senden wir
+              Ihnen Ihr Preisangebot und Rückfragen zu Ihrer Auswertung per WhatsApp (WhatsApp Ireland Ltd. / Meta
+              Platforms, Inc., USA; Übermittlung in die USA auf Grundlage des EU-US Data Privacy Framework).
+              Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 S. 1 lit. a) DSGVO, § 7 Abs. 2 Nr. 3 UWG); wir
+              dokumentieren sie mit Zeitpunkt, Wortlaut, Seitenadresse und IP-Adresse. Sie können die Einwilligung
+              jederzeit mit Wirkung für die Zukunft widerrufen, z.&nbsp;B. mit „Stopp“ im Chat oder per E-Mail an
+              info@merkalku.de. Ohne Einwilligung erhalten Sie Ihr Preisangebot telefonisch.
             </p>
           </section>
 

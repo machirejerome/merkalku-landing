@@ -36,6 +36,9 @@ const WANTED = [
   { name: "Kalkulation Tool", key: "kalkulation_tool", dataType: "SINGLE_OPTIONS", options: ["Excel", "Software", "Papier und Erfahrung"] },
   { name: "Ersparnis pro Monat EUR", key: "ersparnis_pro_monat_eur", dataType: "NUMERICAL" },
   { name: "Liegen gelassene Ausschreibungen", key: "liegen_gelassene_ausschreibungen", dataType: "SINGLE_OPTIONS", options: ["Keine", "1–2 pro Monat", "3–5 pro Monat", "mehr als 5"] },
+  /* Ads-Landingpage (Sep 2026): Einwilligungs-Nachweis für WhatsApp (UWG § 7) + Anzeigen-Herkunft */
+  { name: "WhatsApp Einwilligung", key: "whatsapp_einwilligung", dataType: "TEXT" },
+  { name: "Anzeigen Herkunft", key: "anzeigen_herkunft", dataType: "TEXT" },
 ];
 
 (async () => {

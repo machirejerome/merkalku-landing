@@ -1,4 +1,21 @@
 import { PRICING, berechneErsparnis } from "@/lib/pricing-config";
+import { getSql, ensureSchema } from "@/lib/db";
+
+/* Nach dem Absenden: Durchlauf in der eigenen Datenbank als abgeschickt markieren (nur Kontakt-ID, keine Kontaktdaten) */
+async function markiereAbgeschickt(args: { sid?: string; contactId: string; ersparnisEur: number; whatsappOk: boolean; quelle: string }) {
+  const sql = getSql();
+  if (!sql || !args.sid) return;
+  try {
+    await ensureSchema(sql);
+    await sql`INSERT INTO rechner_sessions (sid, quelle, abgeschickt, ghl_contact_id, ersparnis_eur, whatsapp_ok, gate_erreicht, schritt_max)
+              VALUES (${args.sid.slice(0, 40)}, ${args.quelle}, true, ${args.contactId}, ${args.ersparnisEur}, ${args.whatsappOk}, true, 6)
+              ON CONFLICT (sid) DO UPDATE SET abgeschickt = true, ghl_contact_id = EXCLUDED.ghl_contact_id,
+                ersparnis_eur = EXCLUDED.ersparnis_eur, whatsapp_ok = EXCLUDED.whatsapp_ok, gate_erreicht = true,
+                schritt_max = GREATEST(rechner_sessions.schritt_max, 6), aktualisiert_am = now()`;
+  } catch (err) {
+    console.warn("preisrechner-lead: Sitzung nicht markiert", err);
+  }
+}
 
 const GHL_BASE = "https://services.leadconnectorhq.com";
 
@@ -20,6 +37,8 @@ const FIELD_IDS = {
   kalkulationTool: "awaZWlCDSv7dJfVFkDqe",
   ersparnisProMonatEur: "a1IgBBTUOURUG1ECncv3",
   liegenGelassen: "9BU3bSe5a9Mt446ikmG1",
+  whatsappEinwilligung: "q2ke7iDrbtLdDzKZPajK",
+  anzeigenHerkunft: "7Wmn06i2tyQkPa7D9hD0",
 } as const;
 
 type LeadPayload = {
@@ -33,7 +52,89 @@ type LeadPayload = {
   kalkulationWer?: string;
   kalkulationTool?: string;
   zusatz?: string; // Honeypot – muss leer bleiben
+  /* Herkunft: "preisrechner" (Standard, /preisrechner) oder "lp-ausschreibung" (Ads-Landingpage) */
+  quelle?: string;
+  /* Anzeigen-Parameter, clientseitig beim ersten Seitenaufruf erfasst (utm_*, oppref, v, ref) */
+  utm?: Record<string, string>;
+  /* "Weiß ich nicht genau" bei den liegen gelassenen Ausschreibungen */
+  liegenUnklar?: boolean;
+  /* WhatsApp-Einwilligung (UWG § 7): eigener Haken, Wortlaut versioniert im Rechner */
+  whatsappEinwilligung?: boolean;
+  whatsappEinwilligungVersion?: string;
+  /* Seite, auf der das Formular stand (Nachweis der Einwilligung) */
+  seite?: string;
+  /* Zeitstempel (ms), ab dem das Gate sichtbar war: Bots füllen in Sekunden */
+  t0?: number;
+  /* Sitzungs-ID des Funnel-Zählers (nur im Speicher der Seite), verbindet Durchlauf und Lead */
+  sid?: string;
 };
+
+/* Junk-Schutz: eine neue Anzeigenplattform bringt einen unbekannten Bot-Anteil, und jeder Fake-Lead
+   löst eine WhatsApp an eine fremde Nummer aus. Deshalb: Mindestzeit im Gate, Nummern-Plausibilität
+   für DE/AT/CH, Rate-Limit je IP (best effort im Prozess, auf Vercel je Instanz). */
+const MINDESTZEIT_MS = 3000;
+const RATE_FENSTER_MS = 10 * 60 * 1000;
+const RATE_MAX = 5;
+const rateMap = new Map<string, number[]>();
+function rateLimitiert(ip: string): boolean {
+  if (!ip) return false;
+  const jetzt = Date.now();
+  const liste = (rateMap.get(ip) || []).filter((t) => jetzt - t < RATE_FENSTER_MS);
+  liste.push(jetzt);
+  rateMap.set(ip, liste);
+  if (rateMap.size > 5000) rateMap.clear();
+  return liste.length > RATE_MAX;
+}
+
+/* Plausibilität: Landesvorwahl DE/AT/CH und 8 bis 13 Ziffern danach */
+function telefonPlausibel(e164: string): boolean {
+  const m = /^\+(49|43|41)(\d{8,13})$/.exec(e164);
+  return !!m;
+}
+
+const QUELLEN = {
+  preisrechner: { kontaktQuelle: "Inbound_Organic", source: "Preisrechner merkalku.de", tags: ["preisrechner"] },
+  "lp-ausschreibung": { kontaktQuelle: "Ads", source: "LP Ausschreibung (Ads) merkalku.de", tags: ["preisrechner", "lp-ausschreibung"] },
+} as const;
+type QuelleKey = keyof typeof QUELLEN;
+
+/* UTM-Werte auf whitelisted Keys + harmlose Zeichen reduzieren, bevor sie ins CRM wandern */
+function utmKurz(utm: Record<string, string> | undefined): string {
+  if (!utm || typeof utm !== "object") return "";
+  const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "v", "oppref", "ref"];
+  const teile = keys
+    .filter((k) => typeof utm[k] === "string" && utm[k].trim())
+    .map((k) => `${k.replace("utm_", "")}=${utm[k].replace(/[^\w.\-\/ äöüÄÖÜß]/g, "").slice(0, 60)}`);
+  return teile.join(" ");
+}
+
+/* Conversion an OpenAI melden (Anzeigen in ChatGPT), rein serverseitig: kein Pixel, kein Cookie.
+   Läuft nur, wenn Pixel-ID und API-Token gesetzt sind; Fehler kosten nie den Lead. */
+async function meldeConversionAnOpenAI(args: { eventId: string; seite: string; oppref?: string; wert?: number; quelle: string }) {
+  const pixel = process.env.OPENAI_ADS_PIXEL_ID;
+  const token = process.env.OPENAI_ADS_API_TOKEN;
+  if (!pixel || !token) return;
+  const event: Record<string, unknown> = {
+    id: args.eventId,
+    type: "lead_created",
+    timestamp_ms: Date.now(),
+    action_source: "website",
+    source_url: args.seite,
+    data: { lead_type: args.quelle, value: args.wert, currency: "EUR" },
+  };
+  if (args.oppref) event.oppref = args.oppref;
+  try {
+    const res = await fetch(`https://bzr.openai.com/v1/events?pid=${encodeURIComponent(pixel)}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify([event]),
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) console.warn("preisrechner-lead: OpenAI-Conversion abgelehnt", res.status, await res.text());
+  } catch (err) {
+    console.warn("preisrechner-lead: OpenAI-Conversion nicht gesendet", err);
+  }
+}
 
 /* Deutsche Nummern nach E.164 normalisieren — GHL braucht das für den WhatsApp-Versand */
 function normalisiereTelefon(raw: string): string {
@@ -41,7 +142,7 @@ function normalisiereTelefon(raw: string): string {
   if (ziffern.startsWith("+")) return "+" + ziffern.slice(1).replace(/\D/g, "");
   if (ziffern.startsWith("00")) return "+" + ziffern.slice(2);
   if (ziffern.startsWith("0")) return "+49" + ziffern.slice(1);
-  if (ziffern.startsWith("49") && ziffern.length >= 11) return "+" + ziffern;
+  if (/^(49|43|41)\d{8,}$/.test(ziffern)) return "+" + ziffern;
   return "+49" + ziffern;
 }
 
@@ -66,6 +167,16 @@ export async function POST(request: Request) {
     console.warn("preisrechner-lead: Honeypot ausgelöst, Domain:", (data.email || "?").split("@")[1] || "?");
     return Response.json({ ok: true });
   }
+  const ipFruh = (request.headers.get("x-forwarded-for") || "").split(",")[0].trim().slice(0, 45);
+  if (rateLimitiert(ipFruh)) {
+    console.warn("preisrechner-lead: Rate-Limit, IP", ipFruh);
+    return Response.json({ ok: false, error: "rate" }, { status: 429 });
+  }
+  if (typeof data.t0 === "number" && Number.isFinite(data.t0) && Date.now() - data.t0 < MINDESTZEIT_MS && Date.now() - data.t0 >= 0) {
+    // Zu schnell für einen Menschen: still "ok" wie beim Honeypot, mit Log
+    console.warn("preisrechner-lead: Mindestzeit unterschritten", Math.round((Date.now() - data.t0) / 1000), "s");
+    return Response.json({ ok: true });
+  }
 
   const name = (data.name || "").trim();
   const firma = (data.firma || "").trim();
@@ -74,12 +185,19 @@ export async function POST(request: Request) {
   const ausschreibungen = Number(data.ausschreibungenProMonat);
   const stunden = Number(data.stundenProAusschreibung);
   const liegenGelassen = LIEGEN_OPTIONEN.includes(data.liegenGelassen || "") ? (data.liegenGelassen as string) : null;
+  const quelle: QuelleKey = data.quelle && data.quelle in QUELLEN ? (data.quelle as QuelleKey) : "preisrechner";
+  const herkunft = QUELLEN[quelle];
+  const utmInfo = utmKurz(data.utm);
+  const whatsappOk = data.whatsappEinwilligung === true;
+  const seite = typeof data.seite === "string" ? data.seite.slice(0, 500) : "";
+  const ip = (request.headers.get("x-forwarded-for") || "").split(",")[0].trim().slice(0, 45);
+  const jetzt = new Date();
 
   if (
     name.length < 2 ||
     firma.length < 2 ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ||
-    phone.replace(/\D/g, "").length < 8 ||
+    !telefonPlausibel(phone) ||
     !Number.isFinite(ausschreibungen) || ausschreibungen < 1 || ausschreibungen > 500 ||
     !Number.isFinite(stunden) || stunden <= 0 || stunden > 40
   ) {
@@ -91,7 +209,11 @@ export async function POST(request: Request) {
   const intentTrigger =
     `Preisrechner ${heute}: ${ausschreibungen} Ausschr./Monat, ` +
     `${stunden} h/Ausschr., ${data.kalkulationWer || "?"} mit ${data.kalkulationTool || "?"}` +
-    (liegenGelassen && liegenGelassen !== "Keine" ? `, lässt ${liegenGelassen} liegen` : "");
+    (liegenGelassen && liegenGelassen !== "Keine" ? `, lässt ${liegenGelassen} liegen` : "") +
+    (data.liegenUnklar ? ", liegen gelassen: unklar" : "") +
+    (quelle !== "preisrechner" ? ` | ${quelle}` : "") +
+    (utmInfo ? ` | ${utmInfo}` : "") +
+    (whatsappOk ? " | WhatsApp ok" : " | WhatsApp nein");
 
   const heiss =
     ausschreibungen >= PRICING.heissSchwelleAusschreibungen || liegenGelassen === "mehr als 5";
@@ -103,7 +225,7 @@ export async function POST(request: Request) {
   };
 
   const customFields: Array<{ id: string; value: string | number }> = [
-    { id: FIELD_IDS.kontaktQuelle, value: "Inbound_Organic" },
+    { id: FIELD_IDS.kontaktQuelle, value: herkunft.kontaktQuelle },
     { id: FIELD_IDS.originCohort, value: "Inbound" },
     { id: FIELD_IDS.pipelineStage, value: "Lead" },
     { id: FIELD_IDS.aktuelleTemperatur, value: heiss ? "Heiß" : "Warm" },
@@ -114,6 +236,16 @@ export async function POST(request: Request) {
   ];
   if (liegenGelassen) {
     customFields.push({ id: FIELD_IDS.liegenGelassen, value: liegenGelassen });
+  }
+  /* Einwilligungs-Nachweis: Ja/Nein, Zeitpunkt, Wortlaut-Version, Seite, IP (Beweislast liegt beim Werbenden) */
+  customFields.push({
+    id: FIELD_IDS.whatsappEinwilligung,
+    value: whatsappOk
+      ? `Ja | ${jetzt.toISOString()} | Wortlaut ${data.whatsappEinwilligungVersion || "?"} | ${seite || "?"} | IP ${ip || "?"}`
+      : `Nein | ${jetzt.toISOString()}`,
+  });
+  if (utmInfo) {
+    customFields.push({ id: FIELD_IDS.anzeigenHerkunft, value: utmInfo.slice(0, 250) });
   }
   if (data.kalkulationWer && KALKULATION_WER.includes(data.kalkulationWer)) {
     customFields.push({ id: FIELD_IDS.kalkulationWer, value: data.kalkulationWer });
@@ -134,7 +266,7 @@ export async function POST(request: Request) {
         email,
         phone,
         companyName: firma,
-        source: "Preisrechner merkalku.de",
+        source: herkunft.source,
       }),
     });
 
@@ -160,13 +292,20 @@ export async function POST(request: Request) {
       console.error("preisrechner-lead: Custom Fields fehlgeschlagen", fieldRes.status, await fieldRes.text());
     }
 
-    // Tag additiv setzen — triggert den GHL-Workflow (E-Mail/WhatsApp mit Preisangebot).
+    // Tags additiv setzen — "preisrechner" triggert den GHL-Workflow (E-Mail/WhatsApp mit Preisangebot),
+    // "lp-ausschreibung" markiert Leads der Ads-Landingpage für Auswertung und Filter.
     // Ohne Tag geht kein Angebot raus, deshalb harter Fehler mit einem Retry.
     const setzeTag = () =>
       fetch(`${GHL_BASE}/contacts/${contactId}/tags`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ tags: ["preisrechner"] }),
+        body: JSON.stringify({
+          tags: [
+            ...herkunft.tags,
+            whatsappOk ? "whatsapp-ok" : "whatsapp-nein",
+            ...(data.utm?.utm_source === "chatgpt" ? ["quelle:chatgpt-ads"] : []),
+          ],
+        }),
       });
     let tagRes = await setzeTag();
     if (!tagRes.ok) {
@@ -177,6 +316,16 @@ export async function POST(request: Request) {
       console.error("preisrechner-lead: Tag setzen fehlgeschlagen", tagRes.status, await tagRes.text());
       return Response.json({ ok: false, error: "crm" }, { status: 502 });
     }
+
+    await markiereAbgeschickt({ sid: data.sid, contactId, ersparnisEur, whatsappOk, quelle });
+
+    await meldeConversionAnOpenAI({
+      eventId: `lead-${contactId}`,
+      seite: seite || "https://merkalku.de/",
+      oppref: data.utm?.oppref,
+      wert: ersparnisEur,
+      quelle,
+    });
 
     return Response.json({ ok: true });
   } catch (err) {
