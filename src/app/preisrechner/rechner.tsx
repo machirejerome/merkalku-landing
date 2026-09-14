@@ -162,9 +162,6 @@ function Ergebnis({
   /* KLEIN: Ersparnis (Standardsatz) unter der Schwelle → Argument über liegen gelassene Ausschreibungen, WhatsApp zuerst */
   const klein = basis.ersparnisEur < PRICING.kleinSchwelleEur;
   const mkStd = merkalkuStunden(stunden);
-  /* Reine Rechenfolge: frei werdende Stunden geteilt durch bisherige Dauer = zusätzlich machbare Ausschreibungen */
-  const zusatz = Math.floor(basis.gesparteStunden / stunden);
-  const liegenMax = liegenGelassen === "1–2 pro Monat" ? 2 : liegenGelassen === "3–5 pro Monat" ? 5 : liegenGelassen === "mehr als 5" ? 6 : 0;
   const nichtInhaber = wer !== null && wer !== "Ich selbst (Inhaber)";
 
   return (
@@ -223,10 +220,9 @@ function Ergebnis({
             {Math.round(basis.istStunden).toLocaleString("de-DE")} Stunden im Monat
           </strong>{" "}
           in Ausschreibungen ({anzahlLabel}, {stundenLabel} je Stück).
-          {zusatz >= 1 && (
+          {liegtEtwas && (
             <>
-              {" "}Mit den frei werdenden Stunden wären bei eurer Dauer rund {zusatz} {zusatz === 1 ? "Ausschreibung" : "Ausschreibungen"} mehr im Monat zeitlich drin.
-              {liegtEtwas && (zusatz >= liegenMax ? ` Also auch die ${liegenGelassen}, die ihr heute liegen lasst.` : ` Also zum Teil auch die ${liegenGelassen}, die ihr heute liegen lasst.`)}
+              {" "}Die Ausschreibungen, die ihr heute liegen lasst ({liegenGelassen}), wären zeitlich drin.
             </>
           )}
         </p>
@@ -242,9 +238,9 @@ function Ergebnis({
           </summary>
           <div className="text-xs mt-2 leading-relaxed space-y-1" style={{ color: "var(--color-text-muted)" }}>
             <p>
-              Anzahl × (bisherige Dauer − {mkStd * 60} Minuten mit MerKalku
-              {mkStd >= 1 ? ", weil bei Ausschreibungen ab 4 Stunden Aufwand mit 1 Stunde gerechnet wird" : ", bei Ausschreibungen ab 4 Stunden Aufwand mit 1 Stunde"}) = frei werdende Stunden.
-              Mal {satz} € je Bürostunde = Ersparnis in Euro.
+              Eure Dauer heute: {stundenLabel} je Ausschreibung. Mit MerKalku gerechnet: {mkStd * 60} Minuten je Ausschreibung
+              {mkStd >= 1 ? " (ab 4 Stunden bisherigem Aufwand rechnen wir mit 1 Stunde statt 30 Minuten)" : ""}.
+              Anzahl × (eure Dauer − {mkStd * 60} Minuten) = frei werdende Stunden. Mal {satz} € je Bürostunde = Ersparnis in Euro.
             </p>
             <p>
               Mit MerKalku dauert eine Ausschreibung meist 10 bis 30 Minuten, große Vergabeunterlagen unter einer Stunde: die KI liest die
