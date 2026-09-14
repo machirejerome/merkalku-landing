@@ -3,8 +3,9 @@
 export const BILDER = {
   /** Station 1: Import-Übersicht. Vorhanden: Poster der Format-Animation. */
   import: "/hero-poster.webp",
-  /** Schritt 2: Zusammenfassung der Vergabeunterlagen mit dem Knopf "Kalkulation fortsetzen".
-      Das ist der Entscheidungs-Moment. Ortsnennungen durch Musterdaten ersetzt, 1400 px, WebP. */
+  /** Schritt 2: Zusammenfassung der Vergabeunterlagen (Zuschlagskriterien, Hauptleistungspflichten)
+      mit dem Knopf "Kalkulation fortsetzen". Das ist der Entscheidungs-Moment. 1400 px, WebP.
+      Enthält keine Objekt- oder Kundendaten. */
   zusammenfassung: "/zusammenfassung.webp",
   /** Abgabecheckliste mit Quellenangabe je Pflichtpunkt. Aktuell nicht eingebunden,
       passt inhaltlich zu Schritt 4 (Freigeben) und taugt als Anzeigenbild. */
