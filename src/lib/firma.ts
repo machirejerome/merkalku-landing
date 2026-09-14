@@ -14,5 +14,5 @@ export const FIRMA = {
   hrb: "HRB 759441",
   gegruendet: "Juni 2026",
   /* Pfad zum echten Gründerfoto unter /public, leer = kein Bild (kein Stockfoto als Ersatz) */
-  foto: "",
+  foto: "/jerome.webp",
 } as const;

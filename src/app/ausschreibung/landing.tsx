@@ -118,8 +118,14 @@ function Ablauf() {
             <li key={s.w} className="text-base leading-relaxed">
               <span className="font-semibold">{i + 1}. {s.w}</span> {s.t}
               {i === 1 && BILDER.pruefansicht ? (
-                <figure className="m-0 mt-3 rounded-2xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
-                  <img src={BILDER.pruefansicht} alt="Zusammenfassung der Vergabeunterlagen in MerKalku, anonymisiert" className="w-full h-auto block" loading="lazy" decoding="async" />
+                /* Auf dem Handy aus dem Textrahmen ausbrechen, sonst ist der Screenshot zu klein zum Erkennen */
+                <figure className="m-0 mt-4 -mx-6 sm:mx-0">
+                  <div className="overflow-hidden sm:rounded-2xl" style={{ border: "1px solid var(--color-border)", borderLeftWidth: 0, borderRightWidth: 0 }}>
+                    <img src={BILDER.pruefansicht} alt="MerKalku zeigt die Zusammenfassung der Vergabeunterlagen, darunter die Checkliste der Pflichtpunkte mit Quellenangabe" className="w-full h-auto block" loading="lazy" decoding="async" width={1400} height={929} />
+                  </div>
+                  <figcaption className="text-xs mt-2 px-6 sm:px-0" style={{ color: "var(--color-text-faint)" }}>
+                    Die Zusammenfassung in MerKalku, darunter die Pflichtpunkte mit Quelle und Seitenzahl. Objektdaten im Beispiel ersetzt.
+                  </figcaption>
                 </figure>
               ) : null}
             </li>

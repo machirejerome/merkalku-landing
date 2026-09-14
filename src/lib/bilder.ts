@@ -3,8 +3,9 @@
 export const BILDER = {
   /** Station 1: Import-Übersicht. Vorhanden: Poster der Format-Animation. */
   import: "/hero-poster.webp",
-  /** Station 2 + Hero (Story-Layout) + Anzeigenbild: Prüfansicht, Original-PDF links, erkannte Räume rechts */
-  pruefansicht: "",
+  /** Schritt 2 + Anzeigenbild: Zusammenfassung der Vergabeunterlagen mit Checkliste und Quellen.
+      Objektdaten durch Musterdaten ersetzt, 1400 px, WebP. */
+  pruefansicht: "/pruefansicht.webp",
   /** Station 3: Kalkulationsansicht (Stunden, Lohnkosten, Zuschläge, Deckungsbeitrag) */
   kalkulation: "",
   /** Schritt 4: Angebot, anonymisiert */
