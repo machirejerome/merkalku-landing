@@ -133,18 +133,11 @@ export function KalenderZweiKlick({ prominent }: { prominent: boolean }) {
   );
 }
 
-const WERKZEUG_SATZ: Record<string, string> = {
-  Excel: "Eure Excel-Kalkulation bleibt, wenn ihr wollt. MerKalku übernimmt finden, lesen und ausfüllen davor.",
-  "Eine Software": "Eure Kalkulation bleibt, wenn ihr wollt. MerKalku übernimmt finden, lesen und ausfüllen davor; die Übergabe klären wir im Praxischeck.",
-  "Papier und Erfahrung": "Von den Vergabeunterlagen zur ausgefüllten Kalkulation, ohne Abtippen.",
-};
-
 function Ergebnis({
   anzahl,
   stunden,
   liegenGelassen,
   wer,
-  tool,
   whatsappOk,
   heiss,
 }: {
@@ -152,7 +145,6 @@ function Ergebnis({
   stunden: number;
   liegenGelassen: string | null;
   wer: string | null;
-  tool: string | null;
   whatsappOk: boolean;
   heiss: boolean;
 }) {
@@ -238,11 +230,6 @@ function Ergebnis({
             </>
           )}
         </p>
-        {tool && WERKZEUG_SATZ[tool] && (
-          <p className="text-sm leading-relaxed mt-2" style={{ color: "var(--color-text-muted)" }}>
-            {WERKZEUG_SATZ[tool]}
-          </p>
-        )}
         {klein && (
           <p className="text-sm leading-relaxed mt-2" style={{ color: "var(--color-text)" }}>
             Bei eurem Volumen rechnet sich MerKalku vor allem über die Ausschreibungen, die heute liegen bleiben.
@@ -752,7 +739,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
 
         {/* Ergebnis */}
         {step === RESULT_STEP && anzahl !== null && stunden !== null && (
-          <Ergebnis anzahl={anzahl} stunden={stunden} liegenGelassen={liegenGelassen} wer={wer} tool={tool} whatsappOk={whatsappOk} heiss={heiss} />
+          <Ergebnis anzahl={anzahl} stunden={stunden} liegenGelassen={liegenGelassen} wer={wer} whatsappOk={whatsappOk} heiss={heiss} />
         )}
     </div>
   );
