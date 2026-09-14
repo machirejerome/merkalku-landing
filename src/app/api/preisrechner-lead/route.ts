@@ -1,6 +1,20 @@
 import { PRICING, berechneErsparnis } from "@/lib/pricing-config";
 import { getSql, ensureSchema } from "@/lib/db";
 
+/* Stille Verwerfung (Honeypot, Mindestzeit) in der eigenen Datenbank festhalten, damit ein
+   geschluckter Lead nie unsichtbar bleibt. Der Absender sieht trotzdem sein Ergebnis. */
+async function markiereVerworfen(sid: string | undefined, grund: string) {
+  const sql = getSql();
+  if (!sql || !sid) return;
+  try {
+    await ensureSchema(sql);
+    await sql`INSERT INTO rechner_sessions (sid, verworfen, gate_erreicht, schritt_max) VALUES (${sid.slice(0, 40)}, ${grund}, true, 5)
+              ON CONFLICT (sid) DO UPDATE SET verworfen = EXCLUDED.verworfen, gate_erreicht = true, aktualisiert_am = now()`;
+  } catch (err) {
+    console.warn("preisrechner-lead: Verwerfung nicht markiert", err);
+  }
+}
+
 /* Nach dem Absenden: Durchlauf in der eigenen Datenbank als abgeschickt markieren (nur Kontakt-ID, keine Kontaktdaten) */
 async function markiereAbgeschickt(args: { sid?: string; contactId: string; ersparnisEur: number; whatsappOk: boolean; quelle: string }) {
   const sql = getSql();
@@ -72,7 +86,9 @@ type LeadPayload = {
 /* Junk-Schutz: eine neue Anzeigenplattform bringt einen unbekannten Bot-Anteil, und jeder Fake-Lead
    löst eine WhatsApp an eine fremde Nummer aus. Deshalb: Mindestzeit im Gate, Nummern-Plausibilität
    für DE/AT/CH, Rate-Limit je IP (best effort im Prozess, auf Vercel je Instanz). */
-const MINDESTZEIT_MS = 3000;
+/* Gemessen ab der ersten Rechner-Antwort (nicht ab dem Formular): unter 5 Sekunden für 5 Fragen
+   plus 4 Felder schafft kein Mensch, auch nicht mit Autofill */
+const MINDESTZEIT_MS = 5000;
 const RATE_FENSTER_MS = 10 * 60 * 1000;
 const RATE_MAX = 5;
 const rateMap = new Map<string, number[]>();
@@ -165,6 +181,7 @@ export async function POST(request: Request) {
   // damit False Positives (Autofill echter Nutzer) auffallen würden
   if (data.zusatz) {
     console.warn("preisrechner-lead: Honeypot ausgelöst, Domain:", (data.email || "?").split("@")[1] || "?");
+    await markiereVerworfen(data.sid, "honeypot");
     return Response.json({ ok: true });
   }
   const ipFruh = (request.headers.get("x-forwarded-for") || "").split(",")[0].trim().slice(0, 45);
@@ -175,6 +192,7 @@ export async function POST(request: Request) {
   if (typeof data.t0 === "number" && Number.isFinite(data.t0) && Date.now() - data.t0 < MINDESTZEIT_MS && Date.now() - data.t0 >= 0) {
     // Zu schnell für einen Menschen: still "ok" wie beim Honeypot, mit Log
     console.warn("preisrechner-lead: Mindestzeit unterschritten", Math.round((Date.now() - data.t0) / 1000), "s");
+    await markiereVerworfen(data.sid, `mindestzeit ${Math.round((Date.now() - data.t0) / 1000)}s`);
     return Response.json({ ok: true });
   }
 

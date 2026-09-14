@@ -8,7 +8,7 @@ import { getSql } from "@/lib/db";
 const SPALTEN = [
   "sid", "erstellt_am", "aktualisiert_am", "quelle", "variante", "utm_source", "utm_campaign", "utm_content", "oppref",
   "schritt_max", "gate_erreicht", "abgeschickt", "anzahl", "stunden", "liegen_gelassen", "wer", "tool",
-  "ersparnis_eur", "whatsapp_ok", "ghl_contact_id", "user_agent",
+  "ersparnis_eur", "whatsapp_ok", "verworfen", "ghl_contact_id", "user_agent",
 ];
 
 function csvZelle(v: unknown): string {
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     SELECT sid, erstellt_am, aktualisiert_am, quelle, variante,
            utm->>'utm_source' AS utm_source, utm->>'utm_campaign' AS utm_campaign, utm->>'utm_content' AS utm_content, utm->>'oppref' AS oppref,
            schritt_max, gate_erreicht, abgeschickt, anzahl, stunden, liegen_gelassen, wer, tool,
-           ersparnis_eur, whatsapp_ok, ghl_contact_id, user_agent
+           ersparnis_eur, whatsapp_ok, verworfen, ghl_contact_id, user_agent
     FROM rechner_sessions
     WHERE erstellt_am > now() - (${tage} || ' days')::interval
     ORDER BY erstellt_am DESC`) as Record<string, unknown>[];

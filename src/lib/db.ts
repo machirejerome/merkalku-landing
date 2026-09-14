@@ -39,6 +39,7 @@ export async function ensureSchema(sql: Sql) {
       ghl_contact_id   text,
       ersparnis_eur    numeric,
       whatsapp_ok      boolean,
+      verworfen        text,
       user_agent       text,
       erstellt_am      timestamptz NOT NULL DEFAULT now(),
       aktualisiert_am  timestamptz NOT NULL DEFAULT now()
@@ -56,6 +57,7 @@ export async function ensureSchema(sql: Sql) {
       wert      numeric,
       t         timestamptz NOT NULL DEFAULT now()
     )`;
+  await sql`ALTER TABLE rechner_sessions ADD COLUMN IF NOT EXISTS verworfen text`;
   await sql`CREATE INDEX IF NOT EXISTS funnel_events_sid_idx ON funnel_events (sid)`;
   await sql`CREATE INDEX IF NOT EXISTS rechner_sessions_erstellt_idx ON rechner_sessions (erstellt_am DESC)`;
 }

@@ -407,9 +407,10 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
     }
   }, [STORAGE_KEY, quelle, step, anzahl, stunden, liegenGelassen, wer, tool, whatsappOk, fertig]);
 
-  /* Zeitpunkt merken, ab dem das Gate sichtbar ist (Junk-Schutz: Bots füllen in Sekunden) */
+  /* Zeitpunkt der ersten Antwort merken (Junk-Schutz: ein Mensch braucht für 5 Fragen plus Formular
+     länger als ein paar Sekunden; Autofill im Formular selbst darf nicht als Bot zählen) */
   useEffect(() => {
-    if (step === GATE_STEP && !gateSeit.current) gateSeit.current = Date.now();
+    if (step >= 1 && !gateSeit.current) gateSeit.current = Date.now();
   }, [step]);
 
   /* Bei jedem Schrittwechsel: nach oben (eingebettet: zum Rechner) und Fokus auf die neue Frage.

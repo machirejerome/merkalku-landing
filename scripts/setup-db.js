@@ -33,6 +33,7 @@ if (!process.env.DATABASE_URL) {
     CREATE TABLE IF NOT EXISTS funnel_events (
       id bigserial PRIMARY KEY, sid text, event text NOT NULL, schritt int, quelle text, variante text,
       herkunft text, pfad text, wert numeric, t timestamptz NOT NULL DEFAULT now())`;
+  await sql`ALTER TABLE rechner_sessions ADD COLUMN IF NOT EXISTS verworfen text`;
   await sql`CREATE INDEX IF NOT EXISTS funnel_events_sid_idx ON funnel_events (sid)`;
   await sql`CREATE INDEX IF NOT EXISTS rechner_sessions_erstellt_idx ON rechner_sessions (erstellt_am DESC)`;
   const [{ count }] = await sql`SELECT count(*)::int AS count FROM rechner_sessions`;
