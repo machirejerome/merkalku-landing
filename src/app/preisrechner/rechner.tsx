@@ -8,7 +8,6 @@ import {
   ANZAHL_KLASSEN,
   STUNDEN_KLASSEN,
   berechneErsparnis,
-  berechneSpanne,
   merkalkuStunden,
 } from "@/lib/pricing-config";
 import { FIRMA } from "@/lib/firma";
@@ -123,15 +122,13 @@ export function KalenderZweiKlick({ prominent }: { prominent: boolean }) {
           Termin wählen
         </button>
       )}
-      <p className="text-xs mt-3" style={{ color: "var(--color-text-faint)" }}>
-        {laden ? (
+      {laden && (
+        <p className="text-xs mt-3" style={{ color: "var(--color-text-faint)" }}>
           <a href={CALENDAR_URL} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-70">
             Kalender lädt nicht? Termin hier direkt buchen
           </a>
-        ) : (
-          "Der Klick lädt den Kalender von GoHighLevel (USA)."
-        )}
-      </p>
+        </p>
+      )}
     </div>
   );
 }
@@ -164,7 +161,6 @@ function Ergebnis({
   const [satz, setSatz] = useState<number>(PRICING.stundensatzEur);
   const [satzOffen, setSatzOffen] = useState(false);
   const basis = berechneErsparnis(anzahl, stunden);
-  const spanne = berechneSpanne(anzahl, stunden);
   const gesparteStunden = Math.round(basis.gesparteStunden);
   const ersparnisEur = Math.round((basis.gesparteStunden * satz) / 10) * 10;
   const animiert = useCountUp(gesparteStunden, 1000);
@@ -198,24 +194,19 @@ function Ergebnis({
           rund {animiert.toLocaleString("de-DE")}
         </p>
         <span className="sr-only">rund {gesparteStunden.toLocaleString("de-DE")} Stunden pro Monat</span>
-        {spanne && spanne.max > spanne.min && (
-          <p className="text-sm mt-2" style={{ color: "var(--color-text-muted)" }}>
-            je nach Monat zwischen {spanne.min.toLocaleString("de-DE")} und {spanne.max.toLocaleString("de-DE")} Stunden
-          </p>
-        )}
         <p className={klein ? "text-sm mt-4 font-semibold" : "text-base mt-4 font-semibold"} style={{ color: "var(--color-text)" }}>
           ≈ {ersparnisEur.toLocaleString("de-DE")} € pro Monat
           <span className="font-normal text-sm" style={{ color: "var(--color-text-muted)" }}>
             {" "}bei {satz} € je Bürostunde{" "}
             <button type="button" onClick={() => setSatzOffen((o) => !o)} className="underline hover:opacity-70">
-              {satzOffen ? "fertig" : "ändern"}
+              {satzOffen ? "übernehmen" : "Kostensatz anpassen"}
             </button>
           </span>
         </p>
         {satzOffen && (
           <div className="mt-3 flex items-center justify-center gap-2">
             <label htmlFor="satz" className="text-sm" style={{ color: "var(--color-text-muted)" }}>
-              Euer Stundensatz im Büro:
+              Euer Kostensatz je Bürostunde:
             </label>
             <input
               id="satz"
