@@ -226,6 +226,13 @@ function Ergebnis({
               {" "}Die Ausschreibungen, die ihr heute liegen lasst ({liegenGelassen}), wären zeitlich drin.
             </>
           )}
+          {zusatzZeitlich >= 3 && (
+            <>
+              {liegtEtwas
+                ? " Darüber hinaus bleibt Zeit für deutlich mehr Ausschreibungen und Angebote."
+                : " Mit der frei werdenden Zeit sind deutlich mehr Ausschreibungen und Angebote drin."}
+            </>
+          )}
         </p>
         {klein && (
           <p className="text-sm leading-relaxed mt-2" style={{ color: "var(--color-text)" }}>
