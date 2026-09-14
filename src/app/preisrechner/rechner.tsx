@@ -162,6 +162,7 @@ function Ergebnis({
   /* KLEIN: Ersparnis (Standardsatz) unter der Schwelle → Argument über liegen gelassene Ausschreibungen, WhatsApp zuerst */
   const klein = basis.ersparnisEur < PRICING.kleinSchwelleEur;
   const mkStd = merkalkuStunden(stunden);
+  const zusatzZeitlich = Math.floor(basis.gesparteStunden / mkStd);
   const nichtInhaber = wer !== null && wer !== "Ich selbst (Inhaber)";
 
   return (
@@ -242,6 +243,13 @@ function Ergebnis({
               {mkStd >= 1 ? " (ab 4 Stunden bisherigem Aufwand rechnen wir mit 1 Stunde statt 30 Minuten)" : ""}.
               Anzahl × (eure Dauer − {mkStd * 60} Minuten) = frei werdende Stunden. Mal {satz} € je Bürostunde = Ersparnis in Euro.
             </p>
+            {zusatzZeitlich >= 1 && (
+              <p>
+                Rein zeitlich wären mit den frei werdenden Stunden {zusatzZeitlich.toLocaleString("de-DE")} Ausschreibungen mehr im Monat möglich
+                ({Math.round(basis.gesparteStunden).toLocaleString("de-DE")} Stunden geteilt durch {mkStd * 60} Minuten). Ob so viele passende
+                ausgeschrieben werden und ob ihr die Aufträge personell stemmt, steht auf einem anderen Blatt.
+              </p>
+            )}
             <p>
               Mit MerKalku dauert eine Ausschreibung meist 10 bis 30 Minuten, große Vergabeunterlagen unter einer Stunde: die KI liest die
               Unterlagen und füllt die Kalkulation mit euren Leistungswerten und Kostensätzen, du prüfst und gibst frei.
