@@ -90,8 +90,10 @@ function ChoiceButton({ label, selected, onClick }: { label: string; selected: b
 
 /* Kalender erst nach Klick laden (Zwei-Klick-Lösung): das GoHighLevel-Widget liegt in den USA
    und soll nicht ohne Zutun des Nutzers geladen werden. Nebeneffekt: kein iframe im ersten Viewport. */
-export function KalenderZweiKlick({ prominent }: { prominent: boolean }) {
-  const [laden, setLaden] = useState(false);
+export function KalenderZweiKlick({ prominent, stunden }: { prominent: boolean; stunden?: number }) {
+  useEffect(() => {
+    trackEvent("kalender_geoeffnet", {});
+  }, []);
   return (
     <div
       className="rounded-2xl p-6 sm:p-8"
@@ -101,34 +103,23 @@ export function KalenderZweiKlick({ prominent }: { prominent: boolean }) {
         borderTop: prominent ? "3px solid var(--color-primary)" : undefined,
       }}
     >
-      <h2 className="text-xl font-bold tracking-tight mb-2">Lieber gleich an eurer eigenen Ausschreibung?</h2>
+      <h2 className="text-xl font-bold tracking-tight mb-2">
+        {typeof stunden === "number" && stunden > 0
+          ? `Du hast gerade ${stunden.toLocaleString("de-DE")} Stunden ausgerechnet.`
+          : "Lieber gleich an eurer eigenen Ausschreibung?"}
+      </h2>
       <p className="text-sm mb-5 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-        30 Minuten mit {FIRMA.geschaeftsfuehrer}. Bring die Vergabeunterlagen mit, die gerade auf dem Tisch liegen, wir lesen sie
-        live ein und du siehst eure Kalkulation statt Demo-Daten. Kostenlos.
+        Sehen wir uns an, ob das bei euch wirklich so ist. 30 Minuten mit {FIRMA.geschaeftsfuehrer}: bring die Ausschreibung mit,
+        die gerade auf dem Tisch liegt, wir lesen die Vergabeunterlagen live ein und du siehst eure Kalkulation statt Demo-Daten. Kostenlos.
       </p>
-      {laden ? (
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
-          <iframe src={CALENDAR_URL} className="w-full border-0" style={{ minHeight: "750px" }} title="Praxischeck buchen" />
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => {
-            setLaden(true);
-            trackEvent("kalender_geoeffnet", {});
-          }}
-          className="btn-primary w-full sm:w-auto px-7 py-4 text-base font-semibold rounded-xl transition-all duration-200 hover:-translate-y-0.5"
-        >
-          Termin wählen
-        </button>
-      )}
-      {laden && (
-        <p className="text-xs mt-3" style={{ color: "var(--color-text-faint)" }}>
-          <a href={CALENDAR_URL} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-70">
-            Kalender lädt nicht? Termin hier direkt buchen
-          </a>
-        </p>
-      )}
+      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
+        <iframe src={CALENDAR_URL} className="w-full border-0" style={{ minHeight: "750px" }} title="Praxischeck buchen" />
+      </div>
+      <p className="text-xs mt-3" style={{ color: "var(--color-text-faint)" }}>
+        <a href={CALENDAR_URL} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-70">
+          Kalender lädt nicht? Termin hier direkt buchen
+        </a>
+      </p>
     </div>
   );
 }
@@ -281,7 +272,7 @@ function Ergebnis({
       </div>
 
       {/* Einziger Nebenweg: der Kalender, bei Heiß-Leads hervorgehoben */}
-      <KalenderZweiKlick prominent={heiss && !klein} />
+      <KalenderZweiKlick prominent={heiss && !klein} stunden={gesparteStunden} />
     </div>
   );
 }

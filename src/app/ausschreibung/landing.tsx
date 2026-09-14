@@ -111,6 +111,7 @@ function Ablauf() {
         </h2>
         <p className="text-base leading-relaxed mb-6" style={{ color: "var(--color-text-muted)" }}>
           Heute heißt das: Vergabeunterlagen lesen, Raumbuch abtippen, Turnus je Raum raussuchen, Flächen übertragen. Erst dann wird kalkuliert.
+          Und eine übersehene Position fällt erst auf, wenn das Angebot längst draußen ist.
         </p>
         <ol className="space-y-3 pl-0 list-none m-0">
           {schritte.map((s, i) => (
@@ -166,7 +167,10 @@ function Schluss() {
   return (
     <section className="py-14 sm:py-20 px-6" style={{ background: "var(--color-bg-card)" }}>
       <div className="max-w-2xl mx-auto text-center">
-        <h2 className="text-2xl sm:text-[2rem] font-bold tracking-tight mb-6 leading-tight">Was kosten euch Ausschreibungen heute?</h2>
+        <h2 className="text-2xl sm:text-[2rem] font-bold tracking-tight mb-3 leading-tight">Liegt gerade eine Ausschreibung auf dem Tisch?</h2>
+        <p className="text-base leading-relaxed mb-6" style={{ color: "var(--color-text-muted)" }}>
+          Dann rechne in keiner Minute aus, was sie euch kostet.
+        </p>
         <div className={FIRMA.foto ? "flex flex-col sm:flex-row items-center gap-5 text-left" : ""}>
           {FIRMA.foto ? (
             <img src={FIRMA.foto} alt={`${FIRMA.geschaeftsfuehrer}, Gründer von MerKalku`} width={96} height={96} className="rounded-2xl object-cover shrink-0" style={{ width: 96, height: 96 }} />
