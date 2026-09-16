@@ -1,6 +1,5 @@
 /* Zentrale Stellschrauben des Preisrechners.
-   Preis selbst wird NICHT auf der Seite angezeigt — er geht per GHL-Automation
-   (E-Mail/WhatsApp) raus. Hier stehen nur die Rechen-Annahmen der Ersparnis. */
+   Enthält keine Preise: hier stehen nur die Rechen-Annahmen der Ersparnis. */
 
 export const PRICING = {
   /** Kalkulatorischer Stundensatz für die Ersparnis-Rechnung (konservativ) */

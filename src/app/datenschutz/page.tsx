@@ -292,9 +292,9 @@ export default function Datenschutz() {
             <p>
               Bei Nutzung unseres Preisrechners verarbeiten wir die von Ihnen im Formular angegebenen Daten
               (Name, Firma, E-Mail-Adresse, Telefonnummer) sowie Ihre Angaben zu Ausschreibungsvolumen und
-              Kalkulationsaufwand. Zweck der Verarbeitung ist die Erstellung Ihrer Auswertung, die Zusendung des
-              von Ihnen angeforderten Preisangebots per E-Mail und WhatsApp sowie die anschließende
-              Kontaktaufnahme zu Ihrer Anfrage. Die Daten werden in unserem CRM-System gespeichert
+              Kalkulationsaufwand. Zweck der Verarbeitung ist die Erstellung Ihrer Auswertung, die Zusendung
+              dieser Auswertung per E-Mail sowie die anschließende Kontaktaufnahme zu Ihrer Anfrage per WhatsApp
+              oder telefonisch, in der wir Ihnen auch die Preisauskunft geben. Die Daten werden in unserem CRM-System gespeichert
               (HighLevel Inc., USA; die Übermittlung ist durch EU-Standardvertragsklauseln abgesichert).
               Rechtsgrundlagen: Durchführung vorvertraglicher Maßnahmen (Art. 6 Abs. 1 S. 1 lit. b) DSGVO)
               sowie berechtigte Interessen (Art. 6 Abs. 1 S. 1 lit. f) DSGVO). Ihre Antworten im Rechner werden
@@ -326,13 +326,13 @@ export default function Datenschutz() {
               Firma, E-Mail-Adresse und Telefonnummer werden dabei nicht übermittelt.
             </p>
             <p className="mt-3">
-              <strong>Preisangebot per WhatsApp:</strong> Nur wenn Sie im Rechner ausdrücklich zustimmen, senden wir
-              Ihnen Ihr Preisangebot und Rückfragen zu Ihrer Auswertung per WhatsApp (WhatsApp Ireland Ltd. / Meta
+              <strong>Kontakt per WhatsApp:</strong> Nur wenn Sie im Rechner ausdrücklich zustimmen, kontaktieren wir
+              Sie zu Ihrer Auswertung und zum Preis per WhatsApp (WhatsApp Ireland Ltd. / Meta
               Platforms, Inc., USA; Übermittlung in die USA auf Grundlage des EU-US Data Privacy Framework).
               Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 S. 1 lit. a) DSGVO, § 7 Abs. 2 Nr. 3 UWG); wir
               dokumentieren sie mit Zeitpunkt, Wortlaut, Seitenadresse und IP-Adresse. Sie können die Einwilligung
               jederzeit mit Wirkung für die Zukunft widerrufen, z.&nbsp;B. mit „Stopp“ im Chat oder per E-Mail an
-              info@merkalku.de. Ohne Einwilligung erhalten Sie Ihr Preisangebot telefonisch.
+              info@merkalku.de. Ohne Einwilligung rufen wir Sie stattdessen an.
             </p>
           </section>
 

@@ -44,9 +44,9 @@ const GATE_STEP = 5;
 const RESULT_STEP = 6;
 
 /* Wortlaut der WhatsApp-Einwilligung. Versioniert, damit der Nachweis in GHL eindeutig ist. */
-export const WHATSAPP_EINWILLIGUNG_VERSION = "v3";
+export const WHATSAPP_EINWILLIGUNG_VERSION = "v4";
 export const WHATSAPP_EINWILLIGUNG_TEXT =
-  `Preisangebot und Rückfragen per WhatsApp an diese Nummer, jederzeit mit „Stopp“ beendbar.`;
+  `Rückfragen zu meiner Auswertung und zum Preis per WhatsApp an diese Nummer, jederzeit mit „Stopp“ beendbar.`;
 
 function useCountUp(target: number, duration = 1000) {
   const [val, setVal] = useState(0);
@@ -110,7 +110,8 @@ export function KalenderZweiKlick({ prominent, stunden }: { prominent: boolean; 
       </h2>
       <p className="text-sm mb-5 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
         Sehen wir uns an, ob das bei euch wirklich so ist. 30 Minuten mit {FIRMA.geschaeftsfuehrer}: bring die Ausschreibung mit,
-        die gerade auf dem Tisch liegt, wir lesen die Vergabeunterlagen live ein und du siehst eure Kalkulation statt Demo-Daten. Kostenlos.
+        die gerade auf dem Tisch liegt, wir lesen die Vergabeunterlagen live ein und du siehst eure Kalkulation statt Demo-Daten.
+        Am Ende weißt du, was MerKalku bei euch kostet. Kostenlos.
       </p>
       <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
         <iframe src={CALENDAR_URL} className="w-full border-0" style={{ minHeight: "750px" }} title="Praxischeck buchen" />
@@ -264,11 +265,15 @@ function Ergebnis({
           <li>
             2.{" "}
             {whatsappOk
-              ? `${FIRMA.geschaeftsfuehrer} schickt dir dein persönliches Preisangebot per WhatsApp, innerhalb eines Werktags.`
-              : `${FIRMA.geschaeftsfuehrer} ruft dich kurz an und nennt dir dein persönliches Preisangebot, innerhalb eines Werktags.`}
+              ? `${FIRMA.geschaeftsfuehrer} schreibt dir per WhatsApp, innerhalb eines Werktags.`
+              : `${FIRMA.geschaeftsfuehrer} ruft dich kurz an, innerhalb eines Werktags.`}
           </li>
-          <li>3. Wenn du willst: 30 Minuten Praxischeck an eurer eigenen Ausschreibung.</li>
+          <li>3. Im Gespräch sagt er dir, was MerKalku bei euch kostet.</li>
         </ol>
+        <p className="text-xs mt-3 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
+          Den Preis nennt {FIRMA.geschaeftsfuehrer.split(" ")[0]} im Gespräch, nicht vorher. Nicht um dich hinzuhalten,
+          sondern weil er erst sehen will, ob MerKalku bei euren Ausschreibungen trägt. Wenn nicht, sagt er dir das.
+        </p>
       </div>
 
       {/* Einziger Nebenweg: der Kalender, bei Heiß-Leads hervorgehoben */}
@@ -651,7 +656,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
             </Frage>
             <p className="text-sm mb-5" style={{ color: "var(--color-text-muted)" }}>
               {wer !== null && wer !== "Ich selbst (Inhaber)" ? "Per E-Mail, mit Rechenweg, zum Weiterleiten an die Geschäftsführung." : "Per E-Mail, mit Rechenweg."}{" "}
-              Danach dein persönliches Preisangebot, per WhatsApp oder Rückruf.
+              Danach meldet sich {FIRMA.geschaeftsfuehrer} und sagt dir im Gespräch, was MerKalku bei euch kostet.
             </p>
 
             {/* Echter Teaser (ohne Gate berechenbar) + verdecktes Ergebnis dahinter */}
@@ -680,7 +685,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
                 <div>
                   <input type="tel" name="tel" required pattern="[0-9+ ()/-]{8,}" placeholder="Handynummer" aria-label="Handynummer" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" inputMode="tel" className="w-full px-4 py-3.5 rounded-xl text-base" style={inputStyle} />
                   <p className="text-xs mt-1.5 ml-1 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-                    Für Rückfragen zur Auswertung und dein Preisangebot. Es meldet sich der Gründer persönlich, sonst niemand.
+                    Damit {FIRMA.geschaeftsfuehrer} dir den Preis sagen kann und für Rückfragen zur Auswertung. Es meldet sich der Gründer persönlich, sonst niemand.
                   </p>
                 </div>
 
@@ -728,7 +733,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
                 {sending ? "Wird gerechnet …" : "Auswertung anzeigen"}
               </button>
               <p className="text-xs mt-3 leading-relaxed text-center" style={{ color: "var(--color-text-muted)" }}>
-                Kein Vertrag, kein Newsletter. Deine Angaben nutzen wir für Auswertung und Preisangebot, Details in der{" "}
+                Kein Vertrag, kein Newsletter. Deine Angaben nutzen wir für deine Auswertung und das Gespräch dazu, Details in der{" "}
                 <a href="/datenschutz" className="underline hover:opacity-70">
                   Datenschutzerklärung
                 </a>

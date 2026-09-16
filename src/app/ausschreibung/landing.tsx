@@ -61,7 +61,7 @@ function Hero({ variante }: { variante: Variante }) {
           <Rechner
             quelle="lp-ausschreibung"
             embedded
-            startHinweis="Keine Unterlagen nötig. Du siehst, wie viele Stunden im Monat bei euch frei werden, danach kommt dein persönliches Preisangebot."
+            startHinweis="Keine Unterlagen nötig. Du siehst, wie viele Stunden im Monat bei euch frei werden. Was MerKalku kostet, sagt dir Jérôme danach im Gespräch."
           />
         </div>
       </div>
@@ -144,7 +144,8 @@ function Fragen() {
   const faqs = [
     { q: "Reicht dafür nicht ChatGPT?", a: "Für eine Frage ja. Für komplette Vergabeunterlagen mit euren Leistungswerten ist MerKalku gebaut, eure Unterlagen landen in keinem allgemeinen Chat." },
     { q: "Kann KI das besser als unser Kalkulator in Excel?", a: "Nein, sie ist schneller beim Lesen. Excel kann rechnen, Excel liest keine Vergabeunterlagen." },
-    { q: "Ab wann lohnt sich MerKalku?", a: "Bei ein, zwei kleinen Ausschreibungen im Jahr meist nicht. Das Angebot kommt persönlich nach dem Rechner." },
+    { q: "Ab wann lohnt sich MerKalku?", a: "Bei ein, zwei kleinen Ausschreibungen im Jahr nicht, das sagt dir Jérôme dann auch. Darüber entscheidet, wie viel Zeit eine Ausschreibung bei euch heute kostet und wie viele liegen bleiben." },
+    { q: "Was kostet MerKalku?", a: `Die Zahl sagt dir ${FIRMA.geschaeftsfuehrer} im Gespräch, nach dem Rechner. Nicht um dich hinzuhalten: er will vorher an einer echten Ausschreibung von euch sehen, ob es trägt. Wenn nicht, sagt er dir das.` },
   ];
   return (
     <section className="py-14 sm:py-20 px-6">
@@ -183,7 +184,7 @@ function Schluss() {
           ) : null}
           <div>
             <p className="text-base leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-              Drei Jahre habe ich Neukunden für Gebäudereiniger gewonnen, immer war die Ausschreibung das Nadelöhr. Nach dem Rechner melde ich mich persönlich mit deinem Preisangebot. Passt es nicht, sage ich dir das.
+              Drei Jahre habe ich Neukunden für Gebäudereiniger gewonnen, immer war die Ausschreibung das Nadelöhr. Nach dem Rechner melde ich mich persönlich. Im Gespräch sage ich dir, was es bei euch kostet und ob es sich überhaupt trägt. Wenn nicht, sage ich dir das.
             </p>
             <p className="text-sm font-semibold mt-3">{FIRMA.geschaeftsfuehrer}, Gründer von MerKalku</p>
           </div>

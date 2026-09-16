@@ -310,9 +310,9 @@ export async function POST(request: Request) {
       console.error("preisrechner-lead: Custom Fields fehlgeschlagen", fieldRes.status, await fieldRes.text());
     }
 
-    // Tags additiv setzen — "preisrechner" triggert den GHL-Workflow (E-Mail/WhatsApp mit Preisangebot),
+    // Tags additiv setzen — "preisrechner" triggert den GHL-Workflow (Auswertungs-Mail + persönliche Kontaktaufnahme),
     // "lp-ausschreibung" markiert Leads der Ads-Landingpage für Auswertung und Filter.
-    // Ohne Tag geht kein Angebot raus, deshalb harter Fehler mit einem Retry.
+    // Ohne Tag geht keine Auswertung raus, deshalb harter Fehler mit einem Retry.
     const setzeTag = () =>
       fetch(`${GHL_BASE}/contacts/${contactId}/tags`, {
         method: "POST",
