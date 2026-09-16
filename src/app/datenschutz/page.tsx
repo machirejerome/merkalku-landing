@@ -327,7 +327,7 @@ export default function Datenschutz() {
             </p>
             <p className="mt-3">
               <strong>Kontakt per WhatsApp:</strong> Nur wenn Sie im Rechner ausdrücklich zustimmen, kontaktieren wir
-              Sie zu Ihrer Auswertung per WhatsApp und schlagen Ihnen ein Gespräch über MerKalku vor (WhatsApp Ireland Ltd. / Meta
+              Sie per WhatsApp zu Ihrer Auswertung an und vereinbaren mit Ihnen einen Termin, in dem wir Ihnen MerKalku vorstellen (WhatsApp Ireland Ltd. / Meta
               Platforms, Inc., USA; Übermittlung in die USA auf Grundlage des EU-US Data Privacy Framework).
               Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 S. 1 lit. a) DSGVO, § 7 Abs. 2 Nr. 3 UWG); wir
               dokumentieren sie mit Zeitpunkt, Wortlaut, Seitenadresse und IP-Adresse. Sie können die Einwilligung
