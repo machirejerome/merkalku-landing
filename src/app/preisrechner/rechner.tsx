@@ -43,10 +43,16 @@ const TOOL_GHL: Record<string, string> = {
 const GATE_STEP = 5;
 const RESULT_STEP = 6;
 
-/* Wortlaut der WhatsApp-Einwilligung. Versioniert, damit der Nachweis in GHL eindeutig ist. */
-export const WHATSAPP_EINWILLIGUNG_VERSION = "v4";
+/* Wortlaut der WhatsApp-Einwilligung. Versioniert, damit der Nachweis in GHL eindeutig ist.
+   Alte Wortlaute bleiben im Archiv stehen, sonst ist ein Widerspruch später nicht mehr
+   nachvollziehbar: nach GHL reist nur die Versionsnummer. */
+export const WHATSAPP_EINWILLIGUNG_VERSION = "v5";
 export const WHATSAPP_EINWILLIGUNG_TEXT =
-  `Rückfragen zu meiner Auswertung und zum Preis per WhatsApp an diese Nummer, jederzeit mit „Stopp“ beendbar.`;
+  `${FIRMA.geschaeftsfuehrer} darf mir per WhatsApp zu meiner Auswertung schreiben und ein Gespräch über MerKalku vorschlagen. Mit „Stopp“ beende ich das jederzeit.`;
+export const WHATSAPP_EINWILLIGUNG_ARCHIV: Record<string, string> = {
+  v3: `Preisangebot und Rückfragen per WhatsApp an diese Nummer, jederzeit mit „Stopp“ beendbar.`,
+  v4: `Rückfragen zu meiner Auswertung und zum Preis per WhatsApp an diese Nummer, jederzeit mit „Stopp“ beendbar.`,
+};
 
 function useCountUp(target: number, duration = 1000) {
   const [val, setVal] = useState(0);
@@ -111,7 +117,7 @@ export function KalenderZweiKlick({ prominent, stunden }: { prominent: boolean; 
       <p className="text-sm mb-5 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
         Sehen wir uns an, ob das bei euch wirklich so ist. 30 Minuten mit {FIRMA.geschaeftsfuehrer}: bring die Ausschreibung mit,
         die gerade auf dem Tisch liegt, wir lesen die Vergabeunterlagen live ein und du siehst eure Kalkulation statt Demo-Daten.
-        Am Ende weißt du, was MerKalku bei euch kostet. Kostenlos.
+        Am Ende weißt du, was MerKalku kostet. Kostenlos.
       </p>
       <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
         <iframe src={CALENDAR_URL} className="w-full border-0" style={{ minHeight: "750px" }} title="Praxischeck buchen" />
@@ -268,12 +274,8 @@ function Ergebnis({
               ? `${FIRMA.geschaeftsfuehrer} schreibt dir per WhatsApp, innerhalb eines Werktags.`
               : `${FIRMA.geschaeftsfuehrer} ruft dich kurz an, innerhalb eines Werktags.`}
           </li>
-          <li>3. Im Gespräch sagt er dir, was MerKalku bei euch kostet.</li>
+          <li>3. Passt es, rechnet ihr im Termin eine eigene Ausschreibung durch.{!klein ? " Passt es nicht, sagt er dir das." : ""}</li>
         </ol>
-        <p className="text-xs mt-3 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-          Den Preis nennt {FIRMA.geschaeftsfuehrer.split(" ")[0]} im Gespräch, nicht vorher. Nicht um dich hinzuhalten,
-          sondern weil er erst sehen will, ob MerKalku bei euren Ausschreibungen trägt. Wenn nicht, sagt er dir das.
-        </p>
       </div>
 
       {/* Einziger Nebenweg: der Kalender, bei Heiß-Leads hervorgehoben */}
@@ -296,6 +298,10 @@ type RechnerProps = {
 export default function Rechner({ quelle = "preisrechner", embedded = false, titel, startHinweis }: RechnerProps = {}) {
   const STORAGE_KEY = quelle === "preisrechner" ? "preisrechner_state_v2" : `rechner_${quelle}_v2`;
   const [step, setStepState] = useState(0);
+  /* Das Gate läuft in zwei Hälften (erst E-Mail, dann der Rest). Bewusst ein eigener Zustand
+     und keine neue Schrittnummer: so bleiben sessionStorage, trackStand und die Deckelung
+     Math.min(step, GATE_STEP) unverändert. */
+  const [gateTeil, setGateTeil] = useState<1 | 2>(1);
   const [anzahl, setAnzahl] = useState<number | null>(null);
   const [stunden, setStunden] = useState<number | null>(null);
   const [liegenGelassen, setLiegenGelassen] = useState<string | null>(null);
@@ -311,6 +317,9 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
   const [error, setError] = useState<string | null>(null);
   const [fertig, setFertig] = useState(false);
   const gateSeit = useRef<number>(0);
+  /* Merkt, ob für die zweite Gate-Hälfte wirklich ein History-Eintrag entstanden ist.
+     Nur dann darf der Zurück-Knopf history.back() nutzen, sonst verließe er die Seite. */
+  const gateHistorie = useRef(false);
 
   const advanceTimer = useRef<number | null>(null);
   const sendingRef = useRef(false);
@@ -331,9 +340,10 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
   function setStep(n: number) {
     clearAdvanceTimer();
     setStepState(n);
+    if (n !== GATE_STEP) setGateTeil(1);
     trackEvent("rechner_schritt", { schritt: n, quelle });
     try {
-      window.history.pushState({ prStep: n }, "");
+      window.history.pushState({ ...window.history.state, prStep: n, prGateTeil: 1 }, "");
     } catch {}
   }
 
@@ -361,7 +371,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
           setStepState(Math.min(s.step, cap));
         }
       }
-      window.history.replaceState({ prStep: 0 }, "");
+      window.history.replaceState({ ...window.history.state, prStep: 0, prGateTeil: 1 }, "");
     } catch {}
 
     const onPop = (e: PopStateEvent) => {
@@ -369,6 +379,9 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
       if (typeof s === "number") {
         clearAdvanceTimer();
         setStepState(Math.min(s, GATE_STEP));
+        const teil = e.state?.prGateTeil === 2 ? 2 : 1;
+        setGateTeil(teil);
+        if (teil === 1) gateHistorie.current = false;
       }
     };
     window.addEventListener("popstate", onPop);
@@ -419,7 +432,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
     if (embedded) containerRef.current?.scrollIntoView({ block: "start" });
     else window.scrollTo({ top: 0 });
     headingRef.current?.focus({ preventScroll: true });
-  }, [step, embedded]);
+  }, [step, gateTeil, embedded]);
 
   const kontaktOk =
     name.trim().length >= 2 &&
@@ -434,6 +447,24 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
     advanceTimer.current = window.setTimeout(() => setStep(naechster), 320);
   }
 
+  /* Erste Hälfte abgeschlossen: nur weiterblättern, nichts an den Server melden.
+     Die E-Mail bleibt im React-State, bis der Lead vollständig ist. */
+  function zumZweitenTeil() {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
+      setError("Bitte eine gültige geschäftliche E-Mail eintragen.");
+      return;
+    }
+    setError(null);
+    setGateTeil(2);
+    trackEvent("gate_mail", { quelle });
+    try {
+      window.history.pushState({ ...window.history.state, prStep: GATE_STEP, prGateTeil: 2 }, "");
+      gateHistorie.current = true;
+    } catch {
+      gateHistorie.current = false;
+    }
+  }
+
   async function absenden() {
     if (sendingRef.current || anzahl === null || stunden === null) return;
     if (!kontaktOk) {
@@ -443,6 +474,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
     sendingRef.current = true;
     setSending(true);
     setError(null);
+    trackEvent("gate_daten", { quelle });
 
     const payload = JSON.stringify({
       t0: gateSeit.current || undefined,
@@ -491,8 +523,11 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
   const istStunden = anzahl !== null && stunden !== null ? Math.round(anzahl * stunden) : null;
   const ergebnis = anzahl !== null && stunden !== null ? berechneErsparnis(anzahl, stunden) : null;
   const heiss = (anzahl ?? 0) >= PRICING.heissSchwelleAusschreibungen || liegenGelassen === "mehr als 5";
-  /* Startet bei ~14 %, Gate ~86 %: 100 % gibt es erst mit dem Ergebnis */
-  const fortschritt = Math.min(100, Math.round(((step + 1) / (GATE_STEP + 2)) * 100));
+  /* Startet bei ~14 %, Gate 88 bzw. 94 %: 100 % gibt es erst mit dem Ergebnis */
+  const fortschritt =
+    step === GATE_STEP
+      ? (gateTeil === 1 ? 88 : 94)
+      : Math.min(100, Math.round(((step + 1) / (GATE_STEP + 2)) * 100));
 
   const inputStyle = { border: "1px solid var(--color-border)", background: "var(--color-bg)" };
   const headingProps = { ref: headingRef, tabIndex: -1, style: { outline: "none" } as const };
@@ -524,7 +559,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
                   </p>
                 ) : <span />}
                 <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
-                  {step < GATE_STEP ? `Frage ${step + 1} von 5 · keine 60 Sekunden` : "Fast geschafft"}
+                  {step < GATE_STEP ? `Frage ${step + 1} von 5 · keine 60 Sekunden` : `Schritt ${gateTeil} von 2`}
                 </p>
               </div>
               <div
@@ -543,7 +578,13 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
             {step > 0 && (
               <button
                 type="button"
-                onClick={() => setStep(step - 1)}
+                onClick={() => {
+                  if (step === GATE_STEP && gateTeil === 2) {
+                    /* Über die History zurück, damit Knopf und Wischgeste denselben Stapel sehen */
+                    if (gateHistorie.current) window.history.back();
+                    else setGateTeil(1);
+                  } else setStep(step - 1);
+                }}
                 className="inline-flex items-center text-xs font-medium mb-2 py-3 pr-3 hover:opacity-70 transition-opacity"
                 style={{ color: "var(--color-text-muted)", minHeight: "44px" }}
               >
@@ -652,11 +693,14 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
         {step === GATE_STEP && ergebnis && istStunden !== null && (
           <div key="gate" className="step-enter">
             <Frage {...headingProps} className={frageKlasse}>
-              Deine Auswertung ist fertig. Wohin sollen wir sie schicken?
+              {gateTeil === 1 ? "Deine Auswertung ist fertig. Wohin sollen wir sie schicken?" : "An wen geht die Auswertung?"}
             </Frage>
             <p className="text-sm mb-5" style={{ color: "var(--color-text-muted)" }}>
-              {wer !== null && wer !== "Ich selbst (Inhaber)" ? "Per E-Mail, mit Rechenweg, zum Weiterleiten an die Geschäftsführung." : "Per E-Mail, mit Rechenweg."}{" "}
-              Danach meldet sich {FIRMA.geschaeftsfuehrer} und sagt dir im Gespräch, was MerKalku bei euch kostet.
+              {gateTeil === 1
+                ? (wer !== null && wer !== "Ich selbst (Inhaber)"
+                    ? "Per E-Mail, mit Rechenweg, zum Weiterleiten an die Geschäftsführung."
+                    : "Per E-Mail, mit Rechenweg.")
+                : `Danach meldet sich ${FIRMA.geschaeftsfuehrer}, innerhalb eines Werktags.`}
             </p>
 
             {/* Echter Teaser (ohne Gate berechenbar) + verdecktes Ergebnis dahinter */}
@@ -675,21 +719,26 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                absenden();
+                if (gateTeil === 1) zumZweitenTeil();
+                else absenden();
               }}
             >
               <div className="grid gap-3">
+                {gateTeil === 1 ? (
+                  <input type="email" name="email" required placeholder="Geschäftliche E-Mail" aria-label="Geschäftliche E-Mail" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" inputMode="email" autoFocus className="px-4 py-3.5 rounded-xl text-base" style={inputStyle} />
+                ) : (
+                  <>
                 <input type="text" name="name" required minLength={2} placeholder="Vor- und Nachname" aria-label="Vor- und Nachname" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" className="px-4 py-3.5 rounded-xl text-base" style={inputStyle} />
                 <input type="text" name="organization" required minLength={2} placeholder="Firma" aria-label="Firma" value={firma} onChange={(e) => setFirma(e.target.value)} autoComplete="organization" className="px-4 py-3.5 rounded-xl text-base" style={inputStyle} />
-                <input type="email" name="email" required placeholder="Geschäftliche E-Mail" aria-label="Geschäftliche E-Mail" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className="px-4 py-3.5 rounded-xl text-base" style={inputStyle} />
                 <div>
                   <input type="tel" name="tel" required pattern="[0-9+ ()/-]{8,}" placeholder="Handynummer" aria-label="Handynummer" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" inputMode="tel" className="w-full px-4 py-3.5 rounded-xl text-base" style={inputStyle} />
                   <p className="text-xs mt-1.5 ml-1 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-                    Damit {FIRMA.geschaeftsfuehrer} dir den Preis sagen kann und für Rückfragen zur Auswertung. Es meldet sich der Gründer persönlich, sonst niemand.
+                    Damit sich {FIRMA.geschaeftsfuehrer} persönlich bei dir meldet, für Rückfragen zur Auswertung. Sonst niemand.
                   </p>
                 </div>
 
-                {/* WhatsApp ist elektronische Post im Sinne des UWG: eigene, leere Einwilligung, getrennt vom Datenschutzhinweis */}
+                {/* WhatsApp ist elektronische Post im Sinne des UWG: eigene Einwilligung, getrennt vom Datenschutzhinweis.
+                    Steht bewusst auf demselben Bildschirm wie die Nummer, auf die sie sich bezieht. */}
                 <label className="flex items-start gap-3 text-sm leading-relaxed cursor-pointer rounded-xl p-3" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}>
                   <input
                     type="checkbox"
@@ -705,6 +754,8 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
                     </span>
                   </span>
                 </label>
+                  </>
+                )}
 
                 {/* Honeypot: für Menschen unsichtbar, Name bewusst ohne Autofill-Bedeutung */}
                 <input
@@ -730,10 +781,10 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
                 disabled={sending}
                 className="btn-primary w-full mt-5 px-7 py-4 text-base font-semibold rounded-xl shadow-[0_12px_30px_-10px_rgba(5,112,60,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0"
               >
-                {sending ? "Wird gerechnet …" : "Auswertung anzeigen"}
+                {gateTeil === 1 ? "Weiter zum letzten Schritt" : sending ? "Wird gerechnet …" : "Auswertung anzeigen"}
               </button>
               <p className="text-xs mt-3 leading-relaxed text-center" style={{ color: "var(--color-text-muted)" }}>
-                Kein Vertrag, kein Newsletter. Deine Angaben nutzen wir für deine Auswertung und das Gespräch dazu, Details in der{" "}
+                {gateTeil === 1 ? "Danach Name, Firma und Handynummer. Kein Newsletter, Details in der " : "Kein Vertrag, kein Newsletter. Deine Angaben nutzen wir für deine Auswertung und das Gespräch dazu, Details in der "}
                 <a href="/datenschutz" className="underline hover:opacity-70">
                   Datenschutzerklärung
                 </a>

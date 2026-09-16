@@ -8,6 +8,9 @@ import { getSql, ensureSchema } from "@/lib/db";
 const ERLAUBT = new Set([
   "lp_ausschreibung_view", "rechner_schritt", "rechner_stand", "generate_lead", "cta_zum_rechner",
   "kalender_geoeffnet", "kalender_link", "whatsapp_geoeffnet", "video_gestartet", "tel_klick", "rechner_sichtbar",
+  /* Die zwei Hälften des Gates: gate_mail = E-Mail abgeschickt, gate_daten = vollständig abgeschickt.
+     Der Abstand zwischen beiden ist der Abbruch, den die Aufteilung senken soll. */
+  "gate_mail", "gate_daten",
 ]);
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : null);

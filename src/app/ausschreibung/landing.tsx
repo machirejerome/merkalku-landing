@@ -145,7 +145,7 @@ function Fragen() {
     { q: "Reicht dafür nicht ChatGPT?", a: "Für eine Frage ja. Für komplette Vergabeunterlagen mit euren Leistungswerten ist MerKalku gebaut, eure Unterlagen landen in keinem allgemeinen Chat." },
     { q: "Kann KI das besser als unser Kalkulator in Excel?", a: "Nein, sie ist schneller beim Lesen. Excel kann rechnen, Excel liest keine Vergabeunterlagen." },
     { q: "Ab wann lohnt sich MerKalku?", a: "Bei ein, zwei kleinen Ausschreibungen im Jahr nicht, das sagt dir Jérôme dann auch. Darüber entscheidet, wie viel Zeit eine Ausschreibung bei euch heute kostet und wie viele liegen bleiben." },
-    { q: "Was kostet MerKalku?", a: `Die Zahl sagt dir ${FIRMA.geschaeftsfuehrer} im Gespräch, nach dem Rechner. Nicht um dich hinzuhalten: er will vorher an einer echten Ausschreibung von euch sehen, ob es trägt. Wenn nicht, sagt er dir das.` },
+    { q: "Was kostet MerKalku?", a: `Monatlich kündbar. Die Zahl nennt dir ${FIRMA.geschaeftsfuehrer.split(" ")[0]} im Gespräch. Was euch eine Ausschreibung heute an Stunden kostet, steht oben im Rechner.` },
   ];
   return (
     <section className="py-14 sm:py-20 px-6">
