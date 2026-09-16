@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function PreisrechnerPage() {
-  return <Rechner />;
+  return <Rechner startHinweis="Fünf Fragen, keine Unterlagen. Dann siehst du, wie viele Stunden im Monat bei euch frei werden." />;
 }
