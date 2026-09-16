@@ -278,7 +278,7 @@ function Ergebnis({
               ? `${FIRMA.geschaeftsfuehrer} schreibt dir per WhatsApp, innerhalb eines Werktags.`
               : `${FIRMA.geschaeftsfuehrer} ruft dich kurz an, innerhalb eines Werktags.`}
           </li>
-          <li>3. Er sagt dir, ob sich MerKalku für euch rechnet. Wenn ja, könnt ihr einen Termin vereinbaren. Wenn nicht, dann nicht.</li>
+          <li>3. Rechnet sich MerKalku für euch, könnt ihr einen Termin vereinbaren. Wenn nicht, dann nicht.</li>
         </ol>
       </div>
 

@@ -184,7 +184,7 @@ function Schluss() {
           ) : null}
           <div>
             <p className="text-base leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-              Drei Jahre habe ich Neukunden für Gebäudereiniger gewonnen, immer war die Ausschreibung das Nadelöhr. Nach dem Rechner melde ich mich persönlich. Im Gespräch sage ich dir, was es kostet und ob es sich überhaupt trägt. Wenn nicht, sage ich dir das.
+              Drei Jahre habe ich Neukunden für Gebäudereiniger gewonnen, immer war die Ausschreibung das Nadelöhr. Nach dem Rechner melde ich mich persönlich. Ob sich das für euren Betrieb rechnet, finden wir im Gespräch heraus. Wenn nicht, sage ich dir das.
             </p>
             <p className="text-sm font-semibold mt-3">{FIRMA.geschaeftsfuehrer}, Gründer von MerKalku</p>
           </div>
