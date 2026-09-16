@@ -102,6 +102,7 @@ export function KalenderZweiKlick({ prominent, stunden }: { prominent: boolean; 
   useEffect(() => {
     trackEvent("kalender_geoeffnet", {});
   }, []);
+  const hatZahl = typeof stunden === "number" && stunden > 0;
   return (
     <div
       className="rounded-2xl p-6 sm:p-8"
@@ -112,14 +113,15 @@ export function KalenderZweiKlick({ prominent, stunden }: { prominent: boolean; 
       }}
     >
       <h2 className="text-xl font-bold tracking-tight mb-2">
-        {typeof stunden === "number" && stunden > 0
+        {hatZahl
           ? `Du hast gerade ${stunden.toLocaleString("de-DE")} Stunden ausgerechnet.`
           : "Lieber gleich an eurer eigenen Ausschreibung?"}
       </h2>
       <p className="text-sm mb-5 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-        Sehen wir uns an, ob das bei euch wirklich so ist. 30 Minuten mit {FIRMA.geschaeftsfuehrer}: bring die Ausschreibung mit,
-        die gerade auf dem Tisch liegt, wir lesen die Vergabeunterlagen live ein und du siehst eure Kalkulation statt Demo-Daten.
-        Am Ende weißt du, was MerKalku kostet. Kostenlos.
+        30 Minuten. Bring die Ausschreibung mit, die gerade auf dem Tisch liegt. Wir lesen die Vergabeunterlagen ein,
+        du siehst eure eigene Kalkulation statt Beispielzahlen.{" "}
+        {hatZahl ? "Danach weißt du, ob die Stunden oben stimmen." : "Danach weißt du, wie viel Zeit bei euch drin ist."}{" "}
+        Wenn du nicht warten willst, buch hier direkt.
       </p>
       <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
         <iframe src={CALENDAR_URL} className="w-full border-0" style={{ minHeight: "750px" }} title="Praxischeck buchen" />
@@ -276,7 +278,7 @@ function Ergebnis({
               ? `${FIRMA.geschaeftsfuehrer} schreibt dir per WhatsApp, innerhalb eines Werktags.`
               : `${FIRMA.geschaeftsfuehrer} ruft dich kurz an, innerhalb eines Werktags.`}
           </li>
-          <li>3. Passt es, rechnet ihr im Termin eine eigene Ausschreibung durch.{!klein ? " Passt es nicht, sagt er dir das." : ""}</li>
+          <li>3. Er sagt dir, ob MerKalku zu euch passt. Wenn ja, macht ihr einen Termin. Wenn nicht, dann nicht.</li>
         </ol>
       </div>
 

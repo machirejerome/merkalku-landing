@@ -460,7 +460,7 @@ function PreisrechnerTeaser() {
           </h2>
           <p className="text-base max-w-xl mx-auto mb-8 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
             Beantworte fünf kurze Fragen und sieh in 60 Sekunden, wie viel Zeit und Geld dein Betrieb
-            bei Ausschreibungen sparen kann. Was MerKalku kostet, sagt dir Jérôme danach im Gespräch.
+            bei Ausschreibungen sparen kann.
           </p>
           <a
             href="/preisrechner"

@@ -61,7 +61,7 @@ function Hero({ variante }: { variante: Variante }) {
           <Rechner
             quelle="lp-ausschreibung"
             embedded
-            startHinweis="Keine Unterlagen nötig. Du siehst, wie viele Stunden im Monat bei euch frei werden. Was MerKalku kostet, sagt dir Jérôme danach im Gespräch."
+            startHinweis="Fünf Fragen, keine Unterlagen. Dann siehst du, wie viele Stunden im Monat bei euch frei werden."
           />
         </div>
       </div>
