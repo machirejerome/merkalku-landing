@@ -46,13 +46,14 @@ const RESULT_STEP = 6;
 /* Wortlaut der WhatsApp-Einwilligung. Versioniert, damit der Nachweis in GHL eindeutig ist.
    Alte Wortlaute bleiben im Archiv stehen, sonst ist ein Widerspruch später nicht mehr
    nachvollziehbar: nach GHL reist nur die Versionsnummer. */
-export const WHATSAPP_EINWILLIGUNG_VERSION = "v6";
+export const WHATSAPP_EINWILLIGUNG_VERSION = "v7";
 export const WHATSAPP_EINWILLIGUNG_TEXT =
-  `Ja, ${FIRMA.geschaeftsfuehrer} von MerKalku soll mir per WhatsApp an diese Nummer schreiben, mit Rückfragen zur Auswertung und für einen Termin, in dem er mir MerKalku zeigt. Ein „Stopp“ von mir, und er schreibt nicht mehr.`;
+  `Ja, ${FIRMA.geschaeftsfuehrer.split(" ")[0]} von MerKalku, schreib mir per WhatsApp an diese Nummer: zur Auswertung und für einen Termin. Ein „Stopp“ von mir, und Schluss.`;
 export const WHATSAPP_EINWILLIGUNG_ARCHIV: Record<string, string> = {
   v3: `Preisangebot und Rückfragen per WhatsApp an diese Nummer, jederzeit mit „Stopp“ beendbar.`,
   v4: `Rückfragen zu meiner Auswertung und zum Preis per WhatsApp an diese Nummer, jederzeit mit „Stopp“ beendbar.`,
   v5: `${FIRMA.geschaeftsfuehrer} darf mir per WhatsApp zu meiner Auswertung schreiben und ein Gespräch über MerKalku vorschlagen. Mit „Stopp“ beende ich das jederzeit.`,
+  v6: `Ja, ${FIRMA.geschaeftsfuehrer} von MerKalku soll mir per WhatsApp an diese Nummer schreiben, mit Rückfragen zur Auswertung und für einen Termin, in dem er mir MerKalku zeigt. Ein „Stopp“ von mir, und er schreibt nicht mehr.`,
 };
 
 function useCountUp(target: number, duration = 1000) {
