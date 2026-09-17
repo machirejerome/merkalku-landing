@@ -117,7 +117,7 @@ export function KalenderZweiKlick({ prominent, stunden }: { prominent: boolean; 
           : "Lieber gleich an eurer eigenen Ausschreibung?"}
       </h2>
       <p className="text-sm mb-5 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-        30 Minuten. Bring die Ausschreibung mit, die gerade auf dem Tisch liegt. Wir lesen die Vergabeunterlagen ein,
+        Hast du 30 Minuten? Bring die Ausschreibung mit, die gerade auf dem Tisch liegt. Wir lesen die Vergabeunterlagen ein,
         du siehst eure eigene Kalkulation statt Beispielzahlen.{" "}
         {hatZahl ? "Danach weißt du, ob die Stunden oben stimmen." : "Danach weißt du, wie viel Zeit bei euch drin ist."}{" "}
         Wenn du nicht warten willst, buch hier direkt.
@@ -134,7 +134,19 @@ export function KalenderZweiKlick({ prominent, stunden }: { prominent: boolean; 
   );
 }
 
-function Ergebnis({ anzahl, stunden, heiss }: { anzahl: number; stunden: number; heiss: boolean }) {
+function Ergebnis({
+  anzahl,
+  stunden,
+  wer,
+  whatsappOk,
+  heiss,
+}: {
+  anzahl: number;
+  stunden: number;
+  wer: string | null;
+  whatsappOk: boolean;
+  heiss: boolean;
+}) {
   /* Stundensatz ist auf der Seite anpassbar, damit der Betrieb seine eigene Zahl einsetzen kann.
      Die Auswertung per E-Mail rechnet mit dem Standardsatz. */
   const [satz, setSatz] = useState<number>(PRICING.stundensatzEur);
@@ -145,6 +157,7 @@ function Ergebnis({ anzahl, stunden, heiss }: { anzahl: number; stunden: number;
   const animiert = useCountUp(gesparteStunden, 1000);
   /* KLEIN: Ersparnis unter der Schwelle → Zahl kleiner setzen, Kalender nicht hervorheben */
   const klein = basis.ersparnisEur < PRICING.kleinSchwelleEur;
+  const nichtInhaber = wer !== null && wer !== "Ich selbst (Inhaber)";
 
   return (
     <div className="step-enter">
@@ -195,9 +208,23 @@ function Ergebnis({ anzahl, stunden, heiss }: { anzahl: number; stunden: number;
         )}
       </div>
 
-      {/* Zwischen Zahl und Termin steht bewusst nichts mehr: jeder Absatz hier war Ablenkung
-          vom einzigen naechsten Schritt. Erklaerabsaetze, Rechenweg und "Was jetzt passiert"
-          sind am 17.09.2026 auf Jeromes Wunsch ersatzlos gestrichen. */}
+      {/* Erklaerabsaetze und der aufklappbare Rechenweg sind am 17.09.2026 ersatzlos gestrichen:
+          zu viel Ablenkung zwischen der Zahl und dem Termin. Die drei naechsten Schritte bleiben,
+          sie sind die Bruecke zum Kalender direkt darunter. */}
+      <div className="rounded-xl p-5 mb-10" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}>
+        <p className="text-sm font-semibold mb-2">Was jetzt passiert</p>
+        <ol className="text-sm leading-relaxed space-y-1.5" style={{ color: "var(--color-text-muted)" }}>
+          <li>1. Deine Auswertung kommt per E-Mail{nichtInhaber ? ", zum Weiterleiten an die Geschäftsführung" : ""}.</li>
+          <li>
+            2.{" "}
+            {whatsappOk
+              ? `${FIRMA.geschaeftsfuehrer} schreibt dir per WhatsApp, innerhalb eines Werktags.`
+              : `${FIRMA.geschaeftsfuehrer} ruft dich kurz an, innerhalb eines Werktags.`}
+          </li>
+          <li>3. Rechnet sich MerKalku für euch, könnt ihr einen Termin vereinbaren. Wenn nicht, dann nicht.</li>
+        </ol>
+      </div>
+
       {/* Einziger Nebenweg: der Kalender, bei Heiß-Leads hervorgehoben */}
       <KalenderZweiKlick prominent={heiss && !klein} stunden={gesparteStunden} />
     </div>
@@ -723,7 +750,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
 
         {/* Ergebnis */}
         {step === RESULT_STEP && anzahl !== null && stunden !== null && (
-          <Ergebnis anzahl={anzahl} stunden={stunden} heiss={heiss} />
+          <Ergebnis anzahl={anzahl} stunden={stunden} wer={wer} whatsappOk={whatsappOk} heiss={heiss} />
         )}
     </div>
   );
