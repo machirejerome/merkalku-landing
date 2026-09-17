@@ -8,7 +8,6 @@ import {
   ANZAHL_KLASSEN,
   STUNDEN_KLASSEN,
   berechneErsparnis,
-  merkalkuStunden,
 } from "@/lib/pricing-config";
 import { FIRMA } from "@/lib/firma";
 import { leseAttribution, leseSitzungsId } from "@/lib/attribution";
@@ -135,21 +134,7 @@ export function KalenderZweiKlick({ prominent, stunden }: { prominent: boolean; 
   );
 }
 
-function Ergebnis({
-  anzahl,
-  stunden,
-  liegenGelassen,
-  wer,
-  whatsappOk,
-  heiss,
-}: {
-  anzahl: number;
-  stunden: number;
-  liegenGelassen: string | null;
-  wer: string | null;
-  whatsappOk: boolean;
-  heiss: boolean;
-}) {
+function Ergebnis({ anzahl, stunden, heiss }: { anzahl: number; stunden: number; heiss: boolean }) {
   /* Stundensatz ist auf der Seite anpassbar, damit der Betrieb seine eigene Zahl einsetzen kann.
      Die Auswertung per E-Mail rechnet mit dem Standardsatz. */
   const [satz, setSatz] = useState<number>(PRICING.stundensatzEur);
@@ -158,14 +143,8 @@ function Ergebnis({
   const gesparteStunden = Math.round(basis.gesparteStunden);
   const ersparnisEur = Math.round((basis.gesparteStunden * satz) / 10) * 10;
   const animiert = useCountUp(gesparteStunden, 1000);
-  const anzahlLabel = ANZAHL_KLASSEN.find((k) => k.value === anzahl)?.label ?? `${anzahl} pro Monat`;
-  const stundenLabel = STUNDEN_KLASSEN.find((k) => k.value === stunden)?.label ?? `${stunden} h`;
-  const liegtEtwas = liegenGelassen && liegenGelassen !== "Keine" && liegenGelassen !== "Weiß ich nicht genau";
-  /* KLEIN: Ersparnis (Standardsatz) unter der Schwelle → Argument über liegen gelassene Ausschreibungen, WhatsApp zuerst */
+  /* KLEIN: Ersparnis unter der Schwelle → Zahl kleiner setzen, Kalender nicht hervorheben */
   const klein = basis.ersparnisEur < PRICING.kleinSchwelleEur;
-  const mkStd = merkalkuStunden(stunden);
-  const zusatzZeitlich = Math.floor(basis.gesparteStunden / mkStd);
-  const nichtInhaber = wer !== null && wer !== "Ich selbst (Inhaber)";
 
   return (
     <div className="step-enter">
@@ -216,72 +195,9 @@ function Ergebnis({
         )}
       </div>
 
-      <div className="rounded-xl p-5 mb-4" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}>
-        <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-          Heute stecken bei euch rund{" "}
-          <strong style={{ color: "var(--color-text)" }}>
-            {Math.round(basis.istStunden).toLocaleString("de-DE")} Stunden im Monat
-          </strong>{" "}
-          in Ausschreibungen ({anzahlLabel}, {stundenLabel} je Stück).
-          {liegtEtwas && (
-            <>
-              {" "}Die Ausschreibungen, die ihr heute liegen lasst ({liegenGelassen}), wären zeitlich drin.
-            </>
-          )}
-          {zusatzZeitlich >= 3 && (
-            <>
-              {liegtEtwas
-                ? " Darüber hinaus bleibt Zeit für deutlich mehr Ausschreibungen und Angebote."
-                : " Mit der frei werdenden Zeit sind deutlich mehr Ausschreibungen und Angebote drin."}
-            </>
-          )}
-        </p>
-        {klein && (
-          <p className="text-sm leading-relaxed mt-2" style={{ color: "var(--color-text)" }}>
-            Bei eurem Volumen rechnet sich MerKalku vor allem über die Ausschreibungen, die heute liegen bleiben.
-            Ob das bei euch passt, klärt {FIRMA.geschaeftsfuehrer} kurz mit dir.
-          </p>
-        )}
-        <details className="mt-3">
-          <summary className="text-xs font-semibold cursor-pointer" style={{ color: "var(--color-primary)" }}>
-            So haben wir gerechnet
-          </summary>
-          <div className="text-xs mt-2 leading-relaxed space-y-1" style={{ color: "var(--color-text-muted)" }}>
-            <p>
-              Eure Dauer heute: {stundenLabel} je Ausschreibung. Mit MerKalku gerechnet: {mkStd * 60} Minuten je Ausschreibung
-              {mkStd >= 1 ? " (ab 4 Stunden bisherigem Aufwand rechnen wir mit 1 Stunde statt 30 Minuten)" : ""}.
-              Anzahl × (eure Dauer − {mkStd * 60} Minuten) = frei werdende Stunden. Mal {satz} € je Bürostunde = Ersparnis in Euro.
-            </p>
-            {zusatzZeitlich >= 1 && (
-              <p>
-                Rein zeitlich wären mit den frei werdenden Stunden {zusatzZeitlich.toLocaleString("de-DE")} Ausschreibungen mehr im Monat möglich
-                ({Math.round(basis.gesparteStunden).toLocaleString("de-DE")} Stunden geteilt durch {mkStd * 60} Minuten). Ob so viele passende
-                ausgeschrieben werden und ob ihr die Aufträge personell stemmt, steht auf einem anderen Blatt.
-              </p>
-            )}
-            <p>
-              Mit MerKalku dauert eine Ausschreibung meist 10 bis 30 Minuten, große Vergabeunterlagen unter einer Stunde: die KI liest die
-              Unterlagen und füllt die Kalkulation mit euren Leistungswerten und Kostensätzen, du prüfst und gibst frei.
-            </p>
-            <p>Das ist eine Rechnung auf Basis deiner Angaben, kein gemessenes Kundenergebnis.</p>
-          </div>
-        </details>
-      </div>
-
-      <div className="rounded-xl p-5 mb-10" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}>
-        <p className="text-sm font-semibold mb-2">Was jetzt passiert</p>
-        <ol className="text-sm leading-relaxed space-y-1.5" style={{ color: "var(--color-text-muted)" }}>
-          <li>1. Deine Auswertung kommt per E-Mail{nichtInhaber ? ", zum Weiterleiten an die Geschäftsführung" : ""}.</li>
-          <li>
-            2.{" "}
-            {whatsappOk
-              ? `${FIRMA.geschaeftsfuehrer} schreibt dir per WhatsApp, innerhalb eines Werktags.`
-              : `${FIRMA.geschaeftsfuehrer} ruft dich kurz an, innerhalb eines Werktags.`}
-          </li>
-          <li>3. Rechnet sich MerKalku für euch, könnt ihr einen Termin vereinbaren. Wenn nicht, dann nicht.</li>
-        </ol>
-      </div>
-
+      {/* Zwischen Zahl und Termin steht bewusst nichts mehr: jeder Absatz hier war Ablenkung
+          vom einzigen naechsten Schritt. Erklaerabsaetze, Rechenweg und "Was jetzt passiert"
+          sind am 17.09.2026 auf Jeromes Wunsch ersatzlos gestrichen. */}
       {/* Einziger Nebenweg: der Kalender, bei Heiß-Leads hervorgehoben */}
       <KalenderZweiKlick prominent={heiss && !klein} stunden={gesparteStunden} />
     </div>
@@ -538,8 +454,6 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
   /* Eigenständige Seite: die Frage ist die H1. Eingebettet hat die Landingpage schon eine H1. */
   const Frage: "h1" | "h2" = embedded ? "h2" : "h1";
   const frageKlasse = embedded ? "text-xl sm:text-2xl font-bold tracking-tight mb-2 leading-tight" : "text-2xl sm:text-3xl font-bold tracking-tight mb-2 leading-tight";
-  const anzahlLabel = ANZAHL_KLASSEN.find((k) => k.value === anzahl)?.label;
-  const stundenLabel = STUNDEN_KLASSEN.find((k) => k.value === stunden)?.label;
 
   const inhalt = (
     <div
@@ -809,7 +723,7 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
 
         {/* Ergebnis */}
         {step === RESULT_STEP && anzahl !== null && stunden !== null && (
-          <Ergebnis anzahl={anzahl} stunden={stunden} liegenGelassen={liegenGelassen} wer={wer} whatsappOk={whatsappOk} heiss={heiss} />
+          <Ergebnis anzahl={anzahl} stunden={stunden} heiss={heiss} />
         )}
     </div>
   );
