@@ -413,6 +413,8 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
         email: email.trim(),
         quelle,
         seite: typeof window !== "undefined" ? window.location.pathname : undefined,
+        ausschreibungenProMonat: anzahl ?? undefined,
+        stundenProAusschreibung: stunden ?? undefined,
       });
       if (navigator.sendBeacon) navigator.sendBeacon("/api/preisrechner-mail", new Blob([nutzlast], { type: "application/json" }));
       else fetch("/api/preisrechner-mail", { method: "POST", body: nutzlast, keepalive: true, headers: { "Content-Type": "application/json" } }).catch(() => {});
