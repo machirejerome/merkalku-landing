@@ -1,9 +1,11 @@
 /* Datenbank-Anbindung (Neon Postgres über den Vercel Marketplace). Ohne DATABASE_URL läuft die
    Seite unverändert weiter, die Funnel-Daten landen dann nur als Log-Zeile in den Vercel Logs.
    Zweck: jeden Rechner-Durchlauf speichern, auch wenn das Formular nie abgeschickt wird.
-   Vor dem Absenden werden ausschließlich die fünf Antworten, Herkunft (utm) und der erreichte
-   Schritt gespeichert, keine Namen, E-Mails oder Nummern. Die kommen erst mit dem Absenden
-   nach GoHighLevel; hier bleibt dann nur die GHL-Kontakt-ID als Verbindung. */
+   Gespeichert werden die fünf Antworten, Herkunft (utm) und der erreichte Schritt. Dazu die
+   E-Mail, sobald sie in Schritt 1 des Gates abgeschickt wurde: sie ist die einzige Chance,
+   jemandem seine Auswertung noch zu schicken, der in Schritt 2 abbricht. Name und Nummer
+   werden nie vor dem Absenden gespeichert, die gehen erst mit dem Absenden nach GoHighLevel;
+   hier bleibt dann die GHL-Kontakt-ID als Verbindung. */
 
 import { neon } from "@neondatabase/serverless";
 
@@ -58,6 +60,9 @@ export async function ensureSchema(sql: Sql) {
       t         timestamptz NOT NULL DEFAULT now()
     )`;
   await sql`ALTER TABLE rechner_sessions ADD COLUMN IF NOT EXISTS verworfen text`;
+  /* E-Mail aus Gate-Schritt 1, auch wenn Schritt 2 nie kam */
+  await sql`ALTER TABLE rechner_sessions ADD COLUMN IF NOT EXISTS email text`;
+  await sql`ALTER TABLE rechner_sessions ADD COLUMN IF NOT EXISTS email_am timestamptz`;
   await sql`CREATE INDEX IF NOT EXISTS funnel_events_sid_idx ON funnel_events (sid)`;
   await sql`CREATE INDEX IF NOT EXISTS rechner_sessions_erstellt_idx ON rechner_sessions (erstellt_am DESC)`;
 }

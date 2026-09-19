@@ -404,6 +404,19 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
     setError(null);
     setGateTeil(2);
     trackEvent("gate_mail", { quelle });
+    /* Die Adresse ist hier abgeschickt, nicht nur getippt. Sichern, damit sie nicht verloren geht,
+       wenn jemand Schritt 2 nicht zu Ende bringt. Absichtlich ohne await: das Weiterblättern
+       darf nie an einem Netzwerkfehler hängen. */
+    try {
+      const nutzlast = JSON.stringify({
+        sid: leseSitzungsId(),
+        email: email.trim(),
+        quelle,
+        seite: typeof window !== "undefined" ? window.location.pathname : undefined,
+      });
+      if (navigator.sendBeacon) navigator.sendBeacon("/api/preisrechner-mail", new Blob([nutzlast], { type: "application/json" }));
+      else fetch("/api/preisrechner-mail", { method: "POST", body: nutzlast, keepalive: true, headers: { "Content-Type": "application/json" } }).catch(() => {});
+    } catch {}
     try {
       window.history.pushState({ ...window.history.state, prStep: GATE_STEP, prGateTeil: 2 }, "");
       gateHistorie.current = true;
