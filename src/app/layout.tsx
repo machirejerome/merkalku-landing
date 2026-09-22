@@ -200,11 +200,21 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Leadinfo – B2B-Besuchererkennung. Nicht auf /ausschreibung (Ads-Landingpage ohne Cookies). */}
+        {/* Leadinfo – B2B-Besuchererkennung. Läuft seit 22.09.2026 auf allen Seiten, auch auf
+            /ausschreibung: der Ausschluss war nur dazu da, die Ads-Landingpage cookiefrei zu halten.
+            Diese Entscheidung ist auf Jérômes Anweisung aufgehoben. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "if(!/^\\/ausschreibung(\\/|$)/.test(location.pathname)){(function(l,e,a,d,i,n,f,o){if(!l[i]){l.GlobalLeadinfoNamespace=l.GlobalLeadinfoNamespace||[];l.GlobalLeadinfoNamespace.push(i);l[i]=function(){(l[i].q=l[i].q||[]).push(arguments)};l[i].t=l[i].t||n;l[i].q=l[i].q||[];o=e.createElement(a);f=e.getElementsByTagName(a)[0];o.async=1;o.src=d;f.parentNode.insertBefore(o,f);}}(window,document,'script','https://cdn.leadinfo.eu/ping.js','leadinfo','LI-6A8EC9B923EA8'));}",
+              "(function(l,e,a,d,i,n,f,o){if(!l[i]){l.GlobalLeadinfoNamespace=l.GlobalLeadinfoNamespace||[];l.GlobalLeadinfoNamespace.push(i);l[i]=function(){(l[i].q=l[i].q||[]).push(arguments)};l[i].t=l[i].t||n;l[i].q=l[i].q||[];o=e.createElement(a);f=e.getElementsByTagName(a)[0];o.async=1;o.src=d;f.parentNode.insertBefore(o,f);}}(window,document,'script','https://cdn.leadinfo.eu/ping.js','leadinfo','LI-6A8EC9B923EA8'));",
+          }}
+        />
+        {/* OpenAI Ads Pixel. Feuert ohne Einwilligungsabfrage; der Consent-Banner kommt separat.
+            Ergänzt die serverseitige Conversions-Meldung in der Lead-Route, ersetzt sie nicht. */}
+        <link rel="preconnect" href="https://bzrcdn.openai.com" crossOrigin="anonymous" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"5AqDj4XKxG9a38E7EVMjyN",debug:true});`,
           }}
         />
         <meta name="geo.region" content="DE-BW" />
