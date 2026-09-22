@@ -214,7 +214,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://bzrcdn.openai.com" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"5AqDj4XKxG9a38E7EVMjyN",debug:true});`,
+            __html: `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"5AqDj4XKxG9a38E7EVMjyN"});`,
           }}
         />
         <meta name="geo.region" content="DE-BW" />
