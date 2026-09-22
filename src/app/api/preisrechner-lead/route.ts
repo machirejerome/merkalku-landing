@@ -124,28 +124,51 @@ function utmKurz(utm: Record<string, string> | undefined): string {
   return teile.join(" ");
 }
 
-/* Conversion an OpenAI melden (Anzeigen in ChatGPT), rein serverseitig: kein Pixel, kein Cookie.
-   Läuft nur, wenn Pixel-ID und API-Token gesetzt sind; Fehler kosten nie den Lead. */
+/* Conversion an OpenAI melden (Anzeigen in ChatGPT), serverseitig.
+   Nutzlast nach OpenAI-Vorgabe: ein Objekt mit validate_only und events, action_source "web",
+   data.type "customer_action". Eine frühere Fassung schickte ein nacktes Array mit "website"
+   und eigenen data-Feldern, das wäre abgelehnt worden.
+
+   Die Pixel-ID ist dieselbe wie im Pixel im Layout und steht dort ohnehin im Quelltext, deshalb
+   als Vorgabewert hinterlegt. Zu setzen ist nur OPENAI_ADS_API_TOKEN. Fehler kosten nie den Lead. */
+const OPENAI_PIXEL_ID = "5AqDj4XKxG9a38E7EVMjyN";
+
 async function meldeConversionAnOpenAI(args: { eventId: string; seite: string; oppref?: string; wert?: number; quelle: string }) {
-  const pixel = process.env.OPENAI_ADS_PIXEL_ID;
+  const pixel = process.env.OPENAI_ADS_PIXEL_ID || OPENAI_PIXEL_ID;
   const token = process.env.OPENAI_ADS_API_TOKEN;
   if (!pixel || !token) return;
-  const event: Record<string, unknown> = {
+
+  /* Die Pflichtfelder genau nach Vorgabe. Alles Weitere ist ein Zusatz, der im Zweifel wegfällt. */
+  const pflicht = {
     id: args.eventId,
     type: "lead_created",
     timestamp_ms: Date.now(),
-    action_source: "website",
     source_url: args.seite,
-    data: { lead_type: args.quelle, value: args.wert, currency: "EUR" },
+    action_source: "web",
+    data: { type: "customer_action" },
   };
-  if (args.oppref) event.oppref = args.oppref;
-  try {
-    const res = await fetch(`https://bzr.openai.com/v1/events?pid=${encodeURIComponent(pixel)}`, {
+  const mitZusatz: Record<string, unknown> = {
+    ...pflicht,
+    data: { type: "customer_action", value: args.wert, currency: "EUR", lead_type: args.quelle },
+    ...(args.oppref ? { oppref: args.oppref } : {}),
+  };
+
+  const senden = (event: Record<string, unknown>) =>
+    fetch(`https://bzr.openai.com/v1/events?pid=${encodeURIComponent(pixel)}`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify([event]),
+      body: JSON.stringify({ validate_only: false, events: [event] }),
       signal: AbortSignal.timeout(4000),
     });
+
+  try {
+    let res = await senden(mitZusatz);
+    if (res.status >= 400 && res.status < 500) {
+      /* Zusatzfelder sind nicht dokumentiert. Werden sie abgelehnt, zählt die Conversion trotzdem. */
+      const grund = await res.text();
+      console.warn("preisrechner-lead: OpenAI lehnte die Zusatzfelder ab, zweiter Versuch ohne", res.status, grund);
+      res = await senden(pflicht);
+    }
     if (!res.ok) console.warn("preisrechner-lead: OpenAI-Conversion abgelehnt", res.status, await res.text());
   } catch (err) {
     console.warn("preisrechner-lead: OpenAI-Conversion nicht gesendet", err);
