@@ -133,12 +133,15 @@ function utmKurz(utm: Record<string, string> | undefined): string {
    als Vorgabewert hinterlegt. Zu setzen ist nur OPENAI_ADS_API_TOKEN. Fehler kosten nie den Lead. */
 const OPENAI_PIXEL_ID = "5AqDj4XKxG9a38E7EVMjyN";
 
-async function meldeConversionAnOpenAI(args: { eventId: string; seite: string; oppref?: string; wert?: number; quelle: string }) {
+async function meldeConversionAnOpenAI(args: { eventId: string; seite: string; oppref?: string }) {
   const pixel = process.env.OPENAI_ADS_PIXEL_ID || OPENAI_PIXEL_ID;
   const token = process.env.OPENAI_ADS_API_TOKEN;
   if (!pixel || !token) return;
 
-  /* Die Pflichtfelder genau nach Vorgabe. Alles Weitere ist ein Zusatz, der im Zweifel wegfällt. */
+  /* Feldliste am 22.09.2026 gegen den echten Endpunkt geprüft (validate_only):
+     angenommen werden id, type, timestamp_ms, source_url, action_source, data.type und oppref.
+     Abgelehnt mit "unknown_data_field": data.value und data.lead_type, ebenso value und currency
+     auf oberster Ebene. Einen Conversion-Wert nimmt der Endpunkt für lead_created nicht an. */
   const pflicht = {
     id: args.eventId,
     type: "lead_created",
@@ -147,9 +150,10 @@ async function meldeConversionAnOpenAI(args: { eventId: string; seite: string; o
     action_source: "web",
     data: { type: "customer_action" },
   };
+  /* oppref ist die Klick-Kennung aus der Anzeige und der einzige Weg, die Conversion der
+     richtigen Anzeige zuzuordnen. Geprüft angenommen, zur Sicherheit trotzdem der Rückfall unten. */
   const mitZusatz: Record<string, unknown> = {
     ...pflicht,
-    data: { type: "customer_action", value: args.wert, currency: "EUR", lead_type: args.quelle },
     ...(args.oppref ? { oppref: args.oppref } : {}),
   };
 
@@ -364,8 +368,6 @@ export async function POST(request: Request) {
       eventId: `lead-${contactId}`,
       seite: seite || "https://merkalku.de/",
       oppref: data.utm?.oppref,
-      wert: ersparnisEur,
-      quelle,
     });
 
     return Response.json({ ok: true });
