@@ -120,11 +120,15 @@ successful processing after release before claiming indexation is fixed.
 `/wissen` lists the first guide, `/wissen/ausschreibung-gebaeudereinigung-pruefen`.
 The public text is in `src/content/checkliste.json`; internal research notes are
 not imported. The editorial revision and source review date are 2026-10-02.
-`datePublished` is deliberately omitted until the first actual public release;
-deployment timestamps must not replace editorial dates in structured data or the sitemap.
+The first public release was verified on 2026-10-02; Article `datePublished` and
+Open Graph `publishedTime` use that date. Deployment timestamps must not replace
+the first publication or editorial dates in structured data or the sitemap.
 
 The checklist holds editable rows in React memory only: no account, upload,
 autosave, localStorage or submission endpoint. Reloading loses the entries.
+External source links open in a separate tab so the worksheet and its entries
+remain open. The Praxischeck link uses Next.js client navigation to `/#termin`,
+preserving the current analytics runtime while navigating to the calendar.
 The real browser print dialog prints current values in a separate table (so
 long text is not clipped inside textareas), followed by two clearly fictional
 example rows. Saving a PDF is a browser print-dialog option, not a generated download.
