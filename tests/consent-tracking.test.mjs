@@ -244,3 +244,24 @@ test("demo and calculator links are allowlisted clicks without an inferred booki
   assert.deepEqual(events, ["page_view", "demo_cta_click", "calculator_open"]);
   assert.ok(!JSON.stringify(h.commands()).includes("private.invalid"));
 });
+
+test("knowledge actions never send worksheet notes, contacts, arbitrary URLs or invented IDs", async () => {
+  const h = browserHarness("https://www.merkalku.de/wissen/ausschreibung-gebaeudereinigung-pruefen?customer=PRIVATE");
+  const tracker = h.load("tracking");
+  for (const event of ["checklist_edit_started", "checklist_print_clicked", "source_click", "content_product_click"]) {
+    tracker.trackEvent(event, {
+      content_id: "PRIVATE-id", revision: 98765, source_id: "ted_fields", finding: "PRIVATE-finding", owner: "PRIVATE-name",
+      reference: "PRIVATE-file", due: "PRIVATE-date", next: "PRIVATE-next", email: "PRIVATE-email", url: "https://PRIVATE.invalid", schritt: 8,
+    });
+  }
+  assert.equal(h.beacons.length, 4);
+  const bodies = await Promise.all(h.beacons.map(async ({ body }) => JSON.parse(await body.text())));
+  const payloads = JSON.stringify([h.commands(), bodies, h.events.map((event) => event.detail)]);
+  assert.ok(!payloads.includes("PRIVATE")); assert.ok(!payloads.includes("98765"));
+  assert.equal(bodies[0].content_id, "ausschreibung-gebaeudereinigung-pruefen");
+  assert.equal(bodies[0].revision, 1); assert.equal(bodies[0].schritt, undefined);
+  assert.equal(bodies[2].source_id, "ted_fields");
+  assert.ok(!h.commands().some((cmd) => cmd[1] === "print_success"));
+  h.go("/wissen/private-client-name"); tracker.trackEvent("checklist_print_clicked");
+  assert.equal(h.beacons.length, 4, "unknown paths do not enter any event payload");
+});

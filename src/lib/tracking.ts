@@ -1,6 +1,7 @@
 import { canMeasure, getTrackingPreferences, readConsent } from "./consent";
 import { safePagePath, sendAnalyticsEvent } from "./analytics";
 import { leseSitzungsId } from "./attribution";
+import { CONTENT_EVENTS, CONTENT_PATHS, sanitizeContentEvent } from "./content-events";
 
 export type Quelle = "preisrechner" | "lp-ausschreibung";
 
@@ -19,6 +20,7 @@ const VALUES: Record<string, readonly string[]> = {
 
 /** No free text, contacts, calculator answers, savings, URLs or advertising IDs. */
 export function sanitizeEvent(name: string, params: Record<string, unknown>): Record<string, string | number> | null {
+  if (CONTENT_EVENTS.has(name)) return sanitizeContentEvent(name, params);
   if (!EVENTS.has(name)) return null;
   const clean: Record<string, string | number> = {};
   for (const [key, allowed] of Object.entries(VALUES)) {
@@ -33,6 +35,7 @@ export function trackEvent(name: string, params: Record<string, string | number 
   const clean = sanitizeEvent(name, params);
   const path = safePagePath(window.location.pathname);
   if (!clean || !path) return;
+  if (CONTENT_EVENTS.has(name) && !CONTENT_PATHS.has(path)) return;
   try {
     if (canMeasure("analytics")) {
       sendAnalyticsEvent(name, clean);

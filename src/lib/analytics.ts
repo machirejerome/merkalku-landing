@@ -7,6 +7,8 @@ declare global {
 const PAGE_TITLES: Record<string, string> = {
   "/": "MerKalku", "/preisrechner": "MerKalku Preisrechner", "/ausschreibung": "MerKalku Ausschreibung",
   "/impressum": "MerKalku Impressum", "/datenschutz": "MerKalku Datenschutz", "/agb": "MerKalku AGB",
+  "/wissen": "MerKalku Wissen",
+  "/wissen/ausschreibung-gebaeudereinigung-pruefen": "MerKalku Wissen: Ausschreibung prüfen",
 };
 let initializedId: string | null = null;
 let lastPageLocation: string | null = null;
