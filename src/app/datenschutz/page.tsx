@@ -1,10 +1,11 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Datenschutzerklärung – MerKalku",
-  description: "Datenschutzerklärung der MerKalku Webseite gemäß DSGVO.",
-};
+export const metadata = pageMetadata(
+  "/datenschutz",
+  "Datenschutzerklärung",
+  "Datenschutzerklärung der MerKalku Webseite gemäß DSGVO.",
+);
 
 export default function Datenschutz() {
   return (
@@ -28,11 +29,11 @@ export default function Datenschutz() {
             </h2>
             <p>
               Mit der folgenden Datenschutzerklärung möchten wir Sie darüber aufklären, welche Arten Ihrer
-              personenbezogenen Daten (nachfolgend auch kurz als „Daten" bezeichnet) wir zu welchen Zwecken und
+              personenbezogenen Daten (nachfolgend auch kurz als „Daten“ bezeichnet) wir zu welchen Zwecken und
               in welchem Umfang verarbeiten. Die Datenschutzerklärung gilt für alle von uns durchgeführten
               Verarbeitungen personenbezogener Daten, sowohl im Rahmen der Erbringung unserer Leistungen als auch
               insbesondere auf unseren Webseiten, in mobilen Applikationen sowie innerhalb externer Onlinepräsenzen,
-              wie z.&nbsp;B. unserer Social-Media-Profile (nachfolgend zusammenfassend bezeichnet als „Onlineangebot").
+              wie z.&nbsp;B. unserer Social-Media-Profile (nachfolgend zusammenfassend bezeichnet als „Onlineangebot“).
             </p>
           </section>
 
@@ -235,9 +236,10 @@ export default function Datenschutz() {
               Erstellung von Analysen der Besucherströme.
             </p>
             <p className="mt-3">
-              <strong>Hinweise zu Einwilligungen:</strong> Wir setzen Cookies im Einklang mit den gesetzlichen
-              Vorschriften ein. Daher holen wir von den Nutzern eine vorhergehende Einwilligung ein, es sei denn,
-              es ist gesetzlich nicht gefordert.
+              <strong>Ihre Einstellungen:</strong> Statistik und Marketing sind beim ersten Besuch standardmäßig
+              eingeschaltet. Marketingdienste können dabei Cookies setzen. Über „Datenschutz“ am unteren
+              Bildschirmrand können Sie beide Kategorien getrennt deaktivieren. Eine gespeicherte Ablehnung
+              wird berücksichtigt. Der automatische Start ist keine von Ihnen erteilte Einwilligung.
             </p>
           </section>
 
@@ -248,7 +250,7 @@ export default function Datenschutz() {
             </h2>
             <p>
               Wir verarbeiten Daten unserer Vertrags- und Geschäftspartner, z.&nbsp;B. Kunden und Interessenten
-              (zusammenfassend als „Vertragspartner" bezeichnet), im Rahmen von vertraglichen und vergleichbaren
+              (zusammenfassend als „Vertragspartner“ bezeichnet), im Rahmen von vertraglichen und vergleichbaren
               Rechtsverhältnissen sowie damit verbundenen Maßnahmen und im Rahmen der Kommunikation mit den
               Vertragspartnern (oder vorvertraglich).
             </p>
@@ -319,11 +321,11 @@ export default function Datenschutz() {
             </p>
             <p className="mt-3">
               Senden Sie den Ersparnis-Rechner ab, speichern wir die Kampagnenparameter zusammen mit Ihrer Anfrage in
-              unserem CRM-System, um zu erkennen, über welche Anzeige die Anfrage entstanden ist (Art. 6 Abs. 1 S. 1
-              lit. f) DSGVO, berechtigtes Interesse an der Erfolgsmessung unserer Werbung). Zusätzlich übermitteln wir
-              dem Anzeigenanbieter serverseitig die Information, dass über den betreffenden Anzeigenklick eine Anfrage
-              entstanden ist (Ereignis „Lead“, Klick-Kennung, Zeitpunkt, Seitenadresse, rechnerische Ersparnis). Name,
-              Firma, E-Mail-Adresse und Telefonnummer werden dabei nicht übermittelt.
+              unserem CRM-System, wenn Marketing in Ihren Einstellungen aktiviert ist. In diesem Fall
+              übermitteln wir dem Anzeigenanbieter serverseitig die Information, dass über den betreffenden
+              Anzeigenklick eine Anfrage entstanden ist (Ereignis „Lead“, Ereigniskennung, Klick-Kennung, Zeitpunkt
+              und Seitenadresse ohne Suchparameter). Name, Firma, E-Mail-Adresse, Telefonnummer und rechnerische
+              Ersparnis werden dabei nicht übermittelt. Ihre Anfrage können Sie auch bei ausgeschaltetem Marketing absenden.
             </p>
             <p className="mt-3">
               <strong>Kontakt per WhatsApp:</strong> Nur wenn Sie im Rechner ausdrücklich zustimmen, kontaktieren wir
@@ -342,18 +344,37 @@ export default function Datenschutz() {
               Webanalyse, Monitoring und Optimierung
             </h2>
             <p>
-              Die Webanalyse (auch als „Reichweitenmessung" bezeichnet) dient der Auswertung der Besucherströme
-              unseres Onlineangebots und kann Verhalten, Interessen oder demografische Informationen zu den
-              Besuchern, wie beispielsweise Alter oder Geschlecht, als pseudonyme Werte umfassen.
+              Analyse- und Marketingdienste starten beim ersten Besuch standardmäßig. Der Einstellungsdialog
+              öffnet sich ausschließlich über „Datenschutz“ am unteren Bildschirmrand. Dort können Sie beide
+              Kategorien getrennt deaktivieren und Ihre Auswahl jederzeit ändern. Der automatische Start
+              wird nicht als aktiv erteilte Einwilligung gespeichert.
+              Die Auswahl wird mit Version und Zeitpunkt für bis zu
+              180 Tage in Ihrem Browser gespeichert. Nach einem Widerruf stoppen wir die optionale Messung;
+              bereits übermittelte Daten werden dadurch nicht rückwirkend gelöscht.
+              Falls Ihre Auswahl wegen eines Speicherfehlers nicht gesichert werden kann, verwenden wir
+              einen notwendigen Sperrvermerk im Browser, um eine frühere Zustimmung nicht erneut zu aktivieren.
             </p>
 
             <h3 className="text-sm font-semibold mt-4 mb-2" style={{ color: "var(--color-text)" }}>
               Google Analytics
             </h3>
             <p>
-              Wir verwenden Google Analytics zur Messung und Analyse der Nutzung unseres Onlineangebotes auf der
-              Grundlage einer pseudonymen Nutzeridentifikationsnummer. Dienstanbieter: Google Ireland Limited,
-              Gordon House, Barrow Street, Dublin 4, Irland.
+              Bei aktivierter Statistik verwenden wir Google Analytics 4 für Seitenaufrufe und ausgewählte
+              Aktionen, beispielsweise die Nutzung des Rechners oder das Öffnen des Kalenders. Das Öffnen des
+              Kalenders gilt nicht als bestätigte Terminbuchung. Der Google-Tag wird standardmäßig geladen und
+              kann bereits beim ersten Besuch Analytics-Cookies zur Wiedererkennung setzen. Wir übermitteln keine Formularinhalte,
+              Kontaktdaten oder URL-Suchparameter an Google Analytics.
+              Google Signals und Anzeigenpersonalisierung werden für diese Messung nicht verwendet.
+              Über „Datenschutz“ am unteren Bildschirmrand können Sie Statistik deaktivieren.
+              Dienstanbieter: Google Ireland Limited,
+              Gordon House, Barrow Street, Dublin 4, Irland. Eine Verarbeitung durch Google in den USA
+              kann stattfinden. Weitere Informationen finden Sie in den Datenschutzhinweisen von Google.
+            </p>
+            <p className="mt-3">
+              Auch unsere eigene Funnel-Messung ist bei aktivierter Statistik eingeschaltet. Sie erfasst
+              Rechner-Schritte und eine zufällige Kennung der geöffneten Seite in unserer
+              Datenbank. Ihre Anfrage und die zur Auswertung notwendigen Angaben verarbeiten wir unabhängig
+              davon wie im Abschnitt „Preisrechner“ beschrieben.
             </p>
 
             <h3 className="text-sm font-semibold mt-4 mb-2" style={{ color: "var(--color-text)" }}>
@@ -364,9 +385,9 @@ export default function Datenschutz() {
               Leadinfo verarbeitet hierzu die IP-Adresse des Besuchers und gleicht diese mit einer Datenbank ab,
               um zu erkennen, von welchem Unternehmen ein Besuch stammt; hierfür wird ein Cookie eingesetzt.
               Profile einzelner natürlicher Personen erstellen wir hierüber nicht. Dienstanbieter: Leadinfo B.V.,
-              Rivium Quadrant 141, 2909 LC Capelle aan den IJssel, Niederlande. Rechtsgrundlagen: Berechtigte
-              Interessen (Art. 6 Abs. 1 S. 1 lit. f) DSGVO) an der Ansprache gewerblicher Interessenten;
-              Einwilligung, soweit gesetzlich erforderlich.
+              Rivium Quadrant 141, 2909 LC Capelle aan den IJssel, Niederlande. Wir laden Leadinfo bei
+              aktivierter Marketing-Einstellung, standardmäßig auch vor einer aktiven Auswahl.
+              Auf der Anzeigen-Landingpage /ausschreibung wird Leadinfo nicht geladen.
             </p>
           </section>
 
@@ -378,8 +399,11 @@ export default function Datenschutz() {
             <p>
               Wir verarbeiten personenbezogene Daten zum Zweck des Onlinemarketings, worunter insbesondere die
               Vermarktung von Werbeflächen oder die Darstellung von werbenden und sonstigen Inhalten
-              (zusammenfassend als „Inhalte" bezeichnet) anhand potenzieller Interessen der Nutzer sowie die
-              Messung ihrer Effektivität fallen können.
+              (zusammenfassend als „Inhalte“ bezeichnet) anhand potenzieller Interessen der Nutzer sowie die
+              Messung ihrer Effektivität fallen können. Den OpenAI-Werbepixel laden wir bei aktivierter
+              Marketing-Einstellung, standardmäßig auch vor einer aktiven Auswahl. Er kann technische
+              Verbindungsdaten und Seitenaufrufe an OpenAI übermitteln. Sie können Marketing über
+              „Datenschutz“ am unteren Bildschirmrand deaktivieren.
             </p>
           </section>
 

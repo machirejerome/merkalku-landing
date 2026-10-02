@@ -1,5 +1,6 @@
 import { PRICING, berechneErsparnis } from "@/lib/pricing-config";
 import { getSql, ensureSchema } from "@/lib/db";
+import { resolveMeasurement } from "@/lib/measurement";
 
 /* Stille Verwerfung (Honeypot, Mindestzeit) in der eigenen Datenbank festhalten, damit ein
    geschluckter Lead nie unsichtbar bleibt. Der Absender sieht trotzdem sein Ergebnis. */
@@ -56,6 +57,8 @@ const FIELD_IDS = {
 } as const;
 
 type LeadPayload = {
+  optionalConsent?: unknown;
+  measurementDefault?: unknown;
   name?: string;
   firma?: string;
   email?: string;
@@ -203,6 +206,12 @@ export async function POST(request: Request) {
   } catch {
     return Response.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
+
+  // The default transport mode is not an explicit visitor consent record.
+  // Older clients without either mode can still submit their service request.
+  const measurement = resolveMeasurement(data.optionalConsent, data.measurementDefault);
+  if (!measurement.analytics) data.sid = undefined;
+  if (!measurement.marketing) data.utm = undefined;
 
   // Honeypot: Bots füllen das versteckte Feld – still "ok", aber loggen,
   // damit False Positives (Autofill echter Nutzer) auffallen würden
@@ -364,11 +373,13 @@ export async function POST(request: Request) {
 
     await markiereAbgeschickt({ sid: data.sid, contactId, ersparnisEur, whatsappOk, quelle });
 
-    await meldeConversionAnOpenAI({
-      eventId: `lead-${contactId}`,
-      seite: seite || "https://merkalku.de/",
-      oppref: data.utm?.oppref,
-    });
+    if (resolveMeasurement(data.optionalConsent, data.measurementDefault).marketing) {
+      await meldeConversionAnOpenAI({
+        eventId: `lead-${contactId}`,
+        seite: `https://www.merkalku.de/${quelle === "lp-ausschreibung" ? "ausschreibung" : "preisrechner"}`,
+        oppref: data.utm?.oppref,
+      });
+    }
 
     return Response.json({ ok: true });
   } catch (err) {

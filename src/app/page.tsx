@@ -611,7 +611,7 @@ function MobileCta() {
   return (
     <div
       className="lg:hidden fixed bottom-0 inset-x-0 z-40 px-4 py-3 backdrop-blur-xl"
-      style={{ background: "rgba(247,251,249,0.92)", borderTop: "1px solid var(--color-border)", paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+      style={{ background: "rgba(247,251,249,0.92)", borderTop: "1px solid var(--color-border)", paddingBottom: "calc(2rem + env(safe-area-inset-bottom))" }}
     >
       <a href="#termin" className="btn-primary flex items-center justify-center gap-2 w-full px-6 py-3.5 text-base font-semibold rounded-xl active:scale-[0.99] transition-transform">
         Kostenlos Termin sichern

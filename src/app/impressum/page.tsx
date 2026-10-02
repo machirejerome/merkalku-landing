@@ -1,10 +1,11 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Impressum – MerKalku",
-  description: "Impressum der MerKalku Webseite. Angaben gemäß § 5 DDG.",
-};
+export const metadata = pageMetadata(
+  "/impressum",
+  "Impressum",
+  "Impressum der MerKalku Webseite. Angaben gemäß § 5 DDG.",
+);
 
 export default function Impressum() {
   return (

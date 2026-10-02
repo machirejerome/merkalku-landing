@@ -11,6 +11,7 @@ import {
 } from "@/lib/pricing-config";
 import { FIRMA } from "@/lib/firma";
 import { leseAttribution, leseSitzungsId } from "@/lib/attribution";
+import { canMeasure, getTrackingPreferences, readConsent } from "@/lib/consent";
 import { trackEvent, trackLead, trackStand, type Quelle } from "@/lib/tracking";
 
 const LOGO_URL = "/logo.webp";
@@ -394,8 +395,8 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
     advanceTimer.current = window.setTimeout(() => setStep(naechster), 320);
   }
 
-  /* Erste Hälfte abgeschlossen: nur weiterblättern, nichts an den Server melden.
-     Die E-Mail bleibt im React-State, bis der Lead vollständig ist. */
+  /* Erste Hälfte abgeschlossen: die angeforderte Auswertung als Service-Lead sichern.
+     Die Zuordnung zur Mess-Sitzung folgt dem Messmodus und der Besucherauswahl. */
   function zumZweitenTeil() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
       setError("Bitte eine gültige geschäftliche E-Mail eintragen.");
@@ -408,8 +409,15 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
        wenn jemand Schritt 2 nicht zu Ende bringt. Absichtlich ohne await: das Weiterblättern
        darf nie an einem Netzwerkfehler hängen. */
     try {
+      const analyticsAllowed = canMeasure("analytics");
+      const marketingAllowed = canMeasure("marketing");
+      const measurementAllowed = analyticsAllowed || marketingAllowed;
+      const optionalConsent = measurementAllowed ? readConsent() : null;
+      const measurementDefault = measurementAllowed && getTrackingPreferences().source === "default";
       const nutzlast = JSON.stringify({
-        sid: leseSitzungsId(),
+        sid: analyticsAllowed ? leseSitzungsId() : undefined,
+        optionalConsent,
+        measurementDefault,
         email: email.trim(),
         quelle,
         seite: typeof window !== "undefined" ? window.location.pathname : undefined,
@@ -438,9 +446,16 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
     setError(null);
     trackEvent("gate_daten", { quelle });
 
+    const analyticsAllowed = canMeasure("analytics");
+    const marketingAllowed = canMeasure("marketing");
+    const measurementAllowed = analyticsAllowed || marketingAllowed;
+    const optionalConsent = measurementAllowed ? readConsent() : null;
+    const measurementDefault = measurementAllowed && getTrackingPreferences().source === "default";
     const payload = JSON.stringify({
       t0: gateSeit.current || undefined,
-      sid: leseSitzungsId(),
+      sid: analyticsAllowed ? leseSitzungsId() : undefined,
+      optionalConsent,
+      measurementDefault,
       name,
       firma,
       email,
@@ -453,10 +468,10 @@ export default function Rechner({ quelle = "preisrechner", embedded = false, tit
       kalkulationTool: tool ? TOOL_GHL[tool] : undefined,
       zusatz,
       quelle,
-      utm: leseAttribution(),
+      utm: marketingAllowed ? leseAttribution() : undefined,
       whatsappEinwilligung: whatsappOk,
       whatsappEinwilligungVersion: WHATSAPP_EINWILLIGUNG_VERSION,
-      seite: typeof window !== "undefined" ? window.location.href.slice(0, 500) : undefined,
+      seite: typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : undefined,
     });
     const post = () =>
       fetch("/api/preisrechner-lead", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload });

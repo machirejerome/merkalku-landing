@@ -4,6 +4,7 @@
    der geöffneten Seite (kein Cookie, kein Web-Storage). */
 
 import { getSql, ensureSchema } from "@/lib/db";
+import { resolveMeasurement } from "@/lib/measurement";
 
 const ERLAUBT = new Set([
   "lp_ausschreibung_view", "rechner_schritt", "rechner_stand", "generate_lead", "cta_zum_rechner",
@@ -11,6 +12,7 @@ const ERLAUBT = new Set([
   /* Die zwei Hälften des Gates: gate_mail = E-Mail abgeschickt, gate_daten = vollständig abgeschickt.
      Der Abstand zwischen beiden ist der Abbruch, den die Aufteilung senken soll. */
   "gate_mail", "gate_daten",
+  "demo_cta_click", "calculator_open",
 ]);
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : null);
@@ -25,12 +27,19 @@ export async function POST(request: Request) {
   } catch {
     return new Response(null, { status: 204 });
   }
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return new Response(null, { status: 204 });
+  }
+  const measurement = resolveMeasurement(data.optionalConsent, data.measurementDefault);
+  if (!measurement.analytics) return new Response(null, { status: 204 });
+  if (!measurement.marketing) data.utm = undefined;
   const e = typeof data.e === "string" ? data.e : "";
   if (!ERLAUBT.has(e)) return new Response(null, { status: 204 });
 
   const sid = str(data.sid, 40);
   const zeile = {
     funnel: e,
+    measurementMode: measurement.source,
     sid,
     schritt: num(data.schritt),
     quelle: str(data.quelle, 40),

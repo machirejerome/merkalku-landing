@@ -1,10 +1,11 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "AGB – MerKalku",
-  description: "Allgemeine Geschäftsbedingungen der IntelligenzWerk UG (haftungsbeschränkt) für die Nutzung von MerKalku.",
-};
+export const metadata = pageMetadata(
+  "/agb",
+  "AGB",
+  "Allgemeine Geschäftsbedingungen der IntelligenzWerk UG (haftungsbeschränkt) für die Nutzung von MerKalku.",
+);
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
