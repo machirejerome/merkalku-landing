@@ -47,8 +47,8 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XB5J8XB893
 
 The measurement ID is public, not a credential. The GA4 stream is
 `15955106538` in property `518949678` (MerKalku account `379811331`). It was linked
-to the Search Console domain property `merkalku.de` on 2026-10-02 under
-`machirejerome@leadgainers.de`. Enhanced Measurement, Google Signals, granular
+to the Search Console domain property `merkalku.de` on 2026-10-02 under the
+operator account. Enhanced Measurement, Google Signals, granular
 location/device collection and ads personalization are disabled. Event and user
 retention are two months, without resetting on new activity.
 
