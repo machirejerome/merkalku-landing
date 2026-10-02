@@ -114,3 +114,30 @@ the prior unconditional tracking scripts if a regression occurs: disable the
 affected optional integration or deploy a consent-preserving fix. The submitted
 sitemap currently has a GSC fetch/read error despite public HTTP 200/XML; verify
 successful processing after release before claiming indexation is fixed.
+
+## Knowledge content
+
+`/wissen` lists the first guide, `/wissen/ausschreibung-gebaeudereinigung-pruefen`.
+The public text is in `src/content/checkliste.json`; internal research notes are
+not imported. The editorial revision and source review date are 2026-10-02.
+`datePublished` is deliberately omitted until the first actual public release;
+deployment timestamps must not replace editorial dates in structured data or the sitemap.
+
+The checklist holds editable rows in React memory only: no account, upload,
+autosave, localStorage or submission endpoint. Reloading loses the entries.
+The real browser print dialog prints current values in a separate table (so
+long text is not clipped inside textareas), followed by two clearly fictional
+example rows. Saving a PDF is a browser print-dialog option, not a generated download.
+
+Content events are `checklist_edit_started` (once per mounted worksheet),
+`checklist_print_clicked` (opening the dialog, not successful printing),
+`source_click` and `content_product_click`. Client and server use a shared
+allowlist; worksheet text, names, deadlines and arbitrary URLs are discarded.
+No database migration is needed: event/path identify the guide; the known
+source identifier uses the existing `herkunft` field.
+
+Before release, test desktop/mobile input, resetting, the real print dialog
+with a long synthetic note, source and Praxischeck links, and the existing
+manual privacy control. Verify network payloads contain no entered text.
+The first guide must be checked on its public URL after publishing; no links
+to unimplemented follow-up guides should be added.

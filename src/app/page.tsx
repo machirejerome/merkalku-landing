@@ -601,6 +601,8 @@ function Footer() {
         <a href="/datenschutz" className="underline hover:opacity-70">Datenschutz</a>
         {" "}&nbsp;|&nbsp;{" "}
         <a href="/agb" className="underline hover:opacity-70">AGB</a>
+        {" "}&nbsp;|&nbsp;{" "}
+        <a href="/wissen" className="underline hover:opacity-70">Wissen</a>
       </p>
     </footer>
   );

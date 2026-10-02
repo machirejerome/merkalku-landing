@@ -5,6 +5,7 @@
 
 import { getSql, ensureSchema } from "@/lib/db";
 import { resolveMeasurement } from "@/lib/measurement";
+import { CONTENT_EVENTS, CONTENT_PATHS, sanitizeContentEvent } from "@/lib/content-events";
 
 const ERLAUBT = new Set([
   "lp_ausschreibung_view", "rechner_schritt", "rechner_stand", "generate_lead", "cta_zum_rechner",
@@ -34,7 +35,15 @@ export async function POST(request: Request) {
   if (!measurement.analytics) return new Response(null, { status: 204 });
   if (!measurement.marketing) data.utm = undefined;
   const e = typeof data.e === "string" ? data.e : "";
-  if (!ERLAUBT.has(e)) return new Response(null, { status: 204 });
+  if (CONTENT_EVENTS.has(e)) {
+    if (typeof data.p !== "string" || !CONTENT_PATHS.has(data.p)) return new Response(null, { status: 204 });
+    const clean = sanitizeContentEvent(e, data)!;
+    // Rebuild rather than spread the request: even crafted requests cannot log notes.
+    data = {
+      e, p: data.p, sid: typeof data.sid === "string" && /^[a-f0-9]{24}$/.test(data.sid) ? data.sid : null,
+      quelle: "wissen", herkunft: clean.source_id ?? null, v: "1",
+    };
+  } else if (!ERLAUBT.has(e)) return new Response(null, { status: 204 });
 
   const sid = str(data.sid, 40);
   const zeile = {
