@@ -1,36 +1,31 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://merkalku.de";
-
+  // Add lastModified only when a content revision date is available, not the build date.
   return [
     {
-      url: baseUrl,
-      lastModified: new Date(),
+      url: SITE_URL,
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: `${baseUrl}/preisrechner`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/preisrechner`,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/impressum`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/impressum`,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: `${baseUrl}/datenschutz`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/datenschutz`,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: `${baseUrl}/agb`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/agb`,
       changeFrequency: "yearly",
       priority: 0.3,
     },

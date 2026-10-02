@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
+import { SITE_URL } from "@/lib/seo";
+import ConsentManager from "@/components/ConsentManager";
 import "./globals.css";
 
 const inter = Inter({
@@ -16,8 +18,6 @@ const sora = Sora({
   variable: "--font-sora",
   display: "swap",
 });
-
-const SITE_URL = "https://merkalku.de";
 
 export const metadata: Metadata = {
   // ── Core SEO ──
@@ -50,9 +50,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: "/",
-    languages: {
-      "de-DE": "/",
-    },
   },
 
   // ── Open Graph (Facebook, LinkedIn) ──
@@ -108,7 +105,7 @@ export const metadata: Metadata = {
   // },
 };
 
-// ── JSON-LD Structured Data: LocalBusiness + SoftwareApplication ──
+// Site-wide entities only: individual pages must not inherit the homepage's WebPage ID.
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -145,12 +142,6 @@ const jsonLd = {
       operatingSystem: "Web",
       description:
         "KI-gestützte Kalkulationsplattform für Gebäudereiniger. Objektdaten hochladen – egal ob PDF, Bauplan, Excel oder Fließtext. Automatische Raumerkennung, Kalkulation und Angebotserstellung.",
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "EUR",
-        description: "Kostenloser 30-Minuten-Praxischeck",
-      },
       provider: {
         "@id": `${SITE_URL}/#organization`,
       },
@@ -162,16 +153,6 @@ const jsonLd = {
           minValue: 50,
         },
       },
-    },
-    {
-      "@type": "WebPage",
-      "@id": `${SITE_URL}/#webpage`,
-      url: SITE_URL,
-      name: "MerKalku – Mehr Aufträge. Weniger Büro.",
-      description:
-        "In 30 Minuten zeigen wir Ihnen, wie Gebäudereiniger Ausschreibungen und Objektdaten in einem Bruchteil der Zeit kalkulieren.",
-      isPartOf: { "@id": `${SITE_URL}/#website` },
-      inLanguage: "de-DE",
     },
     {
       "@type": "WebSite",
@@ -200,29 +181,12 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Leadinfo – B2B-Besuchererkennung. Läuft seit 22.09.2026 auf allen Seiten, auch auf
-            /ausschreibung: der Ausschluss war nur dazu da, die Ads-Landingpage cookiefrei zu halten.
-            Diese Entscheidung ist auf Jérômes Anweisung aufgehoben. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(l,e,a,d,i,n,f,o){if(!l[i]){l.GlobalLeadinfoNamespace=l.GlobalLeadinfoNamespace||[];l.GlobalLeadinfoNamespace.push(i);l[i]=function(){(l[i].q=l[i].q||[]).push(arguments)};l[i].t=l[i].t||n;l[i].q=l[i].q||[];o=e.createElement(a);f=e.getElementsByTagName(a)[0];o.async=1;o.src=d;f.parentNode.insertBefore(o,f);}}(window,document,'script','https://cdn.leadinfo.eu/ping.js','leadinfo','LI-6A8EC9B923EA8'));",
-          }}
-        />
-        {/* OpenAI Ads Pixel. Feuert ohne Einwilligungsabfrage; der Consent-Banner kommt separat.
-            Ergänzt die serverseitige Conversions-Meldung in der Lead-Route, ersetzt sie nicht. */}
-        <link rel="preconnect" href="https://bzrcdn.openai.com" crossOrigin="anonymous" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"5AqDj4XKxG9a38E7EVMjyN"});`,
-          }}
-        />
         <meta name="geo.region" content="DE-BW" />
         <meta name="geo.placename" content="Ispringen" />
         <meta name="geo.position" content="48.9123;8.6628" />
         <meta name="ICBM" content="48.9123, 8.6628" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">{children}<ConsentManager /></body>
     </html>
   );
 }

@@ -8,9 +8,10 @@
    Zwei Gründe: der Workflow darf nicht auf einem halben Kontakt laufen, und weil der Tag dann
    wirklich neu gesetzt wird, feuert der Auslöser "Tag added" auch zuverlässig.
 
-   Zusätzlich landet die Adresse an der eigenen Sitzung in Neon, zusammen mit den fünf Antworten. */
+   Nur mit Analyse-Einwilligung wird die Adresse außerdem der Sitzung in Neon zugeordnet. */
 
 import { getSql, ensureSchema } from "@/lib/db";
+import { isValidConsent } from "@/lib/consent";
 
 const GHL_BASE = "https://services.leadconnectorhq.com";
 
@@ -42,6 +43,7 @@ function zuVieleAnfragen(ip: string) {
 let schemaOk = false;
 
 type Nutzlast = {
+  optionalConsent?: unknown;
   sid?: string;
   email?: string;
   quelle?: string;
@@ -113,8 +115,12 @@ export async function POST(request: Request) {
   } catch {
     return new Response(null, { status: 204 });
   }
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return new Response(null, { status: 204 });
+  }
 
-  const sid = typeof data.sid === "string" ? data.sid.slice(0, 40) : "";
+  const analyticsAllowed = isValidConsent(data.optionalConsent) && data.optionalConsent.analytics;
+  const sid = analyticsAllowed && typeof data.sid === "string" ? data.sid.slice(0, 40) : "";
   const email = (typeof data.email === "string" ? data.email : "").trim().toLowerCase().slice(0, 200);
   const quelle = typeof data.quelle === "string" ? data.quelle.slice(0, 40) : null;
   const pfad = typeof data.seite === "string" ? data.seite.slice(0, 200) : null;
@@ -130,8 +136,11 @@ export async function POST(request: Request) {
     console.error("preisrechner-mail: GHL nicht erreichbar", err);
   }
 
+  // A requested service lead is independent of optional funnel measurement.
+  if (!analyticsAllowed || !sid) return new Response(null, { status: 204 });
+
   const sql = getSql();
-  if (!sql || !sid) {
+  if (!sql) {
     console.log(JSON.stringify({ funnel: "gate_mail_gespeichert", sid, email, quelle, t: new Date().toISOString() }));
     return new Response(null, { status: 204 });
   }
