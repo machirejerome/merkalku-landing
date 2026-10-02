@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { pageMetadata, SITE_URL } from "@/lib/seo";
-import { checklistArticle as article, checklist, knowledgeJsonLd, KNOWLEDGE_CONTENT_DATE } from "@/lib/knowledge";
+import { checklistArticle as article, checklist, knowledgeJsonLd, KNOWLEDGE_CONTENT_DATE, CHECKLIST_PUBLISHED_DATE } from "@/lib/knowledge";
 import { FIRMA } from "@/lib/firma";
 import Checklist from "@/components/wissen/Checklist";
 import ContentLink from "@/components/wissen/ContentLink";
@@ -10,7 +10,7 @@ const title = "Ausschreibung Gebäudereinigung prüfen: Checkliste";
 const baseMetadata = pageMetadata(article.path, title, article.meta_description);
 export const metadata: Metadata = {
   ...baseMetadata, authors: [{ name: "MerKalku", url: `${SITE_URL}/impressum` }],
-  openGraph: { ...baseMetadata.openGraph, type: "article", modifiedTime: KNOWLEDGE_CONTENT_DATE },
+  openGraph: { ...baseMetadata.openGraph, type: "article", publishedTime: CHECKLIST_PUBLISHED_DATE, modifiedTime: KNOWLEDGE_CONTENT_DATE },
 };
 
 export default function ChecklistArticlePage() {
