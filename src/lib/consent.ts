@@ -113,7 +113,7 @@ export function isLeadinfoExcluded(pathname: string): boolean { return pathname 
 export function clearOptionalCookies() {
   if (typeof document === "undefined") return;
   try {
-    const names = document.cookie.split(";").map((c) => c.trim().split("=")[0]).filter((name) => /^(_ga(?:_|$)|_gid$|_gat(?:_|$)|_li_(?:id|ses)\.|__obref$)/.test(name));
+    const names = document.cookie.split(";").map((c) => c.trim().split("=")[0]).filter((name) => /^(_ga(?:_|$)|_gid$|_gat(?:_|$)|_li_(?:id|ses)\.|__(?:obref|oppref)$)/.test(name));
     const domains = ["", window.location.hostname, "." + window.location.hostname];
     if (window.location.hostname === "www.merkalku.de") domains.push("merkalku.de", ".merkalku.de");
     for (const name of names) for (const domain of domains) document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax${domain ? `; Domain=${domain}` : ""}`;

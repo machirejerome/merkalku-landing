@@ -195,6 +195,7 @@ test("a visitor can reject default tracking, and that rejection remains authorit
   const h = browserHarness(); const c = h.load("consent"), a = h.load("analytics");
   a.trackPageView(); assert.equal(h.scripts.length, 1);
   h.document.cookie = "__obref=optional-ad-reference";
+  h.document.cookie = "__oppref=optional-ad-click-reference";
   h.document.cookie = "essential_session=keep";
   c.saveConsent({ analytics: false, marketing: false }); a.stopAnalytics(); c.clearOptionalCookies(); c.reloadAfterConsentWithdrawal();
   assert.equal(h.document.cookie, "essential_session=keep", "withdrawal clears the observed ad cookie without removing service cookies");
