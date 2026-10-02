@@ -2,7 +2,8 @@
    Klick-ID "oppref" (hängt OpenAI beim Klick auf eine ChatGPT-Anzeige an die URL) und den
    Referrer-Host. Bewusst NUR im Speicher der laufenden Seite gehalten, nicht in Cookies oder
    Web-Storage. Das ist eine technische Eigenschaft, keine pauschale rechtliche Freigabe.
-   Optionale Messung und Weitergabe müssen die jeweils gespeicherte Zustimmung beachten. */
+   Messung und Weitergabe folgen dem getrennt gekennzeichneten Default-Modus oder der
+   gespeicherten Besucherauswahl; eine Ablehnung bleibt wirksam. */
 
 const KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "oppref", "v"] as const;
 

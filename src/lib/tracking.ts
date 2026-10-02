@@ -1,4 +1,4 @@
-import { canMeasure, readConsent } from "./consent";
+import { canMeasure, getTrackingPreferences, readConsent } from "./consent";
 import { safePagePath, sendAnalyticsEvent } from "./analytics";
 import { leseSitzungsId } from "./attribution";
 
@@ -36,8 +36,12 @@ export function trackEvent(name: string, params: Record<string, string | number 
   try {
     if (canMeasure("analytics")) {
       sendAnalyticsEvent(name, clean);
-      // Optional first-party funnel follows the same consent and data minimisation.
-      const body = JSON.stringify({ e: name, ...clean, sid: leseSitzungsId(), p: path, optionalConsent: readConsent() });
+      // Keep default-on operation distinct from an explicit visitor decision.
+      const body = JSON.stringify({
+        e: name, ...clean, sid: leseSitzungsId(), p: path,
+        optionalConsent: readConsent(),
+        measurementDefault: getTrackingPreferences().source === "default",
+      });
       if (navigator.sendBeacon) navigator.sendBeacon("/api/funnel-event", new Blob([body], { type: "application/json" }));
       else fetch("/api/funnel-event", { method: "POST", body, keepalive: true, headers: { "Content-Type": "application/json" } }).catch(() => {});
     }

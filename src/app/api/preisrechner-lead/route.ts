@@ -1,6 +1,6 @@
 import { PRICING, berechneErsparnis } from "@/lib/pricing-config";
 import { getSql, ensureSchema } from "@/lib/db";
-import { isValidConsent } from "@/lib/consent";
+import { resolveMeasurement } from "@/lib/measurement";
 
 /* Stille Verwerfung (Honeypot, Mindestzeit) in der eigenen Datenbank festhalten, damit ein
    geschluckter Lead nie unsichtbar bleibt. Der Absender sieht trotzdem sein Ergebnis. */
@@ -58,6 +58,7 @@ const FIELD_IDS = {
 
 type LeadPayload = {
   optionalConsent?: unknown;
+  measurementDefault?: unknown;
   name?: string;
   firma?: string;
   email?: string;
@@ -206,11 +207,11 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
 
-  // Optional measurement never follows from submitting a service request.
-  // Older clients without a valid consent record remain able to submit leads.
-  const consent = isValidConsent(data.optionalConsent) ? data.optionalConsent : null;
-  if (!consent?.analytics) data.sid = undefined;
-  if (!consent?.marketing) data.utm = undefined;
+  // The default transport mode is not an explicit visitor consent record.
+  // Older clients without either mode can still submit their service request.
+  const measurement = resolveMeasurement(data.optionalConsent, data.measurementDefault);
+  if (!measurement.analytics) data.sid = undefined;
+  if (!measurement.marketing) data.utm = undefined;
 
   // Honeypot: Bots füllen das versteckte Feld – still "ok", aber loggen,
   // damit False Positives (Autofill echter Nutzer) auffallen würden
@@ -372,7 +373,7 @@ export async function POST(request: Request) {
 
     await markiereAbgeschickt({ sid: data.sid, contactId, ersparnisEur, whatsappOk, quelle });
 
-    if (consent?.marketing && isValidConsent(consent)) {
+    if (resolveMeasurement(data.optionalConsent, data.measurementDefault).marketing) {
       await meldeConversionAnOpenAI({
         eventId: `lead-${contactId}`,
         seite: `https://www.merkalku.de/${quelle === "lp-ausschreibung" ? "ausschreibung" : "preisrechner"}`,

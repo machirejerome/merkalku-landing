@@ -8,10 +8,10 @@
    Zwei Gründe: der Workflow darf nicht auf einem halben Kontakt laufen, und weil der Tag dann
    wirklich neu gesetzt wird, feuert der Auslöser "Tag added" auch zuverlässig.
 
-   Nur mit Analyse-Einwilligung wird die Adresse außerdem der Sitzung in Neon zugeordnet. */
+   Die zusätzliche Sitzungszuordnung in Neon folgt der Besucherauswahl oder dem gekennzeichneten Default-Modus. */
 
 import { getSql, ensureSchema } from "@/lib/db";
-import { isValidConsent } from "@/lib/consent";
+import { resolveMeasurement } from "@/lib/measurement";
 
 const GHL_BASE = "https://services.leadconnectorhq.com";
 
@@ -44,6 +44,7 @@ let schemaOk = false;
 
 type Nutzlast = {
   optionalConsent?: unknown;
+  measurementDefault?: unknown;
   sid?: string;
   email?: string;
   quelle?: string;
@@ -119,7 +120,8 @@ export async function POST(request: Request) {
     return new Response(null, { status: 204 });
   }
 
-  const analyticsAllowed = isValidConsent(data.optionalConsent) && data.optionalConsent.analytics;
+  const measurement = resolveMeasurement(data.optionalConsent, data.measurementDefault);
+  const analyticsAllowed = measurement.analytics;
   const sid = analyticsAllowed && typeof data.sid === "string" ? data.sid.slice(0, 40) : "";
   const email = (typeof data.email === "string" ? data.email : "").trim().toLowerCase().slice(0, 200);
   const quelle = typeof data.quelle === "string" ? data.quelle.slice(0, 40) : null;
@@ -141,7 +143,7 @@ export async function POST(request: Request) {
 
   const sql = getSql();
   if (!sql) {
-    console.log(JSON.stringify({ funnel: "gate_mail_gespeichert", sid, email, quelle, t: new Date().toISOString() }));
+    console.log(JSON.stringify({ funnel: "gate_mail_gespeichert", measurementMode: measurement.source, sid, email, quelle, t: new Date().toISOString() }));
     return new Response(null, { status: 204 });
   }
 

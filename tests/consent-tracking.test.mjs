@@ -62,15 +62,47 @@ function browserHarness(initialUrl = "https://www.merkalku.de/", env = {}) {
   return { ...globals, scripts, events, beacons, navigation, load, go, commands, reloadModules: () => moduleCache.clear() };
 }
 
-test("no choice or rejection makes zero optional script, GA, funnel or pixel requests", () => {
+test("a new visitor starts default tracking without writing or claiming an explicit consent", () => {
   const h = browserHarness();
-  const c = h.load("consent"), a = h.load("analytics"), m = h.load("marketing"), t = h.load("tracking");
-  for (const choice of [null, { analytics: false, marketing: false }]) {
-    if (choice) c.saveConsent(choice);
-    a.trackPageView(); m.startMarketing(); t.trackEvent("generate_lead");
+  const c = h.load("consent"), a = h.load("analytics"), m = h.load("marketing");
+  assert.equal(c.getTrackingPreferences().source, "default");
+  assert.equal(c.canMeasure("analytics"), true); assert.equal(c.canMeasure("marketing"), true);
+  assert.equal(c.readConsent(), null); assert.equal(c.hasConsent("analytics"), false);
+  a.trackPageView(); a.trackPageView(); m.startMarketing();
+  assert.equal(h.scripts.length, 3);
+  assert.equal(h.scripts.filter((s) => s.id === "mk-google-analytics").length, 1);
+  assert.equal(h.commands().filter((cmd) => cmd[0] === "event" && cmd[1] === "page_view").length, 1);
+  assert.equal(h.commands()[0][2].analytics_storage, "denied");
+  assert.equal(h.commands().filter((cmd) => cmd[0] === "consent" && cmd[1] === "update").length, 0);
+  assert.equal(h.window.localStorage.getItem(c.CONSENT_STORAGE_KEY), null);
+  assert.equal(h.document.cookie, "");
+  assert.equal(c.readConsent(), null);
+});
+
+test("an explicit rejection persists across module reload and blocks all optional collection", () => {
+  const h = browserHarness();
+  h.load("consent").saveConsent({ analytics: false, marketing: false });
+  for (let iteration = 0; iteration < 2; iteration++) {
+    h.reloadModules();
+    const c = h.load("consent");
+    assert.equal(c.getTrackingPreferences().source, "choice");
+    assert.equal(c.canMeasure("analytics"), false); assert.equal(c.canMeasure("marketing"), false);
+    h.load("analytics").trackPageView(); h.load("marketing").startMarketing(); h.load("tracking").trackEvent("generate_lead");
   }
   assert.equal(h.scripts.length, 0); assert.equal(h.commands().length, 0); assert.equal(h.beacons.length, 0);
   assert.equal(h.events.filter((e) => e.type === "mk:generate_lead").length, 0);
+});
+
+test("explicit analytics consent after default start updates Google storage without duplicating the page view", () => {
+  const h = browserHarness(); const c = h.load("consent"), a = h.load("analytics");
+  a.trackPageView();
+  c.saveConsent({ analytics: true, marketing: false });
+  a.trackPageView(); a.trackPageView();
+  assert.equal(c.getTrackingPreferences().source, "choice");
+  const updates = h.commands().filter((cmd) => cmd[0] === "consent" && cmd[1] === "update");
+  assert.equal(updates.length, 1); assert.equal(updates[0][2].analytics_storage, "granted");
+  assert.equal(h.commands().filter((cmd) => cmd[0] === "event" && cmd[1] === "page_view").length, 1);
+  assert.equal(h.scripts.length, 1);
 });
 
 test("analytics-only loads GA once, records one page view per SPA path and sanitizes URLs", () => {
@@ -128,13 +160,48 @@ test("version, expiry, malformed storage and unknown hosts fail closed; preview 
   for (const invalid of [{ ...saved, version: 0 }, { ...saved, updatedAt: 1, expiresAt: 1 + c.CONSENT_LIFETIME_MS }, { analytics: true }, { ...saved, updatedAt: Date.now() + 100000 }]) {
     h.window.localStorage.setItem(c.CONSENT_STORAGE_KEY, JSON.stringify(invalid));
     assert.equal(c.readConsent(), null);
+    assert.equal(c.getTrackingPreferences().source, "blocked");
+    assert.equal(c.canMeasure("analytics"), false); assert.equal(c.canMeasure("marketing"), false);
   }
-  h.window.localStorage.setItem(c.CONSENT_STORAGE_KEY, "{"); assert.equal(c.readConsent(), null);
-  h.window.localStorage.failRead = true; assert.equal(c.readConsent(), null);
+  for (const invalid of ["{", "", "null"]) {
+    h.window.localStorage.setItem(c.CONSENT_STORAGE_KEY, invalid);
+    assert.equal(c.readConsent(), null); assert.equal(c.getTrackingPreferences().source, "blocked");
+  }
+  h.window.localStorage.failRead = true; assert.equal(c.readConsent(), null); assert.equal(c.getTrackingPreferences().source, "blocked");
   for (const [host, env, allowed] of [["localhost", {}, false], ["preview.vercel.app", {}, false], ["localhost", { NEXT_PUBLIC_ENABLE_MEASUREMENT_PREVIEW: "true" }, true]]) {
     const preview = browserHarness(`http://${host}/`, env); const pc = preview.load("consent");
+    assert.equal(pc.canMeasure("analytics"), allowed);
     pc.saveConsent({ analytics: true, marketing: false }); assert.equal(pc.canMeasure("analytics"), allowed);
   }
+});
+
+test("unreadable safety storage or emergency markers block default tracking", () => {
+  for (const kind of ["local-read", "session-read", "session-marker", "cookie-marker", "url-marker"]) {
+    const h = browserHarness(); const c = h.load("consent");
+    if (kind === "local-read") h.window.localStorage.failRead = true;
+    if (kind === "session-read") h.window.sessionStorage.failRead = true;
+    if (kind === "session-marker") h.window.sessionStorage.setItem("mk:optional-consent-blocked", "1");
+    if (kind === "cookie-marker") h.document.cookie = "mk_optional_blocked=1";
+    if (kind === "url-marker") h.go("/?mk_optional_blocked=1");
+    assert.equal(c.getTrackingPreferences().source, "blocked", kind);
+    h.load("analytics").trackPageView(); h.load("marketing").startMarketing();
+    assert.equal(h.scripts.length, 0, kind);
+  }
+});
+
+test("a visitor can reject default tracking, and that rejection remains authoritative after reload", () => {
+  const h = browserHarness(); const c = h.load("consent"), a = h.load("analytics");
+  a.trackPageView(); assert.equal(h.scripts.length, 1);
+  h.document.cookie = "__obref=optional-ad-reference";
+  h.document.cookie = "essential_session=keep";
+  c.saveConsent({ analytics: false, marketing: false }); a.stopAnalytics(); c.clearOptionalCookies(); c.reloadAfterConsentWithdrawal();
+  assert.equal(h.document.cookie, "essential_session=keep", "withdrawal clears the observed ad cookie without removing service cookies");
+  assert.equal(h.window["ga-disable-G-TEST123"], true); assert.equal(h.scripts[0].removed, true);
+  assert.equal(h.navigation[0], "reload");
+  h.reloadModules();
+  assert.equal(h.load("consent").getTrackingPreferences().source, "choice");
+  h.load("analytics").trackPageView(); h.load("marketing").startMarketing(); h.load("tracking").trackEvent("generate_lead");
+  assert.equal(h.scripts.length, 1); assert.equal(h.beacons.length, 0);
 });
 
 test("withdrawal disables GA; failed persistence cannot resurrect the old grant on reload", () => {

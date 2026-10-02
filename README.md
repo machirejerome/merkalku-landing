@@ -63,13 +63,22 @@ Use these two switches only for explicit QA. Do not set them in Production or
 general Preview environments. Without a valid measurement ID, consent UI and
 service forms still work, but Google Analytics does not load.
 
-`ConsentManager` blocks optional scripts and funnel requests until consent.
-Analytics and marketing have independent choices. Withdrawal disables Google
+`ConsentManager` starts measurement by default for a fresh visit on a measurement host.
+Only a small `Datenschutz` tab is shown at the bottom edge. The settings dialog
+opens on request, never automatically, and can be closed without making a choice.
+Default operation is not stored as an explicit consent record. GA starts with
+`analytics_storage: denied` (cookieless measurement); only an explicit saved
+analytics choice grants that storage. Marketing SDKs can run in default mode.
+Analytics and marketing have independent settings. A saved rejection, invalid or
+expired record, and storage failures disable the relevant measurement. Withdrawal disables Google
 measurement, clears optional storage and starts a new document to stop running
 third-party SDKs. The consent record is versioned and expires after 180 days.
 Form submissions remain service requests; optional database session association
-requires analytics consent, advertising attribution and server-side OpenAI
-conversions require marketing consent. Existing service/CRM credentials are not
+follows the analytics setting, advertising attribution and server-side OpenAI
+conversions follow the marketing setting. Default operation is sent separately
+as `measurementDefault`, never as a fabricated consent record. This default-on
+configuration is an explicit operator decision, not a claim of valid consent or
+legal compliance. Existing service/CRM credentials are not
 part of the browser configuration.
 
 GA parameters are allowlisted. Contact details, individual calculator answers,
@@ -90,8 +99,11 @@ Full ESLint has existing errors in the two setup scripts and two calculator
 effects; focused lint must pass for the new measurement code and API routes.
 Use Node 22.13 or newer within the 22.x line for the ESLint dependency engine.
 Offline tests mock CRM, database and advertising requests: they never create
-real leads. For browser QA, verify no optional requests/cookies before choice,
-after rejection, and after withdrawal; one page_view per actual route; separate
+real leads. For browser QA, verify a fresh visit shows no dialog and starts default
+measurement on an enabled host without saving an explicit consent record. Manual
+opening must show the current settings; closing with the button or Escape must not
+save a choice. Check the bottom-edge tab does not overlap mobile CTAs. Verify no
+optional requests after saved rejection/reload or withdrawal; one page_view per actual route; separate
 CTA and booking semantics; successful collection in GA DebugView.
 
 Release: review the branch, resolve the hosting plan (the current Vercel Hobby

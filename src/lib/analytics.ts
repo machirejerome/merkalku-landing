@@ -1,4 +1,4 @@
-import { canMeasure } from "./consent";
+import { canMeasure, hasConsent } from "./consent";
 
 declare global {
   interface Window { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void; [key: `ga-disable-${string}`]: boolean | undefined; }
@@ -11,6 +11,7 @@ const PAGE_TITLES: Record<string, string> = {
 let initializedId: string | null = null;
 let lastPageLocation: string | null = null;
 let currentPageReferrer = "";
+let analyticsStorage: "denied" | "granted" = "denied";
 
 export function safePagePath(pathname: string): string | null {
   const path = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
@@ -36,18 +37,34 @@ function pageContext() {
   return path ? { page_location: location!, page_title: PAGE_TITLES[path], page_referrer: location === lastPageLocation ? currentPageReferrer : lastPageLocation || safeReferrer(document.referrer) } : null;
 }
 
-/** Sole GA bootstrap: no remote script or queued browsing history before consent. */
+function syncAnalyticsConsent() {
+  // The site's automatic start must not be represented as a user's consent.
+  const next = hasConsent("analytics") ? "granted" : "denied";
+  if (next === analyticsStorage) return;
+  window.gtag?.("consent", "update", { analytics_storage: next });
+  analyticsStorage = next;
+}
+
+/**
+ * Sole GA bootstrap. Default-on sends cookieless measurements with analytics_storage
+ * denied; only an explicit analytics choice can grant storage. Rejection stops collection.
+ * https://developers.google.com/tag-platform/security/concepts/consent-mode
+ */
 export function ensureAnalytics(): boolean {
   const id = measurementId();
   if (!id || !canMeasure("analytics") || !pageContext()) return false;
-  if (initializedId) return initializedId === id;
+  if (initializedId) {
+    if (initializedId !== id) return false;
+    syncAnalyticsConsent();
+    return true;
+  }
   window[`ga-disable-${id}`] = false;
   window.dataLayer = window.dataLayer || [];
   // Keep Google's documented gtag queue format (Arguments rather than a dataLayer object).
   // eslint-disable-next-line prefer-rest-params
   window.gtag = function () { window.dataLayer!.push(arguments); };
   window.gtag("consent", "default", { analytics_storage: "denied", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" });
-  window.gtag("consent", "update", { analytics_storage: "granted" });
+  syncAnalyticsConsent();
   window.gtag("js", new Date());
   window.gtag("config", id, { send_page_view: false, allow_google_signals: false, allow_ad_personalization_signals: false, ...(process.env.NEXT_PUBLIC_GA_DEBUG_MODE === "true" ? { debug_mode: true } : {}), ...pageContext() });
   initializedId = id;
@@ -70,7 +87,8 @@ export function stopAnalytics() {
 export function trackPageView() {
   if (!canMeasure("analytics")) return;
   const context = pageContext();
-  if (!context || context.page_location === lastPageLocation || !ensureAnalytics()) return;
+  // A same-page explicit choice must still update storage consent without another page view.
+  if (!context || !ensureAnalytics() || context.page_location === lastPageLocation) return;
   window.gtag?.("set", context);
   window.gtag?.("event", "page_view", context);
   lastPageLocation = context.page_location;

@@ -26,6 +26,7 @@ function loadTs(relativePath, dependencies = {}, globals = {}) {
 }
 
 const consentModule = loadTs("../src/lib/consent.ts");
+const measurementModule = loadTs("../src/lib/measurement.ts", { "./consent": consentModule });
 
 function consent(analytics, overrides = {}) {
   const updatedAt = Date.now() - 1000;
@@ -46,7 +47,7 @@ async function submit(optionalConsent, payloadOverrides = {}) {
   let dbAccesses = 0;
   let schemaCalls = 0;
   const route = loadTs("../src/app/api/preisrechner-mail/route.ts", {
-    "@/lib/consent": consentModule,
+    "@/lib/measurement": measurementModule,
     "@/lib/db": {
       getSql() {
         dbAccesses++;
@@ -116,3 +117,24 @@ test("analytics consent without a session still only processes the service lead"
   assert.equal(result.dbAccesses, 0);
   assert.equal(result.logs.length, 0);
 });
+
+test("half-gate default measurement associates the session without an explicit consent record", async () => {
+  const result = await submit(null, { measurementDefault: true });
+  assert.equal(result.response.status, 204);
+  assert.equal(result.crm.length, 2);
+  assert.equal(result.writes.length, 1);
+});
+
+for (const [name, record] of [
+  ["saved rejection", consent(false)],
+  ["malformed record", { analytics: true }],
+  ["missing record", undefined],
+]) {
+  test(`half-gate default flag cannot override ${name}`, async () => {
+    const result = await submit(record, { measurementDefault: true });
+    assert.equal(result.response.status, 204);
+    assert.equal(result.crm.length, 2);
+    assert.equal(result.dbAccesses, 0);
+    assert.equal(result.logs.length, 0);
+  });
+}

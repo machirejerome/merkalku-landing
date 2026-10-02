@@ -31,6 +31,7 @@ export function loadTs(relativePath, dependencies = {}, globals = {}) {
 }
 
 export const consentModule = loadTs("../src/lib/consent.ts");
+export const measurementModule = loadTs("../src/lib/measurement.ts", { "./consent": consentModule });
 
 export function consent(analytics, marketing = false, overrides = {}) {
   const updatedAt = Date.now() - 1000;

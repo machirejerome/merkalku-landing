@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { consent, consentModule, expiredConsent, fakeConsole, fakeDatabase, loadTs, postRequest } from "./route-test-harness.mjs";
+import { consent, expiredConsent, fakeConsole, fakeDatabase, loadTs, measurementModule, postRequest } from "./route-test-harness.mjs";
 
 const pricing = loadTs("../src/lib/pricing-config.ts");
 const personal = { name: "Testperson Beispiel", firma: "Beispielfirma GmbH", email: "testperson@example.invalid", phone: "+4917012345678" };
@@ -11,7 +11,7 @@ async function submit(optionalConsent, overrides = {}) {
   const db = fakeDatabase();
   const logger = fakeConsole();
   const route = loadTs("../src/app/api/preisrechner-lead/route.ts", {
-    "@/lib/consent": consentModule,
+    "@/lib/measurement": measurementModule,
     "@/lib/pricing-config": pricing,
     "@/lib/db": db.module,
   }, {
@@ -96,6 +96,43 @@ test("both consent categories permit their separate optional destinations", asyn
   await assertServiceLead(result);
   assert.equal(result.ads.length, 1);
   assert.equal(result.db.writes.length, 1);
+});
+
+test("explicitly marked default mode permits measurement without inventing a consent record", async () => {
+  const result = await submit(null, { measurementDefault: true });
+  await assertServiceLead(result);
+  assert.equal(result.ads.length, 1);
+  assert.equal(result.db.writes.length, 1);
+  assert.ok(!JSON.stringify([...result.crm, ...result.ads, ...result.db.writes]).includes("optionalConsent"));
+  assert.equal(measurementModule.resolveMeasurement(null, true).source, "default");
+});
+
+for (const [name, record] of [
+  ["denied", consent(false, false)],
+  ["malformed", { analytics: true }],
+  ["expired", expiredConsent()],
+  ["missing record", undefined],
+]) {
+  test(`default flag cannot override ${name} measurement state on a service lead`, async () => {
+    const result = await submit(record, { measurementDefault: true });
+    await assertServiceLead(result);
+    assert.equal(result.ads.length, 0);
+    assert.equal(result.db.writes.length, 0);
+  });
+}
+
+test("default flag cannot elevate a saved analytics-only choice to marketing", async () => {
+  const result = await submit(consent(true, false), { measurementDefault: true });
+  await assertServiceLead(result);
+  assert.equal(result.ads.length, 0);
+  assert.equal(result.db.writes.length, 1);
+});
+
+test("default flag cannot elevate a saved marketing-only choice to analytics", async () => {
+  const result = await submit(consent(false, true), { measurementDefault: true });
+  await assertServiceLead(result);
+  assert.equal(result.ads.length, 1);
+  assert.equal(result.db.writes.length, 0);
 });
 
 for (const [source, expectedPath] of [["preisrechner", "/preisrechner"], ["lp-ausschreibung", "/ausschreibung"], ["untrusted-path", "/preisrechner"]]) {

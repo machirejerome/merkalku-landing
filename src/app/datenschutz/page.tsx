@@ -236,9 +236,10 @@ export default function Datenschutz() {
               Erstellung von Analysen der Besucherströme.
             </p>
             <p className="mt-3">
-              <strong>Hinweise zu Einwilligungen:</strong> Wir setzen Cookies im Einklang mit den gesetzlichen
-              Vorschriften ein. Daher holen wir von den Nutzern eine vorhergehende Einwilligung ein, es sei denn,
-              es ist gesetzlich nicht gefordert.
+              <strong>Ihre Einstellungen:</strong> Statistik und Marketing sind beim ersten Besuch standardmäßig
+              eingeschaltet. Marketingdienste können dabei Cookies setzen. Über „Datenschutz“ am unteren
+              Bildschirmrand können Sie beide Kategorien getrennt deaktivieren. Eine gespeicherte Ablehnung
+              wird berücksichtigt. Der automatische Start ist keine von Ihnen erteilte Einwilligung.
             </p>
           </section>
 
@@ -320,11 +321,11 @@ export default function Datenschutz() {
             </p>
             <p className="mt-3">
               Senden Sie den Ersparnis-Rechner ab, speichern wir die Kampagnenparameter zusammen mit Ihrer Anfrage in
-              unserem CRM-System nur bei Ihrer Einwilligung in Marketing. Ebenfalls nur mit dieser Einwilligung
+              unserem CRM-System, wenn Marketing in Ihren Einstellungen aktiviert ist. In diesem Fall
               übermitteln wir dem Anzeigenanbieter serverseitig die Information, dass über den betreffenden
               Anzeigenklick eine Anfrage entstanden ist (Ereignis „Lead“, Ereigniskennung, Klick-Kennung, Zeitpunkt
               und Seitenadresse ohne Suchparameter). Name, Firma, E-Mail-Adresse, Telefonnummer und rechnerische
-              Ersparnis werden dabei nicht übermittelt. Ihre Anfrage können Sie auch ohne Marketing-Einwilligung absenden.
+              Ersparnis werden dabei nicht übermittelt. Ihre Anfrage können Sie auch bei ausgeschaltetem Marketing absenden.
             </p>
             <p className="mt-3">
               <strong>Kontakt per WhatsApp:</strong> Nur wenn Sie im Rechner ausdrücklich zustimmen, kontaktieren wir
@@ -343,9 +344,11 @@ export default function Datenschutz() {
               Webanalyse, Monitoring und Optimierung
             </h2>
             <p>
-              Optionale Analyse- und Marketingdienste werden erst nach Ihrer Auswahl im Einwilligungsdialog
-              aktiviert. Sie können beide Kategorien getrennt erlauben oder ablehnen und Ihre Auswahl jederzeit
-              über „Datenschutz-Einstellungen“ ändern. Die Auswahl wird mit Version und Zeitpunkt für bis zu
+              Analyse- und Marketingdienste starten beim ersten Besuch standardmäßig. Der Einstellungsdialog
+              öffnet sich ausschließlich über „Datenschutz“ am unteren Bildschirmrand. Dort können Sie beide
+              Kategorien getrennt deaktivieren und Ihre Auswahl jederzeit ändern. Der automatische Start
+              wird nicht als aktiv erteilte Einwilligung gespeichert.
+              Die Auswahl wird mit Version und Zeitpunkt für bis zu
               180 Tage in Ihrem Browser gespeichert. Nach einem Widerruf stoppen wir die optionale Messung;
               bereits übermittelte Daten werden dadurch nicht rückwirkend gelöscht.
               Falls Ihre Auswahl wegen eines Speicherfehlers nicht gesichert werden kann, verwenden wir
@@ -356,18 +359,19 @@ export default function Datenschutz() {
               Google Analytics
             </h3>
             <p>
-              Mit Ihrer Einwilligung in Analyse verwenden wir Google Analytics 4 für Seitenaufrufe und ausgewählte
+              Bei aktivierter Statistik verwenden wir Google Analytics 4 für Seitenaufrufe und ausgewählte
               Aktionen, beispielsweise die Nutzung des Rechners oder das Öffnen des Kalenders. Das Öffnen des
-              Kalenders gilt nicht als bestätigte Terminbuchung. Vor Ihrer Zustimmung laden wir den Google-Tag
-              nicht. Wir übermitteln keine Formularinhalte, Kontaktdaten oder URL-Suchparameter an Google Analytics.
+              Kalenders gilt nicht als bestätigte Terminbuchung. Der Google-Tag wird standardmäßig geladen und
+              übermittelt zunächst Messsignale ohne Analytics-Cookies. Wir übermitteln keine Formularinhalte,
+              Kontaktdaten oder URL-Suchparameter an Google Analytics.
               Google Signals und Anzeigenpersonalisierung werden für diese Messung nicht verwendet.
-              Google Analytics kann Cookies zur Wiedererkennung setzen. Dienstanbieter: Google Ireland Limited,
-              Gordon House, Barrow Street, Dublin 4, Irland. Rechtsgrundlage ist Ihre Einwilligung
-              (Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG). Eine Verarbeitung durch Google in den USA
+              Wenn Sie Statistik in den Einstellungen ausdrücklich aktivieren und speichern, kann Google Analytics
+              auch Cookies zur Wiedererkennung setzen. Dienstanbieter: Google Ireland Limited,
+              Gordon House, Barrow Street, Dublin 4, Irland. Eine Verarbeitung durch Google in den USA
               kann stattfinden. Weitere Informationen finden Sie in den Datenschutzhinweisen von Google.
             </p>
             <p className="mt-3">
-              Auch unsere eigene optionale Funnel-Messung erfolgt erst nach Ihrer Analyse-Einwilligung. Sie erfasst
+              Auch unsere eigene Funnel-Messung ist bei aktivierter Statistik eingeschaltet. Sie erfasst
               Rechner-Schritte und eine zufällige Kennung der geöffneten Seite in unserer
               Datenbank. Ihre Anfrage und die zur Auswertung notwendigen Angaben verarbeiten wir unabhängig
               davon wie im Abschnitt „Preisrechner“ beschrieben.
@@ -381,8 +385,8 @@ export default function Datenschutz() {
               Leadinfo verarbeitet hierzu die IP-Adresse des Besuchers und gleicht diese mit einer Datenbank ab,
               um zu erkennen, von welchem Unternehmen ein Besuch stammt; hierfür wird ein Cookie eingesetzt.
               Profile einzelner natürlicher Personen erstellen wir hierüber nicht. Dienstanbieter: Leadinfo B.V.,
-              Rivium Quadrant 141, 2909 LC Capelle aan den IJssel, Niederlande. Wir laden Leadinfo nur nach
-              Ihrer Einwilligung in Marketing (Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG).
+              Rivium Quadrant 141, 2909 LC Capelle aan den IJssel, Niederlande. Wir laden Leadinfo bei
+              aktivierter Marketing-Einstellung, standardmäßig auch vor einer aktiven Auswahl.
               Auf der Anzeigen-Landingpage /ausschreibung wird Leadinfo nicht geladen.
             </p>
           </section>
@@ -396,9 +400,10 @@ export default function Datenschutz() {
               Wir verarbeiten personenbezogene Daten zum Zweck des Onlinemarketings, worunter insbesondere die
               Vermarktung von Werbeflächen oder die Darstellung von werbenden und sonstigen Inhalten
               (zusammenfassend als „Inhalte“ bezeichnet) anhand potenzieller Interessen der Nutzer sowie die
-              Messung ihrer Effektivität fallen können. Den OpenAI-Werbepixel laden wir erst nach Ihrer
-              Einwilligung in Marketing. Er kann technische Verbindungsdaten und Seitenaufrufe an OpenAI
-              übermitteln. Sie können die Einwilligung über „Datenschutz-Einstellungen“ widerrufen.
+              Messung ihrer Effektivität fallen können. Den OpenAI-Werbepixel laden wir bei aktivierter
+              Marketing-Einstellung, standardmäßig auch vor einer aktiven Auswahl. Er kann technische
+              Verbindungsdaten und Seitenaufrufe an OpenAI übermitteln. Sie können Marketing über
+              „Datenschutz“ am unteren Bildschirmrand deaktivieren.
             </p>
           </section>
 

@@ -1,4 +1,4 @@
-/** Optional services fail closed. Validation is also usable by API routes. */
+/** Automatic tracking and explicit choices are separate; invalid state fails closed. */
 export const CONSENT_VERSION = 1 as const;
 export const CONSENT_STORAGE_KEY = "mk:optional-consent";
 export const CONSENT_CHANGED_EVENT = "mk:consent-changed";
@@ -6,6 +6,7 @@ export const CONSENT_OPEN_EVENT = "mk:consent-open";
 export const CONSENT_LIFETIME_MS = 180 * 24 * 60 * 60 * 1000;
 export type ConsentCategory = "analytics" | "marketing";
 export type ConsentRecord = { version: typeof CONSENT_VERSION; analytics: boolean; marketing: boolean; updatedAt: number; expiresAt: number };
+export type TrackingPreferences = { analytics: boolean; marketing: boolean; source: "default" | "choice" | "blocked" };
 let storageFailure = false;
 const BLOCKED_KEY = "mk:optional-consent-blocked";
 const BLOCKED_COOKIE = "mk_optional_blocked";
@@ -15,7 +16,7 @@ function hasEmergencyBlock(): boolean {
   if (storageFailure) return true;
   if (new URLSearchParams(window.location.search).get(BLOCKED_QUERY) === "1") { storageFailure = true; return true; }
   try { if (document.cookie.split(";").some((part) => part.trim() === `${BLOCKED_COOKIE}=1`)) return true; } catch { return true; }
-  try { return window.sessionStorage.getItem(BLOCKED_KEY) === "1"; } catch { return false; }
+  try { return window.sessionStorage.getItem(BLOCKED_KEY) === "1"; } catch { return true; }
 }
 
 function blockAfterStorageFailure() {
@@ -54,6 +55,19 @@ export function readConsent(): ConsentRecord | null {
 
 export function hasConsent(category: ConsentCategory): boolean { return readConsent()?.[category] === true; }
 
+/** Default-on is a site configuration, never a fabricated visitor ConsentRecord. */
+export function getTrackingPreferences(): TrackingPreferences {
+  const blocked: TrackingPreferences = { analytics: false, marketing: false, source: "blocked" };
+  if (typeof window === "undefined" || hasEmergencyBlock()) return blocked;
+  try {
+    const raw = window.localStorage.getItem(CONSENT_STORAGE_KEY);
+    // Only an absent key is a new visitor; empty, malformed or expired records stay blocked.
+    if (raw === null) return { analytics: true, marketing: true, source: "default" };
+    const value: unknown = JSON.parse(raw);
+    return isValidConsent(value) ? { analytics: value.analytics, marketing: value.marketing, source: "choice" } : blocked;
+  } catch { return blocked; }
+}
+
 export function saveConsent(choices: Pick<ConsentRecord, "analytics" | "marketing">): ConsentRecord | null {
   if (typeof window === "undefined") return null;
   const now = Date.now();
@@ -90,7 +104,7 @@ export function isMeasurementHost(hostname: string): boolean {
 }
 
 export function canMeasure(category: ConsentCategory): boolean {
-  return typeof window !== "undefined" && isMeasurementHost(window.location.hostname) && hasConsent(category);
+  return typeof window !== "undefined" && isMeasurementHost(window.location.hostname) && getTrackingPreferences()[category];
 }
 
 export function isLeadinfoExcluded(pathname: string): boolean { return pathname === "/ausschreibung" || pathname.startsWith("/ausschreibung/"); }
@@ -99,7 +113,7 @@ export function isLeadinfoExcluded(pathname: string): boolean { return pathname 
 export function clearOptionalCookies() {
   if (typeof document === "undefined") return;
   try {
-    const names = document.cookie.split(";").map((c) => c.trim().split("=")[0]).filter((name) => /^(_ga(?:_|$)|_gid$|_gat(?:_|$)|_li_(?:id|ses)\.)/.test(name));
+    const names = document.cookie.split(";").map((c) => c.trim().split("=")[0]).filter((name) => /^(_ga(?:_|$)|_gid$|_gat(?:_|$)|_li_(?:id|ses)\.|__obref$)/.test(name));
     const domains = ["", window.location.hostname, "." + window.location.hostname];
     if (window.location.hostname === "www.merkalku.de") domains.push("merkalku.de", ".merkalku.de");
     for (const name of names) for (const domain of domains) document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax${domain ? `; Domain=${domain}` : ""}`;

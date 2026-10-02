@@ -4,7 +4,7 @@
    der geöffneten Seite (kein Cookie, kein Web-Storage). */
 
 import { getSql, ensureSchema } from "@/lib/db";
-import { isValidConsent } from "@/lib/consent";
+import { resolveMeasurement } from "@/lib/measurement";
 
 const ERLAUBT = new Set([
   "lp_ausschreibung_view", "rechner_schritt", "rechner_stand", "generate_lead", "cta_zum_rechner",
@@ -27,16 +27,19 @@ export async function POST(request: Request) {
   } catch {
     return new Response(null, { status: 204 });
   }
-  if (!data || !isValidConsent(data.optionalConsent) || !data.optionalConsent.analytics) {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
     return new Response(null, { status: 204 });
   }
-  if (!data.optionalConsent.marketing) data.utm = undefined;
+  const measurement = resolveMeasurement(data.optionalConsent, data.measurementDefault);
+  if (!measurement.analytics) return new Response(null, { status: 204 });
+  if (!measurement.marketing) data.utm = undefined;
   const e = typeof data.e === "string" ? data.e : "";
   if (!ERLAUBT.has(e)) return new Response(null, { status: 204 });
 
   const sid = str(data.sid, 40);
   const zeile = {
     funnel: e,
+    measurementMode: measurement.source,
     sid,
     schritt: num(data.schritt),
     quelle: str(data.quelle, 40),

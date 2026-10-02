@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { consent, consentModule, expiredConsent, fakeConsole, fakeDatabase, loadTs, postRequest } from "./route-test-harness.mjs";
+import { consent, expiredConsent, fakeConsole, fakeDatabase, loadTs, measurementModule, postRequest } from "./route-test-harness.mjs";
 
 async function submit(optionalConsent, overrides = {}) {
   const db = fakeDatabase();
   const logger = fakeConsole();
   const route = loadTs("../src/app/api/funnel-event/route.ts", {
-    "@/lib/consent": consentModule,
+    "@/lib/measurement": measurementModule,
     "@/lib/db": db.module,
   }, { console: logger.module });
   const response = await route.POST(postRequest("/api/funnel-event", {
@@ -53,6 +53,34 @@ test("funnel accepts valid analytics consent while discarding unconsented campai
 test("funnel ignores unrecognised events even with valid consent", async () => {
   const result = await submit(consent(true, true), { e: "unrecognised-event" });
   assert.equal(result.response.status, 204);
+  assert.equal(result.db.accesses, 0);
+  assert.equal(result.logs.length, 0);
+});
+
+test("funnel accepts explicitly marked default measurement without a consent record", async () => {
+  const result = await submit(null, { measurementDefault: true });
+  assert.equal(result.response.status, 204);
+  assert.equal(result.db.writes.length, 2);
+  assert.equal(result.logs.length, 0);
+});
+
+for (const [name, record] of [
+  ["saved rejection", consent(false, false)],
+  ["marketing-only choice", consent(false, true)],
+  ["malformed record", { analytics: true }],
+  ["expired record", expiredConsent()],
+  ["missing record", undefined],
+]) {
+  test(`funnel default flag cannot override ${name}`, async () => {
+    const result = await submit(record, { measurementDefault: true });
+    assert.equal(result.response.status, 204);
+    assert.equal(result.db.accesses, 0);
+    assert.equal(result.logs.length, 0);
+  });
+}
+
+test("funnel requires a literal boolean true for default measurement", async () => {
+  const result = await submit(null, { measurementDefault: "true" });
   assert.equal(result.db.accesses, 0);
   assert.equal(result.logs.length, 0);
 });
