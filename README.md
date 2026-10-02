@@ -67,8 +67,9 @@ service forms still work, but Google Analytics does not load.
 Only a small `Datenschutz` tab is shown at the bottom edge. The settings dialog
 opens on request, never automatically, and can be closed without making a choice.
 Default operation is not stored as an explicit consent record. GA starts with
-`analytics_storage: denied` (cookieless measurement); only an explicit saved
-analytics choice grants that storage. Marketing SDKs can run in default mode.
+`analytics_storage: granted` and can set Analytics cookies immediately. Google's
+advertising storage, advertising user data and ad personalization remain denied.
+Marketing SDKs can run in default mode.
 Analytics and marketing have independent settings. A saved rejection, invalid or
 expired record, and storage failures disable the relevant measurement. Withdrawal disables Google
 measurement, clears optional storage and starts a new document to stop running

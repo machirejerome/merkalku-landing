@@ -1,4 +1,4 @@
-import { canMeasure, hasConsent } from "./consent";
+import { canMeasure } from "./consent";
 
 declare global {
   interface Window { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void; [key: `ga-disable-${string}`]: boolean | undefined; }
@@ -11,7 +11,6 @@ const PAGE_TITLES: Record<string, string> = {
 let initializedId: string | null = null;
 let lastPageLocation: string | null = null;
 let currentPageReferrer = "";
-let analyticsStorage: "denied" | "granted" = "denied";
 
 export function safePagePath(pathname: string): string | null {
   const path = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
@@ -37,34 +36,22 @@ function pageContext() {
   return path ? { page_location: location!, page_title: PAGE_TITLES[path], page_referrer: location === lastPageLocation ? currentPageReferrer : lastPageLocation || safeReferrer(document.referrer) } : null;
 }
 
-function syncAnalyticsConsent() {
-  // The site's automatic start must not be represented as a user's consent.
-  const next = hasConsent("analytics") ? "granted" : "denied";
-  if (next === analyticsStorage) return;
-  window.gtag?.("consent", "update", { analytics_storage: next });
-  analyticsStorage = next;
-}
-
 /**
- * Sole GA bootstrap. Default-on sends cookieless measurements with analytics_storage
- * denied; only an explicit analytics choice can grant storage. Rejection stops collection.
+ * Sole GA bootstrap. The operator enables Analytics cookies by default on measurement
+ * hosts. This technical setting is not saved as an explicit visitor ConsentRecord.
+ * Saved rejection and withdrawal still stop collection via canMeasure and a reload.
  * https://developers.google.com/tag-platform/security/concepts/consent-mode
  */
 export function ensureAnalytics(): boolean {
   const id = measurementId();
   if (!id || !canMeasure("analytics") || !pageContext()) return false;
-  if (initializedId) {
-    if (initializedId !== id) return false;
-    syncAnalyticsConsent();
-    return true;
-  }
+  if (initializedId) return initializedId === id;
   window[`ga-disable-${id}`] = false;
   window.dataLayer = window.dataLayer || [];
   // Keep Google's documented gtag queue format (Arguments rather than a dataLayer object).
   // eslint-disable-next-line prefer-rest-params
   window.gtag = function () { window.dataLayer!.push(arguments); };
-  window.gtag("consent", "default", { analytics_storage: "denied", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" });
-  syncAnalyticsConsent();
+  window.gtag("consent", "default", { analytics_storage: "granted", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" });
   window.gtag("js", new Date());
   window.gtag("config", id, { send_page_view: false, allow_google_signals: false, allow_ad_personalization_signals: false, ...(process.env.NEXT_PUBLIC_GA_DEBUG_MODE === "true" ? { debug_mode: true } : {}), ...pageContext() });
   initializedId = id;
@@ -87,7 +74,7 @@ export function stopAnalytics() {
 export function trackPageView() {
   if (!canMeasure("analytics")) return;
   const context = pageContext();
-  // A same-page explicit choice must still update storage consent without another page view.
+  // Saving preferences on the same page must not send another page view.
   if (!context || !ensureAnalytics() || context.page_location === lastPageLocation) return;
   window.gtag?.("set", context);
   window.gtag?.("event", "page_view", context);

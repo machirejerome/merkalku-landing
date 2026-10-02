@@ -72,7 +72,8 @@ test("a new visitor starts default tracking without writing or claiming an expli
   assert.equal(h.scripts.length, 3);
   assert.equal(h.scripts.filter((s) => s.id === "mk-google-analytics").length, 1);
   assert.equal(h.commands().filter((cmd) => cmd[0] === "event" && cmd[1] === "page_view").length, 1);
-  assert.equal(h.commands()[0][2].analytics_storage, "denied");
+  assert.equal(h.commands()[0][2].analytics_storage, "granted");
+  assert.equal(h.commands()[0][2].ad_storage, "denied");
   assert.equal(h.commands().filter((cmd) => cmd[0] === "consent" && cmd[1] === "update").length, 0);
   assert.equal(h.window.localStorage.getItem(c.CONSENT_STORAGE_KEY), null);
   assert.equal(h.document.cookie, "");
@@ -93,14 +94,15 @@ test("an explicit rejection persists across module reload and blocks all optiona
   assert.equal(h.events.filter((e) => e.type === "mk:generate_lead").length, 0);
 });
 
-test("explicit analytics consent after default start updates Google storage without duplicating the page view", () => {
+test("saving analytics preferences after default start keeps cookie measurement without duplicating the page view", () => {
   const h = browserHarness(); const c = h.load("consent"), a = h.load("analytics");
   a.trackPageView();
   c.saveConsent({ analytics: true, marketing: false });
   a.trackPageView(); a.trackPageView();
   assert.equal(c.getTrackingPreferences().source, "choice");
   const updates = h.commands().filter((cmd) => cmd[0] === "consent" && cmd[1] === "update");
-  assert.equal(updates.length, 1); assert.equal(updates[0][2].analytics_storage, "granted");
+  assert.equal(updates.length, 0);
+  assert.equal(h.commands()[0][2].analytics_storage, "granted");
   assert.equal(h.commands().filter((cmd) => cmd[0] === "event" && cmd[1] === "page_view").length, 1);
   assert.equal(h.scripts.length, 1);
 });

@@ -362,11 +362,11 @@ export default function Datenschutz() {
               Bei aktivierter Statistik verwenden wir Google Analytics 4 für Seitenaufrufe und ausgewählte
               Aktionen, beispielsweise die Nutzung des Rechners oder das Öffnen des Kalenders. Das Öffnen des
               Kalenders gilt nicht als bestätigte Terminbuchung. Der Google-Tag wird standardmäßig geladen und
-              übermittelt zunächst Messsignale ohne Analytics-Cookies. Wir übermitteln keine Formularinhalte,
+              kann bereits beim ersten Besuch Analytics-Cookies zur Wiedererkennung setzen. Wir übermitteln keine Formularinhalte,
               Kontaktdaten oder URL-Suchparameter an Google Analytics.
               Google Signals und Anzeigenpersonalisierung werden für diese Messung nicht verwendet.
-              Wenn Sie Statistik in den Einstellungen ausdrücklich aktivieren und speichern, kann Google Analytics
-              auch Cookies zur Wiedererkennung setzen. Dienstanbieter: Google Ireland Limited,
+              Über „Datenschutz“ am unteren Bildschirmrand können Sie Statistik deaktivieren.
+              Dienstanbieter: Google Ireland Limited,
               Gordon House, Barrow Street, Dublin 4, Irland. Eine Verarbeitung durch Google in den USA
               kann stattfinden. Weitere Informationen finden Sie in den Datenschutzhinweisen von Google.
             </p>
