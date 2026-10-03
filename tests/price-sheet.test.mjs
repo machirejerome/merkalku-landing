@@ -12,6 +12,7 @@ test("fictional workbook keeps blank prices distinct from zero and corrects quan
 });
 test("intentional pricing closes example and unit price edit changes two visits by 100 euro", () => {
   const complete = priceSheetExample(2); const edited = priceSheetExample(3);
+  assert.equal(complete.controlCents, 1135000); assert.equal(edited.controlCents, 1145000);
   assert.equal(complete.sumCents, 1135000); assert.equal(complete.complete, true);
   assert.equal(edited.sumCents, 1145000); assert.equal(edited.sumCents - complete.sumCents, 10000);
 });

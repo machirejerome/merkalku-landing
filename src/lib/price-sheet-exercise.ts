@@ -21,7 +21,9 @@ export function priceSheetExample(stage: ExerciseStage) {
     { name: "Treppenhaus", quantity: 12, unit: "Monate", priceCents: 5000, totalCents: 60000, included: stage > 0 },
   ];
   const sumCents = rows.reduce((sum, row) => sum + (row.included ? row.totalCents ?? 0 : 0), 0);
-  return { rows, sumCents, complete: stage >= 2, glassQuantity, unresolved: stage === 0 ? 3 : stage === 1 ? 1 : 0 };
+  // Separate control calculation: combine monthly work first, then add the two visits.
+  const controlCents = stage >= 2 ? (80000 + 5000) * 12 + glassUnitCents * 2 + 25000 : null;
+  return { rows, sumCents, controlCents, complete: stage >= 2, glassQuantity, unresolved: stage === 0 ? 3 : stage === 1 ? 1 : 0 };
 }
 export function euro(cents: number) {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(cents / 100);
