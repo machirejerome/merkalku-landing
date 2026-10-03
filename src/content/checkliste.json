@@ -1,322 +1,78 @@
 {
   "path": "/wissen/ausschreibung-gebaeudereinigung-pruefen",
-  "title": "Ausschreibung Gebäudereinigung prüfen: die Checkliste vor der Kalkulation",
+  "title": "Ausschreibung Gebäudereinigung prüfen: 5 Punkte vor der Kalkulation",
   "seo_title": "Ausschreibung Gebäudereinigung prüfen: Checkliste | MerKalku",
-  "meta_description": "Leistungen, Fristen, Kapazität und offene Fragen vor der Kalkulation prüfen. Mit fiktivem Zweigebäudebeispiel und praktischer Prüfliste.",
+  "meta_description": "Ausschreibungen für Gebäudereinigung mit fünf kurzen Prüfpunkten einordnen: Unterlagen, Leistungen, Fristen, Kapazität und Preisblatt. Ohne Account oder Textfelder.",
   "publisher_label": "MerKalku",
   "source_checked_date": "2026-10-02",
-  "lead": "Bevor Sie Preise in ein Leistungsverzeichnis eintragen, brauchen Sie ein klares Bild des Auftrags: Was soll wo und wie oft gereinigt werden? Welche Termine und Unterlagen gehören dazu? Passt die Leistung zu Ihrem Betrieb? Diese Checkliste hilft Ihnen, Antworten und offene Punkte nachvollziehbar zu sammeln.",
-  "short_answer": "Starten Sie mit den aktuellen Originalunterlagen. Trennen Sie Leistungen und Lose, notieren Sie Fristen mit Uhrzeit und halten Sie jede offene Frage mit Fundstelle fest. Danach entscheiden Sie intern, ob Sie weiter kalkulieren, zunächst Informationen klären oder den Auftrag nicht weiterverfolgen.",
-  "intro_note": "Die Prüfliste ist eine eigene organisatorische Arbeitshilfe von MerKalku. Welche Anforderungen für Ihr Angebot gelten, lesen Sie in den konkreten Verfahrensunterlagen. Ein ausgefüllter Haken ersetzt diese Prüfung nicht.",
+  "lead": "Prüfen Sie vor der Kalkulation die aktuellen Unterlagen, Leistungen, Fristen, Ihre Kapazität und das Preisblatt. Haken Sie nur ab, was Sie für Ihren Auftrag selbst geprüft haben. Maßgeblich bleiben die konkreten Vergabeunterlagen.",
+  "short_answer": "Bleibt ein Punkt unklar, lassen Sie ihn offen. Prüfen Sie die zugehörige Fundstelle und klären Sie Widersprüche über den im Verfahren beschriebenen Weg, bevor Sie darauf Ihre Kalkulation aufbauen.",
+  "intro_note": "Eigene organisatorische Arbeitshilfe von MerKalku. Die Haken dokumentieren nur Ihre Selbsteinschätzung und ersetzen keine fachliche oder rechtliche Prüfung.",
   "sections": [
     {
-      "id": "unterlagenstand",
-      "heading": "1. Sichern Sie zuerst den Unterlagenstand",
-      "paragraphs": [
-        "Öffnen Sie die Bekanntmachung und die darin angegebene Bezugsstelle für die Vergabeunterlagen. Notieren Sie Verfahrenskennung, Link, Abrufdatum und die Versionen der Dateien, mit denen Sie arbeiten. Legen Sie Preisblatt, Leistungsbeschreibung, Raumbuch und weitere vorhandene Anlagen gemeinsam ab.",
-        "Prüfen Sie bei der erneuten Bearbeitung, ob inzwischen Änderungen oder zusätzliche Informationen veröffentlicht wurden. Arbeiten zwei Personen an unterschiedlichen Dateiständen, gehört diese Abweichung zuerst auf die Prüfliste. Ein später gespeicherter Dateiname allein belegt noch keinen neueren fachlichen Inhalt."
-      ],
-      "source_note": {
-        "text": "TED führt eigene Felder für Änderungen einer Bekanntmachung und Änderungen an Vergabeunterlagen. Halten Sie den Stand deshalb auch in Ihrer Arbeitsablage fest.",
-        "source_ids": [
-          "ted_fields"
-        ]
-      },
-      "takeaway": "Ergebnis dieses Schritts: Alle Beteiligten wissen, welche Unterlagen gerade die Grundlage ihrer Arbeit sind."
-    },
-    {
-      "id": "leistungen-lose",
-      "heading": "2. Trennen Sie Gebäude, Leistungen und Lose",
-      "paragraphs": [
-        "Erstellen Sie eine kurze Übersicht je Gebäude oder Objektbereich: Leistungsort, Flächen, Raumarten, Reinigungsaufgaben, Häufigkeiten und mögliche Ausführungszeiten. Übernehmen Sie diese Angaben aus den jeweiligen Unterlagen. Der Sitz des Auftraggebers ist für Ihre Einsatzplanung kein Ersatz für die Anschrift des Reinigungsobjekts.",
-        "Ordnen Sie die Objektbereiche anschließend den bezeichneten Losen zu. Zwei Gebäude bedeuten nicht automatisch zwei Lose. Prüfen Sie gesondert, welche Angaben zur Angebotsabgabe je Los in den Unterlagen stehen. Notieren Sie auch Vertragsbeginn, Laufzeit und beschriebene Optionen, soweit vorhanden.",
-        "Gleichen Sie Raumbuch, Leistungsverzeichnis und Preisblatt miteinander ab. Steht eine Leistung nur in einer dieser Dateien oder verwenden die Dateien unterschiedliche Einheiten, bleibt der Punkt zunächst offen. Ergänzen Sie fehlende Flächen oder Häufigkeiten nicht stillschweigend aus Erfahrung."
-      ],
-      "source_note": {
-        "text": "Das TED-Feldverzeichnis unterscheidet Angaben zu Auftraggeber, Leistungsort, Verfahren und Los. Diese Unterscheidung hilft auch bei einer eigenen Objektübersicht.",
-        "source_ids": [
-          "ted_fields"
-        ]
-      }
-    },
-    {
-      "id": "termine-nachweise",
-      "heading": "3. Lesen Sie Termine und Nachweise im Zusammenhang",
-      "paragraphs": [
-        "Übernehmen Sie bei jedem Termin die vollständige Bezeichnung, das Datum, die Uhrzeit und die angegebene Zeitzone. Notieren Sie, ob sich der Termin auf ein Angebot, einen Teilnahmeantrag, eine Rückfrage oder etwas anderes bezieht. Ein Datum ohne diesen Zusammenhang ist für die Angebotsplanung zu wenig.",
-        "Suchen Sie in den Originalunterlagen nach den verlangten Nachweisen und den beschriebenen Bedingungen der Einreichung. Erfassen Sie je Punkt: Was wird verlangt? Für welches Los gilt es? Liegt es im Betrieb bereits vor? Wer prüft es bis wann? Ob beispielsweise Referenzen, Erklärungen oder Besichtigungstermine dazugehören, ergibt sich aus dem jeweiligen Verfahren.",
-        "Falls sich Angaben widersprechen, dokumentieren Sie beide Fundstellen. Nutzen Sie zur Klärung den im Verfahren vorgesehenen Kommunikationsweg und berücksichtigen Sie die dort genannten Termine. Ändern Sie weder das Preisblatt noch Ihre Annahmen unbemerkt, um den Widerspruch zu überdecken."
-      ],
-      "source_note": {
-        "text": "TED dokumentiert getrennte Felder für den Eingang von Angeboten und Teilnahmeanträgen, jeweils mit Datum und Uhrzeit. Die richtige Fristart gehört daher neben den Termin.",
-        "source_ids": [
-          "ted_fields"
-        ]
-      }
-    },
-    {
-      "id": "betriebliche-passung",
-      "heading": "4. Prüfen Sie, ob Sie den Auftrag praktisch leisten können",
-      "paragraphs": [
-        "Stellen Sie den beschriebenen Auftrag Ihrer verfügbaren Organisation gegenüber: Sind die Objekte erreichbar? Passen die Ausführungszeiten zu den möglichen Schichten? Haben Sie die erforderlichen Kenntnisse, Geräte und eine tragfähige Vertretungsplanung? Welche Annahmen müssen Sie dafür noch überprüfen?",
-        "Eine Gesamtfläche allein reicht für diese Entscheidung nicht aus. Eine Schule mit ungeklärtem Ferienbetrieb und eine Verwaltung mit festem Abendfenster benötigen unterschiedliche Planung. Halten Sie Personal- und Zeitannahmen je Objektbereich fest, statt beide Gebäude sofort zu einer einzigen Stundenposition zusammenzurechnen.",
-        "Berücksichtigen Sie auch die Arbeit am Angebot: Wer kann Unterlagen prüfen, offene Fragen bearbeiten, kalkulieren und den fertigen Stand kontrollieren? Legen Sie dafür interne Termine fest. Diese internen Termine ersetzen keine im Verfahren genannte Frist."
-      ]
-    },
-    {
-      "id": "beispiel",
-      "heading": "Fiktives Beispiel: eine Verwaltung und eine Schule",
-      "paragraphs": [
-        "Der folgende Fall ist vollständig erfunden. Er zeigt die Arbeitsweise der Checkliste und beschreibt weder einen echten Auftrag noch übliche Leistungswerte oder verpflichtende Vertragsbedingungen.",
-        "In unserer Übung gehören beide Gebäude zu einem gemeinsam beschriebenen Los. Der Auftraggeber heißt Beispielkommune. Im angenommenen Dokumentenpaket liegen eine Leistungsbeschreibung, ein Raumbuch und ein Preisblatt."
-      ],
-      "example": {
-        "fictional": true,
-        "label": "Eigene Übung – alle Gebäude, Dokumente und Angaben sind fiktiv",
-        "columns": [
-          "Punkt",
-          "Gebäude A: Verwaltung",
-          "Gebäude B: Schule"
-        ],
-        "rows": [
-          [
-            "Zuordnung",
-            "Los 1",
-            "Los 1"
-          ],
-          [
-            "Fläche laut Übungs-Raumbuch",
-            "1.200 m²",
-            "800 m²"
-          ],
-          [
-            "Leistung laut Übungsbeschreibung",
-            "Unterhaltsreinigung",
-            "Unterhaltsreinigung"
-          ],
-          [
-            "Häufigkeit",
-            "Montag bis Freitag",
-            "An Unterrichtstagen; Behandlung der Ferien ist im Beispiel offen"
-          ],
-          [
-            "Ausführungszeit",
-            "17:00 bis 21:00 Uhr",
-            "Ab 16:00 Uhr; Endzeit im Beispiel nicht angegeben"
-          ],
-          [
-            "Preisblatt",
-            "Zeile Verwaltung vorhanden",
-            "Zeile Schule vorhanden; keine gesonderte Ferienzeile"
-          ],
-          [
-            "Nächster Prüfschritt",
-            "Kapazität im Abendfenster intern klären",
-            "Ferienumfang und Zeitfenster anhand der Unterlagen klären"
-          ]
-        ],
-        "interpretation": "Die Flächen ergeben zusammen 2.000 m². Daraus folgt noch kein belastbarer Zeit- oder Jahrespreis. Vor allem bei Gebäude B fehlt für diese Übung eine eindeutig beschriebene Grundlage für den Ferienbetrieb. Beide Gebäude bleiben deshalb in der Arbeitsübersicht getrennt.",
-        "fictional_documents": [
-          {
-            "id": "uebung-lb-1",
-            "title": "Übungs-Leistungsbeschreibung, Stand A",
-            "references": [
-              "Abschnitt 2.1: Verwaltung",
-              "Abschnitt 2.2: Schule"
-            ]
-          },
-          {
-            "id": "uebung-raumbuch-1",
-            "title": "Übungs-Raumbuch, Stand A",
-            "references": [
-              "Tabelle Verwaltung",
-              "Tabelle Schule"
-            ]
-          },
-          {
-            "id": "uebung-preisblatt-1",
-            "title": "Übungs-Preisblatt, Stand A",
-            "references": [
-              "Zeile Verwaltung",
-              "Zeile Schule"
-            ]
-          },
-          {
-            "id": "uebung-kapazitaet-1",
-            "title": "Eigene Kapazitätsnotiz für die Übung",
-            "references": [
-              "Abendteam: Bestätigung steht aus"
-            ]
-          }
-        ]
-      }
-    },
-    {
       "id": "pruefliste",
-      "heading": "5. Arbeiten Sie mit einer Prüfliste, die offene Punkte sichtbar lässt",
-      "paragraphs": [
-        "Tragen Sie zu jedem Prüfpunkt eine Fundstelle und einen konkreten Befund ein. „Gelesen“ ist noch kein Ergebnis. Als Status eignen sich „offen“, „in Klärung“, „geklärt“ und „nicht zutreffend“. Den letzten Status verwenden Sie nur, wenn Sie begründen können, warum der Punkt für Ihren Fall nicht relevant ist.",
-        "Die folgende Liste lässt sich für Ihr Verfahren übernehmen und ergänzen. Nicht jeder Punkt muss in jedem Auftrag vorkommen. Lassen Sie eine ungeklärte Zeile sichtbar offen, statt sie vorschnell abzuhaken."
-      ],
+      "heading": "Fünf Punkte vor der Kalkulation",
       "checklist": {
-        "columns": [
-          "Prüfpunkt",
-          "Original / Fundstelle",
-          "Befund",
-          "Status",
-          "Zuständig",
-          "Nächster Schritt / interner Termin"
-        ],
-        "status_options": [
-          "offen",
-          "in Klärung",
-          "geklärt",
-          "nicht zutreffend"
-        ],
-        "row_template": {
-          "original_reference": "",
-          "finding": "",
-          "status": "offen",
-          "owner": "",
-          "next_step": "",
-          "internal_due_date": ""
-        },
         "items": [
           {
             "id": "unterlagen",
-            "label": "Aktueller Unterlagenstand und Änderungen",
-            "prompt": "Welche Dateien und Versionen bilden unsere Arbeitsgrundlage?"
+            "label": "Ich arbeite mit den aktuellen Unterlagen.",
+            "prompt": "Bekanntmachung, Leistungsbeschreibung, Raumbuch, Preisblatt und veröffentlichte Änderungen abgleichen."
           },
           {
-            "id": "verfahren-lose",
-            "label": "Verfahren und Loszuordnung",
-            "prompt": "Welche Leistungen gehören zu welchem Los? Was steht zur Angebotsabgabe je Los?"
+            "id": "leistungen",
+            "label": "Leistungen und Reinigungsorte sind klar.",
+            "prompt": "Je Los die Objekte, Flächen, Aufgaben, Häufigkeiten, Zeitfenster und Laufzeit prüfen; der Auftraggebersitz ist nicht automatisch der Leistungsort."
           },
           {
-            "id": "orte",
-            "label": "Leistungsorte und Zugänge",
-            "prompt": "Wo liegen die Reinigungsobjekte und welche Zugangsbedingungen sind beschrieben?"
-          },
-          {
-            "id": "mengen",
-            "label": "Flächen, Räume und Leistungen",
-            "prompt": "Passen Mengen und Leistungsbeschreibungen zwischen den Unterlagen zusammen?"
-          },
-          {
-            "id": "turnus",
-            "label": "Häufigkeiten und Ausführungszeiten",
-            "prompt": "Welche Einsätze und Zeitfenster sind beschrieben? Wo fehlen Angaben?"
-          },
-          {
-            "id": "laufzeit",
-            "label": "Beginn, Laufzeit und Optionen",
-            "prompt": "Welcher Zeitraum ist beschrieben und welche Optionen werden genannt?"
-          },
-          {
-            "id": "termine",
-            "label": "Fristart, Datum, Uhrzeit und Zeitzone",
-            "prompt": "Welche Handlung gehört zu welchem Termin?"
-          },
-          {
-            "id": "nachweise",
-            "label": "Geforderte Unterlagen und Nachweise",
-            "prompt": "Was wird konkret verlangt und wer prüft den vorhandenen Stand?"
-          },
-          {
-            "id": "einreichung",
-            "label": "Beschriebener Einreichungsweg",
-            "prompt": "Über welchen Weg und mit welchen beschriebenen Vorgaben soll eingereicht werden?"
+            "id": "fristen",
+            "label": "Fristen und Einreichungsweg sind geklärt.",
+            "prompt": "Angebots- oder Teilnahmefrist mit Datum, Uhrzeit und Zeitzone lesen; auch Rückfragen, Besichtigungen und Abgabeweg beachten, soweit genannt."
           },
           {
             "id": "kapazitaet",
-            "label": "Eigene Kapazität und Angebotsbearbeitung",
-            "prompt": "Wer übernimmt Leistung, Vertretung, Kalkulation und Kontrolle? Welche Annahme ist noch offen?"
+            "label": "Nachweise und eigene Kapazität passen zum Auftrag.",
+            "prompt": "Verlangte Nachweise sowie Personal, Vertretung, Geräte und Erreichbarkeit mit den konkreten Anforderungen vergleichen."
           },
           {
             "id": "preisblatt",
-            "label": "Preisblatt, Einheiten und Leistungsbezug",
-            "prompt": "Lässt sich jede Preisposition eindeutig einer Leistung und Einheit zuordnen?"
-          },
-          {
-            "id": "rueckfragen",
-            "label": "Offene Fragen und nächster Prüfschritt",
-            "prompt": "Welche Unklarheit wird wie geklärt, und wo dokumentieren wir die Antwort?"
-          }
-        ],
-        "filled_examples_heading": "Zwei ausgefüllte Zeilen aus der fiktiven Übung",
-        "filled_examples": [
-          {
-            "id": "beispiel-ferien",
-            "fictional": true,
-            "checkpoint": "Häufigkeiten: Ferienbetrieb in Gebäude B",
-            "original_reference": "Übungs-Leistungsbeschreibung, Stand A, Abschnitt 2.2; Übungs-Preisblatt, Stand A, Zeile Schule",
-            "finding": "Die Beschreibung nennt Reinigung an Unterrichtstagen. Im Preisblatt gibt es eine Position Schule; eine Behandlung der Ferien ist daraus nicht eindeutig erkennbar.",
-            "status": "offen",
-            "owner": "Angebotsverantwortliche Person",
-            "next_step": "Zunächst weitere Anlagen auf eine Ferienregelung prüfen. Bleibt die Frage offen, über den im Verfahren beschriebenen Weg klären und die Antwort mit Fundstelle ergänzen.",
-            "internal_due_date": "Vor Festlegung der Einsatzzahl für die Kalkulation; tatsächliche Verfahrenstermine zusätzlich beachten",
-            "resolution_rule": "Erst auf „geklärt“ setzen, wenn eine belastbare Fundstelle oder dokumentierte Antwort den Leistungsumfang für diese Übung erklärt."
-          },
-          {
-            "id": "beispiel-abendfenster",
-            "fictional": true,
-            "checkpoint": "Eigene Kapazität für Gebäude A",
-            "original_reference": "Übungs-Leistungsbeschreibung, Stand A, Abschnitt 2.1; eigene Kapazitätsnotiz für die Übung",
-            "finding": "Das Reinigungsfenster ist mit 17:00 bis 21:00 Uhr beschrieben. Die interne Besetzung und Vertretung für dieses Fenster sind noch nicht bestätigt.",
-            "status": "in Klärung",
-            "owner": "Objektleitung und Disposition",
-            "next_step": "Besetzung und Vertretung intern abstimmen. Benötigten Zeitbedarf anschließend mit den objektbezogenen Annahmen vergleichen; Ergebnis in der Kapazitätsnotiz festhalten.",
-            "internal_due_date": "Vor der internen Entscheidung zur weiteren Angebotsbearbeitung",
-            "resolution_rule": "Eine allgemeine Zusage „Personal vorhanden“ genügt für diese Arbeitsentscheidung noch nicht; Bestätigung auf das konkrete Zeitfenster beziehen."
+            "label": "Preisblatt und offene Fragen sind geprüft.",
+            "prompt": "Mengen, Einheiten und Leistungsbezug abgleichen. Fehlende Angaben nicht schätzen; ungeklärte Punkte vor der Preisbildung klären."
           }
         ]
       }
-    },
-    {
-      "id": "entscheidung",
-      "heading": "6. Treffen Sie eine interne Entscheidung mit klaren nächsten Schritten",
-      "paragraphs": [
-        "Am Ende der ersten Prüfung braucht nicht jede Detailfrage gelöst zu sein. Entscheidend ist, dass Sie wissen, was noch fehlt und wie es sich auf die weitere Bearbeitung auswirkt. Nutzen Sie dafür drei einfache Arbeitsentscheidungen:"
-      ],
-      "decisions": [
-        {
-          "label": "Weiter kalkulieren",
-          "description": "Die Grundlage ist für den nächsten Arbeitsschritt ausreichend klar. Verbleibende Annahmen und ihre Zuständigkeit sind dokumentiert."
-        },
-        {
-          "label": "Zuerst klären",
-          "description": "Eine offene Angabe beeinflusst den Leistungsumfang, die Terminplanung oder Ihre Kalkulation. Legen Sie den nächsten Klärungsschritt fest."
-        },
-        {
-          "label": "Intern nicht weiterverfolgen",
-          "description": "Der Auftrag passt nach Ihrer bisherigen betrieblichen Prüfung nicht zu Kapazität, Organisation oder wirtschaftlicher Planung. Halten Sie den konkreten Grund fest."
-        }
-      ],
-      "closing": "Diese Entscheidungen steuern Ihre Angebotsarbeit; sie sind keine Feststellung Ihrer vergaberechtlichen Eignung. Prüfen Sie vor der späteren Abgabe erneut den aktuellen Stand der Unterlagen und Ihre tatsächlich ausgefüllten Dateien."
     }
   ],
   "further_reading": {
-    "heading": "Quellen und weiterführende Fachinformationen",
-    "intro": "Die Checkliste und das Beispiel wurden für diesen Beitrag erstellt. Die folgenden Primärquellen helfen bei der Einordnung; daraus folgt keine Prüfung oder Empfehlung dieses Beitrags durch die genannten Organisationen.",
+    "heading": "Quellen und Einordnung",
+    "intro": "Checkliste und Beispiel sind eigene Arbeitshilfen. Die Quellen ordnen die Begriffe ein; die genannten Organisationen haben diesen Beitrag nicht geprüft.",
     "items": [
+      {
+        "source_id": "ted_fields",
+        "label": "TED: offizielles Feldverzeichnis",
+        "url": "https://docs.ted.europa.eu/ODS/latest/reuse/field-list.html",
+        "text": "TED unterscheidet unter anderem Verfahren, Lose, Leistungsorte, Änderungen sowie Angebots- und Teilnahmefristen. Deshalb werden Ort, Fristart und Unterlagenstand hier getrennt geprüft."
+      },
       {
         "source_id": "ral_vergabe",
         "label": "RAL GGGR: Vergabe von Reinigungsdienstleistungen",
         "url": "https://www.gggr.de/dienstleistungen/wissen/merkblaetter/vergabe_reinigungsdienstleistungen.php",
-        "text": "Die RAL GGGR bietet ein Merkblatt zur qualitätsorientierten Vergabe für Auftraggeber und Auftragnehmer an. Der Beitrag hier übernimmt weder die Merkblatttexte noch eine RAL-Vorlage."
-      },
-      {
-        "source_id": "ted_fields",
-        "label": "TED: offizielles Verzeichnis der Such- und Bekanntmachungsfelder",
-        "url": "https://docs.ted.europa.eu/ODS/latest/reuse/field-list.html",
-        "text": "Das Verzeichnis macht getrennte Datenfelder zu Verfahren, Losen, Leistungsorten, Fristen und Änderungen nachvollziehbar. Es ist eine technische Dokumentation und keine individuelle Vergabeberatung."
+        "text": "Die RAL GGGR bietet ein Merkblatt zur qualitätsorientierten Vergabe für Auftraggeber und Auftragnehmer an. Hier werden keine Merkblatttexte oder RAL-Vorlagen übernommen."
       }
     ]
   },
   "cta": {
-    "heading": "Den nächsten Schritt mit MerKalku ansehen",
-    "body": "Sie möchten Ihren Ablauf von der Ausschreibungsprüfung bis zur Kalkulation besprechen? Lernen Sie MerKalku im Praxischeck kennen.",
-    "label": "Praxischeck anfragen",
+    "heading": "Bereit für den nächsten Schritt?",
+    "body": "Mit klaren Grundlagen lässt sich die Kalkulation gezielter vorbereiten.",
+    "label": "MerKalku im Praxischeck ansehen",
     "href": "/#termin"
+  },
+  "example": {
+    "heading": "Ein kurzes fiktives Beispiel",
+    "label": "Alle Gebäude und Angaben sind frei erfunden.",
+    "paragraphs": [
+      "Eine Verwaltung mit 1.200 m² und eine Schule mit 800 m² gehören in dieser Übung zu einem Los. Bei der Verwaltung ist ein Reinigungsfenster von 17 bis 21 Uhr beschrieben; bei der Schule bleibt die Reinigung in den Ferien unklar.",
+      "Die 2.000 m² Gesamtfläche reichen noch nicht für eine belastbare Zeitplanung. Punkt 2 bleibt offen, bis der Ferienumfang geklärt ist. Punkt 4 bleibt offen, bis Besetzung und Vertretung im Abendfenster geprüft sind. Ein gemeinsames Los macht die beiden Gebäude nicht zu einem identischen Einsatz."
+    ]
   }
 }

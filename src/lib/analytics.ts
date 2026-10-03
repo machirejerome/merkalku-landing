@@ -8,6 +8,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/": "MerKalku", "/preisrechner": "MerKalku Preisrechner", "/ausschreibung": "MerKalku Ausschreibung",
   "/impressum": "MerKalku Impressum", "/datenschutz": "MerKalku Datenschutz", "/agb": "MerKalku AGB",
   "/wissen": "MerKalku Wissen",
+  "/wissen/reinigungszeit-berechnen": "MerKalku Wissen: Reinigungszeit berechnen",
+  "/wissen/excel-preisblatt-pruefen": "MerKalku Wissen: Excel-Preisblatt prüfen",
   "/wissen/ausschreibung-gebaeudereinigung-pruefen": "MerKalku Wissen: Ausschreibung prüfen",
 };
 let initializedId: string | null = null;

@@ -2,9 +2,9 @@ import article from "../content/checkliste.json";
 import { SITE_URL } from "./seo";
 
 export const CHECKLIST_CONTENT_ID = "ausschreibung-gebaeudereinigung-pruefen";
-export const CHECKLIST_REVISION = 1;
+export const CHECKLIST_REVISION = 2;
 // Editorial revision of this content, never calculated from the build/deployment time.
-export const KNOWLEDGE_CONTENT_DATE = "2026-10-02";
+export const KNOWLEDGE_CONTENT_DATE = "2026-10-03";
 // First public release verified on this date; independent of later deployments.
 export const CHECKLIST_PUBLISHED_DATE = "2026-10-02";
 export const checklistArticle = article;

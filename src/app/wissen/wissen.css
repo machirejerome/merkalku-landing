@@ -163,3 +163,7 @@
   .article-editorial h2 { font-size: 9pt; }
   .article-editorial a { color: #111; }
 }
+
+/* Additional knowledge resources share the existing editorial card system. */
+.knowledge-article-card + .knowledge-article-card{margin-top:24px}
+@media(max-width:600px){.knowledge-header nav{gap:14px}}
