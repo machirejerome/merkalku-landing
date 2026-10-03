@@ -54,7 +54,7 @@ test('pilot refresh prioritizes evidence expiry, caps 12 procedures and rotates 
   assert.deepEqual(selected.seeds.candidates.slice(0,10).map(row=>row.procedure_identifier),Array.from({length:10},(_,i)=>procedure(i+1)));
   assert.deepEqual(selected.seeds.candidates.slice(10).map(row=>row.procedure_identifier),[procedure(21),procedure(22)]);
   assert.equal(selected.previous.candidates.length,10);
-  assert.deepEqual(selected.stats,{availableSeeds:50,selectedSeeds:12,retainedProcedures:10,discoverySeeds:2,absentPreviousUnits:0,deferredPreviousUnits:10});
+  assert.deepEqual(selected.stats,{availableSeeds:50,selectedSeeds:12,retainedProcedures:10,recoveryProcedures:0,discoverySeeds:2,absentPreviousUnits:0,deferredPreviousUnits:10});
   const next=selectPilotRefresh(input,previous,3600000);
   assert.deepEqual(next.seeds.candidates.slice(10).map(row=>row.procedure_identifier),[procedure(23),procedure(24)]);
   assert.equal(previous.candidates[0].eligibilityExpiresAt,new Date(3600000).toISOString());
@@ -90,6 +90,17 @@ test('duplicate procedure seeds and revoked stored lots cannot consume maintenan
   assert.equal(selected.seeds.candidates.length,3);assert.equal(selected.stats.retainedProcedures,1);
   assert.equal(selected.seeds.candidates[0].procedure_identifier,procedure(2));
   assert.equal(new Set(selected.seeds.candidates.map(row=>row.procedure_identifier)).size,3);
+});
+
+test('previously verified, future-deadline revoked units get recovery validation after active procedures',()=>{
+  const verified={revoked:true,sourceId:'ted',noticeFormType:'competition',lifecycle:'open',publicProvenance:true,redistributionApproved:true,cleaningRelevanceApproved:true,deadline:{kind:'tender',at:'2026-10-07T08:00:00+02:00'}};
+  const previous={candidates:[storedRow(1,verified),storedRow(2),storedRow(3,{...verified,deadline:{kind:'tender',at:'2026-10-01T08:00:00+02:00'}}),storedRow(4,{...verified,noticeFormType:'result'}),storedRow(5)]};
+  const input=sourceExport(Array.from({length:6},(_,i)=>sourceRow(i+1)));
+  const selected=selectPilotRefresh(input,previous,Date.parse('2026-10-03T13:00:00Z'));
+  assert.deepEqual(selected.seeds.candidates.slice(0,3).map(row=>row.procedure_identifier),[procedure(2),procedure(5),procedure(1)]);
+  assert.equal(selected.stats.retainedProcedures,2);assert.equal(selected.stats.recoveryProcedures,1);assert.equal(selected.stats.discoverySeeds,2);
+  assert.equal(selected.previous.candidates.find(row=>row.canonicalUnitId===storedRow(1).canonicalUnitId).revoked,true);
+  assert.equal(selected.previous.candidates.find(row=>row.canonicalUnitId===storedRow(1).canonicalUnitId).eligibilityExpiresAt,new Date(3600000).toISOString());
 });
 
 test('fatal pilot run excludes only attempted procedures and preserves deferred freshness unchanged',async()=>{

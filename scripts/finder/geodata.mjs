@@ -52,10 +52,12 @@ export function parsePostalText(input) {
     if (!line) continue;
     const row = line.split('\t');
     if (row.length !== 12 || row[0] !== 'DE' || !/^[0-9]{5}$/.test(row[1]) || row[1] === '00000' || !row[2].trim() || row[2].length > 180
-      || !/^-?\d+(?:\.\d+)?$/.test(row[9]) || !/^-?\d+(?:\.\d+)?$/.test(row[10]) || !/^[1-6]$/.test(row[11])) throw new Error('invalid_postal_row');
+      || !/^-?\d+(?:\.\d+)?$/.test(row[9]) || !/^-?\d+(?:\.\d+)?$/.test(row[10]) || !/^[1-6]?$/.test(row[11])) throw new Error('invalid_postal_row');
     const lat = Number(row[9]), lon = Number(row[10]);
     if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < 47 || lat > 55.5 || lon < 5 || lon > 16) throw new Error('invalid_german_coordinate');
-    places.push({ postcode: row[1], city: row[2], lat, lon, sourceAccuracy: Number(row[11]) });
+    // GeoNames leaves accuracy empty for some places. Preserve uncertainty; the
+    // tender eligibility policy independently requires numeric accuracy >= 4.
+    places.push({ postcode: row[1], city: row[2], lat, lon, sourceAccuracy: row[11] === '' ? null : Number(row[11]) });
     if (places.length > 100000) throw new Error('postal_row_limit');
   }
   if (!places.length) throw new Error('empty_postal_data');

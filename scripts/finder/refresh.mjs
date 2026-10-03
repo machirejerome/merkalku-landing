@@ -26,16 +26,25 @@ export function selectPilotRefresh(seedExport, previous, now = Date.now()) {
   seeds.forEach((seed, index) => {
     if (!byProcedure.has(seed.procedureIdentifier)) byProcedure.set(seed.procedureIdentifier, seedExport.candidates[index]);
   });
-  const retained = new Map();
+  const retained = new Map(), recovery = new Map();
   for (const row of previous.candidates) {
     const procedure = row.canonicalUnitId.split(':')[1];
-    if (row.revoked === true || !byProcedure.has(procedure)) continue;
+    if (!byProcedure.has(procedure)) continue;
     const expires = Date.parse(row.eligibilityExpiresAt);
     const priority = Number.isFinite(expires) ? expires : 0;
-    retained.set(procedure, Math.min(retained.get(procedure) ?? Infinity, priority));
+    if (row.revoked === true) {
+      // This grants a validation slot only, never eligibility or a new evidence timestamp.
+      if (row.sourceId === 'ted' && row.noticeFormType === 'competition' && row.lifecycle === 'open'
+        && row.publicProvenance === true && row.redistributionApproved === true && row.cleaningRelevanceApproved === true
+        && row.deadline?.kind === 'tender' && Date.parse(row.deadline.at) > now) {
+        recovery.set(procedure, Math.min(recovery.get(procedure) ?? Infinity, priority));
+      }
+    } else retained.set(procedure, Math.min(retained.get(procedure) ?? Infinity, priority));
   }
-  const existing = [...retained].sort((a,b) => a[1]-b[1] || a[0].localeCompare(b[0])).map(([procedure]) => procedure);
-  const discovery = [...byProcedure.keys()].filter(procedure => !retained.has(procedure));
+  const byExpiry = rows => [...rows].sort((a,b) => a[1]-b[1] || a[0].localeCompare(b[0])).map(([procedure]) => procedure);
+  const active = byExpiry(retained), recovering = byExpiry(recovery).filter(procedure => !retained.has(procedure));
+  const existing = [...active,...recovering];
+  const discovery = [...byProcedure.keys()].filter(procedure => !retained.has(procedure) && !recovery.has(procedure));
   const discoverySlots = Math.min(PILOT_DISCOVERY_LIMIT, discovery.length);
   const selected = existing.slice(0, PILOT_SEED_LIMIT - discoverySlots);
   // Rotate discovery independently of failures, without storing another cursor or inventory.
@@ -49,7 +58,7 @@ export function selectPilotRefresh(seedExport, previous, now = Date.now()) {
     seeds: { schemaVersion:1, kind:'supabase_ted_seed_export', candidates:selected.map(procedure => byProcedure.get(procedure)) },
     previous: { candidates:selectedPrevious },
     absentIds,
-    stats: { availableSeeds:seeds.length, selectedSeeds:selected.length, retainedProcedures:Math.min(existing.length,PILOT_SEED_LIMIT-discoverySlots), discoverySeeds:discoverySlots, absentPreviousUnits:absentIds.length, deferredPreviousUnits:previous.candidates.length-selectedPrevious.length },
+    stats: { availableSeeds:seeds.length, selectedSeeds:selected.length, retainedProcedures:Math.min(active.length,PILOT_SEED_LIMIT-discoverySlots), recoveryProcedures:selected.filter(procedure=>recovering.includes(procedure)).length, discoverySeeds:discoverySlots, absentPreviousUnits:absentIds.length, deferredPreviousUnits:previous.candidates.length-selectedPrevious.length },
   };
 }
 
