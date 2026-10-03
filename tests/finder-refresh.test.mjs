@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { writeFile, stat } from 'node:fs/promises';
+import { readFile, writeFile, stat } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import { configFromEnvironment, fetchSeedExport, runRefresh, SOURCE_RPC, safeDiagnostics } from '../scripts/finder/refresh.mjs';
+import { configFromEnvironment, fetchSeedExport, runRefresh, SOURCE_RPC, safeDiagnostics, selectPilotRefresh } from '../scripts/finder/refresh.mjs';
 
 const id = n => `ted:14c6fcb3-6d30-4df4-a366-a658870a7004:LOT-${String(n).padStart(4,'0')}`;
 const candidate = n => ({canonicalUnitId:id(n)});
 const seed = {schemaVersion:1,kind:'supabase_ted_seed_export',candidates:[{source_portal:'ted',external_id:'a79d0d9b-ba08-470b-a5cf-0a705109dc00',source_url:'https://ted.europa.eu/de/notice/-/detail/679270-2026',procedure_identifier:'14c6fcb3-6d30-4df4-a366-a658870a7004'}]};
 const env = {FINDER_IMPORT_DATABASE_URL:'postgresql://merkalku_finder_job:synthetic-password@synthetic.neon.tech/neondb?sslmode=require',FINDER_SOURCE_TOKEN:'a'.repeat(64),FINDER_SOURCE_ANON_KEY:'synthetic-publishable-key'};
+const procedure = n => `14c6fcb3-6d30-4df4-a366-${String(n).padStart(12,'0')}`;
+const sourceRow = n => ({...seed.candidates[0],external_id:procedure(n+1000),procedure_identifier:procedure(n),source_url:`https://ted.europa.eu/de/notice/-/detail/${n+100000}-2026`});
+const storedRow = (n, extra={}) => ({canonicalUnitId:`ted:${procedure(n)}:LOT-0001`,revoked:false,eligibilityExpiresAt:new Date(n*3600000).toISOString(),...extra});
+const sourceExport = rows => ({schemaVersion:1,kind:'supabase_ted_seed_export',candidates:rows});
 function fixture({previous=[candidate(1)],batch={candidates:[candidate(2)],revokedCanonicalUnitIds:[id(1)]},exit=0}={}) {
   const calls=[]; let directory;
   const db={
@@ -41,6 +45,69 @@ test('job configuration rejects owner credentials and redirects source token onl
 
 test('seed export fails closed on private fields, oversized data or HTTP errors',async()=>{
   for(const response of [new Response(JSON.stringify([{...seed.candidates[0],raw_data:'PRIVATE'}]),{headers:{'content-type':'application/json'}}),new Response('x'.repeat(1000001),{headers:{'content-type':'application/json'}}),new Response('{}',{status:401,headers:{'content-type':'application/json'}})]) await assert.rejects(fetchSeedExport(configFromEnvironment(env),async()=>response),/source_export_failed/);
+});
+
+test('pilot refresh prioritizes evidence expiry, caps 12 procedures and rotates two discovery seeds',()=>{
+  const previous={candidates:Array.from({length:20},(_,i)=>storedRow(i+1))};
+  const input=sourceExport(Array.from({length:50},(_,i)=>sourceRow(i+1)));
+  const selected=selectPilotRefresh(input,previous,0);
+  assert.deepEqual(selected.seeds.candidates.slice(0,10).map(row=>row.procedure_identifier),Array.from({length:10},(_,i)=>procedure(i+1)));
+  assert.deepEqual(selected.seeds.candidates.slice(10).map(row=>row.procedure_identifier),[procedure(21),procedure(22)]);
+  assert.equal(selected.previous.candidates.length,10);
+  assert.deepEqual(selected.stats,{availableSeeds:50,selectedSeeds:12,retainedProcedures:10,discoverySeeds:2,absentPreviousUnits:0,deferredPreviousUnits:10});
+  const next=selectPilotRefresh(input,previous,3600000);
+  assert.deepEqual(next.seeds.candidates.slice(10).map(row=>row.procedure_identifier),[procedure(23),procedure(24)]);
+  assert.equal(previous.candidates[0].eligibilityExpiresAt,new Date(3600000).toISOString());
+});
+
+test('absent procedures enter the revocation scope but deliberately deferred procedures do not',()=>{
+  const previous={candidates:[...Array.from({length:15},(_,i)=>storedRow(i+1)),storedRow(99)]};
+  const input=sourceExport(Array.from({length:15},(_,i)=>sourceRow(i+1)));
+  const selected=selectPilotRefresh(input,previous,0);
+  assert.equal(selected.seeds.candidates.length,12);assert.equal(selected.stats.discoverySeeds,0);
+  assert.equal(selected.previous.candidates.length,13);assert.equal(selected.stats.deferredPreviousUnits,3);
+  assert.equal(selected.stats.absentPreviousUnits,1);assert.deepEqual(selected.absentIds,[storedRow(99).canonicalUnitId]);
+  assert.ok(selected.previous.candidates.some(row=>row.canonicalUnitId===storedRow(99).canonicalUnitId));
+  const renewed=previous.candidates.map(row=>row.canonicalUnitId===storedRow(1).canonicalUnitId?{...row,eligibilityExpiresAt:new Date(100*3600000).toISOString()}:row);
+  assert.equal(selectPilotRefresh(input,{candidates:renewed},0).seeds.candidates[0].procedure_identifier,procedure(2));
+});
+
+test('missing source seeds require conservative revocation without validating them as candidates',async()=>{
+  for (const omitRevocation of [false,true]) {
+    const absent=storedRow(99);
+    const f=fixture({previous:[candidate(1),absent],batch:{candidates:[candidate(2)],revokedCanonicalUnitIds:omitRevocation?[id(1)]:[id(1),absent.canonicalUnitId]}});
+    const result=await runRefresh(f.deps);
+    assert.equal(result.exitCode,omitRevocation?1:0);
+    if(omitRevocation) assert.equal(result.code,'invalid_revalidation_batch');
+    assert.ok(f.calls.filter(call=>call.kind==='import').flatMap(call=>call.revoked).includes(absent.canonicalUnitId));
+  }
+});
+
+test('duplicate procedure seeds and revoked stored lots cannot consume maintenance slots',()=>{
+  const previous={candidates:[storedRow(1,{revoked:true}),storedRow(2),{...storedRow(2),canonicalUnitId:`ted:${procedure(2)}:LOT-0002`}]};
+  const input=sourceExport([sourceRow(1),sourceRow(2),{...sourceRow(2),source_url:'https://ted.europa.eu/de/notice/-/detail/999999-2026'},sourceRow(3)]);
+  const selected=selectPilotRefresh(input,previous,0);
+  assert.equal(selected.seeds.candidates.length,3);assert.equal(selected.stats.retainedProcedures,1);
+  assert.equal(selected.seeds.candidates[0].procedure_identifier,procedure(2));
+  assert.equal(new Set(selected.seeds.candidates.map(row=>row.procedure_identifier)).size,3);
+});
+
+test('fatal pilot run excludes only attempted procedures and preserves deferred freshness unchanged',async()=>{
+  const previous=Array.from({length:20},(_,i)=>storedRow(i+1));
+  const f=fixture({previous,exit:1});f.deps.fetchSeeds=async()=>sourceExport(Array.from({length:30},(_,i)=>sourceRow(i+1)));
+  const original=f.deps.runCli;let passedPrevious,passedSeeds;
+  f.deps.runCli=async(name,args)=>{
+    if(name==='ted-revalidate.mjs') {
+      assert.equal(args[0],'--pilot');
+      passedPrevious=JSON.parse(await readFile(args[args.indexOf('--previous')+1],'utf8'));
+      passedSeeds=JSON.parse(await readFile(args[args.indexOf('--input')+1],'utf8'));
+    }
+    return original(name,args);
+  };
+  const result=await runRefresh(f.deps,{now:0});assert.equal(result.exitCode,1);
+  assert.equal(passedSeeds.candidates.length,12);assert.equal(passedPrevious.candidates.length,10);
+  assert.deepEqual(f.calls.filter(call=>call.kind==='import').flatMap(call=>call.revoked),previous.slice(0,10).map(row=>row.canonicalUnitId));
+  assert.equal(result.selection.deferredPreviousUnits,10);
 });
 
 test('revocations precede bounded candidate chunks; temp files disappear; no inventory in summary',async()=>{
@@ -98,6 +165,7 @@ test('hourly claim denies before all source/network work but cleanup still runs'
 test('source failure and cleanup failure are reported safely even on a skipped run',async()=>{
   const f=fixture();f.deps.fetchSeeds=async()=>{throw new Error(env.FINDER_SOURCE_TOKEN);};const result=await runRefresh(f.deps);
   assert.equal(result.exitCode,1);assert.equal(result.code,'refresh_failed');assert.ok(!JSON.stringify(result).includes(env.FINDER_SOURCE_TOKEN));assert.equal(f.calls.at(-1).kind,'cleanup');
+  assert.deepEqual(f.calls.filter(call=>call.kind==='import').flatMap(call=>call.revoked),[id(1)]);
   const g=fixture();g.deps.db.claim=async()=>({allowed:false,reason:'limited'});g.deps.db.cleanup=async()=>{throw new Error('private');};
   const skipped=await runRefresh(g.deps);assert.equal(skipped.exitCode,1);assert.equal(skipped.cleanupFailed,true);
 });

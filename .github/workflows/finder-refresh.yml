@@ -2,9 +2,8 @@ name: Finder private refresh
 
 on:
   workflow_dispatch:
-  # Deliberately disabled until the live pipeline is accepted.
-  # schedule:
-  #   - cron: '17 * * * *'
+  schedule:
+    - cron: '17 * * * *'
 
 permissions:
   contents: read

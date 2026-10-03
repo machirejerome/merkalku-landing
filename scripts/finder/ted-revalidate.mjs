@@ -45,8 +45,10 @@ export function retryAfterMilliseconds(value, now = Date.now()) {
   const at = Date.parse(value);
   return Number.isFinite(at) ? Math.max(1000, at - now) : 60000;
 }
-export function createTedClient(fetcher = fetch, { signal: runSignal = AbortSignal.timeout(600000), minimumIntervalMs = 350 } = {}) {
+export const PILOT_TED_OPTIONS = Object.freeze({ minimumIntervalMs:1250, maxRequests:96, workers:2 });
+export function createTedClient(fetcher = fetch, { signal: runSignal = AbortSignal.timeout(600000), minimumIntervalMs = 350, maxRequests = 3000 } = {}) {
   if (!Number.isInteger(minimumIntervalMs) || minimumIntervalMs < 0 || minimumIntervalMs > 60000) throw new Error('invalid_request_interval');
+  if (!Number.isSafeInteger(maxRequests) || maxRequests < 1 || maxRequests > 3000) throw new Error('invalid_request_budget');
   const circuit = new AbortController(), signal = AbortSignal.any([runSignal, circuit.signal]);
   const deadlineAt = Date.now() + 600000;
   let requests = 0, nextRequestAt = 0, blockedUntil = 0, consecutiveFailures = 0;
@@ -65,7 +67,7 @@ export function createTedClient(fetcher = fetch, { signal: runSignal = AbortSign
   async function request(url, options, cap) {
     for (let attempt = 0; attempt < 2; attempt++) {
       await paced();
-      if (requests >= 3000) { stop('ted_request_budget_exceeded'); throw new Error('ted_request_budget_exceeded'); }
+      if (requests >= maxRequests) { stop('ted_request_budget_exceeded'); throw new Error('ted_request_budget_exceeded'); }
       requests++;
       const response = await fetcher(url, { ...options, redirect: 'error', credentials: 'omit', cache: 'no-store', signal: AbortSignal.any([signal, AbortSignal.timeout(15000)]) });
       diagnostics.statusCounts[response.status] = (diagnostics.statusCounts[response.status] || 0) + 1;
@@ -128,6 +130,8 @@ export async function revalidateSeed(seed, geo, client, { now = () => Date.now()
 }
 export async function revalidateBatch(seedInput, geoInput, previous, client, options = {}) {
   const seeds = policy.parseTedSeeds(seedInput), geo = policy.validateGeodata(geoInput);
+  const workers = options.workers ?? 4;
+  if (!Number.isSafeInteger(workers) || workers < 1 || workers > 4) throw new Error('invalid_worker_limit');
   const prior = previous ? policy.priorUnits(previous) : [];
   const signal = options.signal || client.signal || AbortSignal.timeout(600000);
   const candidates = [], rejected = [], seedFailures = [];
@@ -140,7 +144,7 @@ export async function revalidateBatch(seedInput, geoInput, previous, client, opt
       catch (error) { seedFailures.push({ publicationNumber: seed.publicationNumber, reason: signal.aborted ? abortReason(signal) : error instanceof Error && /^[a-z0-9_]+$/.test(error.message) ? error.message : 'ted_validation_failed' }); }
     }
   }
-  await Promise.all(Array.from({ length: Math.min(4, seeds.length) }, () => worker()));
+  await Promise.all(Array.from({ length: Math.min(workers, seeds.length) }, () => worker()));
   // Different seeds must never silently compete over one procedure/lot.
   const counts = new Map(); for (const c of candidates) counts.set(c.canonicalUnitId, (counts.get(c.canonicalUnitId) || 0) + 1);
   const accepted = candidates.filter((c) => counts.get(c.canonicalUnitId) === 1);
@@ -163,8 +167,10 @@ async function privateWrite(path, data) {
   finally { await unlink(temporary).catch(() => {}); }
 }
 export async function main(args = process.argv.slice(2)) {
+  const pilot = args[0] === '--pilot';
+  if (pilot) args = args.slice(1);
   if (args.length === 1 && args[0] === '--help') {
-    console.log('Usage: node scripts/finder/ted-revalidate.mjs --input SEED.json --geodata GEONAMES.json --output BATCH.json [--previous PRIOR_BATCH.json] [--report REPORT.json]\nRequires Node 22+, installed TypeScript, Python3 and lxml. Anonymous official TED reads only; bounded 500 seeds / 3000 requests, 4 workers, globally paced at 350ms/request, global 600-second abort; circuit opens after 3 consecutive HTTP errors and honors 429 Retry-After. No DB writes. Initial pilot accepts only single-notice open procedures with tender deadlines; restricted/participation procedures and complex chains fail closed. Pass the last batch with --previous on every refresh to generate revocations after failure, absence or closure. A batch may exceed 100 rows; chunk candidates/revocations into the importer limit of 100 per call. Exit 2 still writes a safe partial batch: apply its revocations before reporting incomplete validation. Output contains public allowlisted facts only, with private file permissions. Keep batch/report outside public/; reports carry TED and GeoNames attribution.');
+    console.log('Usage: node scripts/finder/ted-revalidate.mjs [--pilot] --input SEED.json --geodata GEONAMES.json --output BATCH.json [--previous PRIOR_BATCH.json] [--report REPORT.json]\nRequires Node 22+, installed TypeScript, Python3 and lxml. Anonymous official TED reads only; bounded 500 seeds / 3000 requests, 4 workers, globally paced at 350ms/request, global 600-second abort; circuit opens after 3 consecutive HTTP errors and honors 429 Retry-After. --pilot caps input at 12 seeds, 96 requests, 2 workers, 1250ms pacing. No DB writes. Initial pilot accepts only single-notice open procedures with tender deadlines; restricted/participation procedures and complex chains fail closed. Pass the last batch with --previous on every refresh to generate revocations after failure, absence or closure. A batch may exceed 100 rows; chunk candidates/revocations into the importer limit of 100 per call. Exit 2 still writes a safe partial batch: apply its revocations before reporting incomplete validation. Output contains public allowlisted facts only, with private file permissions. Keep batch/report outside public/; reports carry TED and GeoNames attribution.');
     return;
   }
   const flags = new Map();
@@ -176,10 +182,12 @@ export async function main(args = process.argv.slice(2)) {
   const paths = [...flags.values()];
   if (new Set(paths).size !== paths.length || [flags.get('--output'), flags.get('--report')].filter(Boolean).some((p) => p.split('/').includes('public'))) throw new Error('unsafe_output_path');
   const input = await readJson(flags.get('--input'), 1000000), geo = await readJson(flags.get('--geodata'), 16000000);
+  if (pilot && policy.parseTedSeeds(input).length > 12) throw new Error('pilot_seed_limit_exceeded');
   const previous = flags.has('--previous') ? await readJson(flags.get('--previous'), 20000000) : null;
   const startedAt = Date.now();
-  const client = createTedClient();
-  const { batch, report } = await revalidateBatch(input, geo, previous, client);
+  const options = pilot ? PILOT_TED_OPTIONS : {};
+  const client = createTedClient(fetch, options);
+  const { batch, report } = await revalidateBatch(input, geo, previous, client, options);
   report.http = client.diagnostics;
   report.startedAt = new Date(startedAt).toISOString();
   report.durationMs = Date.now() - startedAt;

@@ -26,6 +26,10 @@ export default function KnowledgePage() {
       <div className="knowledge-card-mark" aria-hidden="true"><span>03</span><svg viewBox="0 0 100 110" fill="none"><rect x="15" y="21" width="70" height="68" rx="5" stroke="currentColor" strokeWidth="2"/><path d="M15 43h70M15 65h70M38 21v68M61 21v68" stroke="currentColor" strokeWidth="2"/></svg></div>
       <div><p className="knowledge-eyebrow">Angebotsprüfung · Übung</p><h2>Stimmt die Rechnung –<br/>und auch das Preisblatt?</h2><p>Drei typische Fehler an einem kurzen Beispiel erkennen: falsche Häufigkeit, fehlende Position in der Summe und offener Preis.</p><span className="knowledge-card-link">Preisblatt prüfen →</span></div>
     </Link>
+    <Link className="knowledge-article-card" href="/ausschreibungen">
+      <div className="knowledge-card-mark" aria-hidden="true"><span>04</span><svg viewBox="0 0 100 110" fill="none"><circle cx="43" cy="45" r="25" stroke="currentColor" strokeWidth="2"/><path d="m62 64 22 22M32 45h22M43 34v22" stroke="currentColor" strokeWidth="2"/></svg></div>
+      <div><p className="knowledge-eyebrow">Ausschreibungssuche · Pilot</p><h2>Welche Ausschreibung<br/>liegt in Ihrer Nähe?</h2><p>Einen kleinen, geprüften TED-Bestand nach PLZ und Umkreis durchsuchen. Mit aktueller Frist und Link zur Originalbekanntmachung.</p><span className="knowledge-card-link">Zum Ausschreibungsfinder →</span></div>
+    </Link>
     <p className="knowledge-hub-note">Eigene organisatorische Arbeitshilfen mit benannten Quellen. Maßgeblich für Ihr Angebot bleiben die konkreten Verfahrensunterlagen.</p>
   </main>;
 }

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { policy, revalidateSeed, revalidateBatch, createTedClient, readBounded, retryAfterMilliseconds } from '../scripts/finder/ted-revalidate.mjs';
+import { policy, revalidateSeed, revalidateBatch, createTedClient, readBounded, retryAfterMilliseconds, PILOT_TED_OPTIONS } from '../scripts/finder/ted-revalidate.mjs';
 import { parseTedXml } from '../scripts/finder/ted-xml.mjs';
 
 const proc = '14c6fcb3-6d30-4df4-a366-a658870a7004', notice = 'a79d0d9b-ba08-470b-a5cf-0a705109dc00';
@@ -114,6 +114,19 @@ test('batch accepts up to 500 seeds and enforces exactly four concurrent workers
   const client = { async search() { active++; calls++; peak = Math.max(peak, active); await new Promise((r) => setTimeout(r, 5)); active--; throw new Error('ted_http_failure'); } };
   const result = await revalidateBatch(manySeeds(12), geo, null, client);
   assert.equal(peak, 4); assert.equal(calls, 12); assert.equal(result.report.seedFailures.length, 12); assert.equal(result.report.status, 'partial'); assert.equal(result.batch.candidates.length, 0);
+});
+test('scheduled pilot uses only two workers and has a strict shared request ceiling', async () => {
+  assert.deepEqual(PILOT_TED_OPTIONS,{minimumIntervalMs:1250,maxRequests:96,workers:2});
+  let active=0,peak=0;
+  const client={async search(){active++;peak=Math.max(peak,active);await new Promise(resolve=>setTimeout(resolve,2));active--;throw new Error('ted_http_failure');}};
+  await revalidateBatch(manySeeds(12),geo,null,client,PILOT_TED_OPTIONS);assert.equal(peak,2);
+  let calls=0;
+  const bounded=createTedClient(async()=>{calls++;return new Response(JSON.stringify({totalNoticeCount:0,notices:[],timedOut:false,iterationNextToken:null}));},{minimumIntervalMs:0,maxRequests:2});
+  await bounded.search('a');await bounded.search('b');
+  await assert.rejects(bounded.search('c'),/ted_request_budget_exceeded/);
+  assert.equal(calls,2);assert.equal(bounded.requests,2);
+  assert.throws(()=>createTedClient(undefined,{maxRequests:3001}),/invalid_request_budget/);
+  await assert.rejects(revalidateBatch(manySeeds(1),geo,null,client,{workers:5}),/invalid_worker_limit/);
 });
 test('global abort stops new work, reports unprocessed seeds and revokes prior candidates', async () => {
   const controller = new AbortController(); let calls = 0;

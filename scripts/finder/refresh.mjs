@@ -11,9 +11,47 @@ import { policy, readBounded } from './ted-revalidate.mjs';
 export const SOURCE_RPC = 'https://smgjidsruiasmbqepagn.supabase.co/rest/v1/rpc/finder_source_export_v1';
 const UNIT = /^ted:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}:LOT-[0-9]{4}$/;
 const CHUNK = 100, CAPACITY = 1000;
+export const PILOT_SEED_LIMIT = 12, PILOT_DISCOVERY_LIMIT = 2;
 class RefreshError extends Error { constructor(code) { super(code); this.code = code; } }
 const fail = (code) => { throw new RefreshError(code); };
 const chunks = (rows) => Array.from({ length: Math.ceil(rows.length / CHUNK) }, (_, i) => rows.slice(i * CHUNK, (i + 1) * CHUNK));
+
+/** Prioritize retained evidence; intentionally deferred units keep their original expiry. */
+export function selectPilotRefresh(seedExport, previous, now = Date.now()) {
+  const seeds = policy.parseTedSeeds(seedExport);
+  policy.priorUnits(previous);
+  if (!Number.isSafeInteger(now) || now < 0) fail('invalid_refresh_time');
+  // A procedure is validated as a whole. Multiple source seeds cannot buy extra slots.
+  const byProcedure = new Map();
+  seeds.forEach((seed, index) => {
+    if (!byProcedure.has(seed.procedureIdentifier)) byProcedure.set(seed.procedureIdentifier, seedExport.candidates[index]);
+  });
+  const retained = new Map();
+  for (const row of previous.candidates) {
+    const procedure = row.canonicalUnitId.split(':')[1];
+    if (row.revoked === true || !byProcedure.has(procedure)) continue;
+    const expires = Date.parse(row.eligibilityExpiresAt);
+    const priority = Number.isFinite(expires) ? expires : 0;
+    retained.set(procedure, Math.min(retained.get(procedure) ?? Infinity, priority));
+  }
+  const existing = [...retained].sort((a,b) => a[1]-b[1] || a[0].localeCompare(b[0])).map(([procedure]) => procedure);
+  const discovery = [...byProcedure.keys()].filter(procedure => !retained.has(procedure));
+  const discoverySlots = Math.min(PILOT_DISCOVERY_LIMIT, discovery.length);
+  const selected = existing.slice(0, PILOT_SEED_LIMIT - discoverySlots);
+  // Rotate discovery independently of failures, without storing another cursor or inventory.
+  const offset = discovery.length ? (Math.floor(now / 3600000) * PILOT_DISCOVERY_LIMIT) % discovery.length : 0;
+  for (let i=0; i<discoverySlots; i++) selected.push(discovery[(offset+i) % discovery.length]);
+  const selectedSet = new Set(selected);
+  const absentIds = previous.candidates.filter(row => row.revoked !== true && !byProcedure.has(row.canonicalUnitId.split(':')[1])).map(row => row.canonicalUnitId);
+  const absentSet = new Set(absentIds);
+  const selectedPrevious = previous.candidates.filter(row => selectedSet.has(row.canonicalUnitId.split(':')[1]) || absentSet.has(row.canonicalUnitId));
+  return {
+    seeds: { schemaVersion:1, kind:'supabase_ted_seed_export', candidates:selected.map(procedure => byProcedure.get(procedure)) },
+    previous: { candidates:selectedPrevious },
+    absentIds,
+    stats: { availableSeeds:seeds.length, selectedSeeds:selected.length, retainedProcedures:Math.min(existing.length,PILOT_SEED_LIMIT-discoverySlots), discoverySeeds:discoverySlots, absentPreviousUnits:absentIds.length, deferredPreviousUnits:previous.candidates.length-selectedPrevious.length },
+  };
+}
 
 export function configFromEnvironment(env) {
   const databaseUrl = env.FINDER_IMPORT_DATABASE_URL, sourceToken = env.FINDER_SOURCE_TOKEN, anonKey = env.FINDER_SOURCE_ANON_KEY;
@@ -140,7 +178,7 @@ export function createDatabase(config) {
 }
 
 /** Injectable boundaries permit offline failure tests; production always uses the fixed RPC/CLIs. */
-export async function runRefresh(deps, { geodataPath } = {}) {
+export async function runRefresh(deps, { geodataPath, now = Date.now() } = {}) {
   let directory, claimed = false, previousIds = [], knownIds = [], previousLoaded = false;
   let result = { status: 'failed', code: 'refresh_failed', exitCode: 1, imported: 0, revoked: 0 };
   async function revoke(ids) {
@@ -164,20 +202,28 @@ export async function runRefresh(deps, { geodataPath } = {}) {
     directory = await mkdtemp(join(tmpdir(), 'merkalku-finder-refresh-'));
     await chmod(directory, 0o700);
     const files = { input: join(directory,'seed.json'), previous: join(directory,'previous.json'), geodata: join(directory,'geodata.json'), output: join(directory,'batch.json'), report: join(directory,'report.json') };
-    await writeJson(files.previous, previous);
     const seed = await deps.fetchSeeds();
     try { policy.parseTedSeeds(seed); } catch { fail('source_export_failed'); }
-    await writeJson(files.input, seed);
+    const selection = selectPilotRefresh(seed, previous, now);
+    result.selection = selection.stats;
+    knownIds = policy.priorUnits(selection.previous);
+    await writeJson(files.previous, selection.previous);
+    await writeJson(files.input, selection.seeds);
     if (geodataPath) {
       const geo = await readJson(resolve(geodataPath), 16_000_000);
       try { policy.validateGeodata(geo); } catch { fail('invalid_geodata'); }
       await writeJson(files.geodata, geo);
     } else if (await deps.runCli('geodata.mjs', ['--output',files.geodata], 60000) !== 0) fail('geodata_failed');
-    const code = await deps.runCli('ted-revalidate.mjs', ['--input',files.input,'--previous',files.previous,'--geodata',files.geodata,'--output',files.output,'--report',files.report], 660000);
+    const code = await deps.runCli('ted-revalidate.mjs', ['--pilot','--input',files.input,'--previous',files.previous,'--geodata',files.geodata,'--output',files.output,'--report',files.report], 660000);
     try { result.diagnostics = safeDiagnostics(await readJson(files.report, 4_000_000)); }
     catch { result.diagnostics = { available:false }; }
     if (code !== 0 && code !== 2) fail('ted_revalidation_fatal');
     const batch = validateBatch(await readJson(files.output, 20_000_000));
+    const selectedProcedures = new Set(selection.seeds.candidates.map(row => row.procedure_identifier));
+    const absentIds = new Set(selection.absentIds);
+    if (batch.candidates.some(row => !selectedProcedures.has(row.canonicalUnitId.split(':')[1]))
+      || batch.revokedCanonicalUnitIds.some(id => !selectedProcedures.has(id.split(':')[1]) && !absentIds.has(id))
+      || selection.absentIds.some(id => !batch.revokedCanonicalUnitIds.includes(id))) fail('invalid_revalidation_batch');
     // Apply every explicit exclusion before admitting even the first newly validated unit.
     await revoke(batch.revokedCanonicalUnitIds);
     const union = new Set([...previousIds,...batch.candidates.map(c=>c.canonicalUnitId)]);
@@ -194,7 +240,7 @@ export async function runRefresh(deps, { geodataPath } = {}) {
     result.exitCode = code;
   } catch (error) {
     result.status = 'failed'; result.code = error instanceof RefreshError ? error.code : 'refresh_failed'; result.exitCode = 1;
-    // A fatal run never renews old freshness. Exclude the known projection when reachable.
+    // Never renew freshness on failure: all known prior units before selection, scoped units afterwards.
     if (claimed && previousLoaded) {
       try { await revoke(knownIds); } catch {
         result.revocationFailed = true;

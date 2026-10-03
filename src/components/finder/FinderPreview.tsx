@@ -19,7 +19,7 @@ function validCard(value: unknown): value is FinderCard {
 }
 
 function failureMessage(status: number, body: { message?: unknown }): string {
-  if (status === 429) return "Das Abruflimit ist erreicht. Bitte versuchen Sie es später erneut. Das bedeutet nicht, dass es keine passenden Ausschreibungen gibt.";
+  if (status === 429) return "Ihr Suchkontingent ist vorübergehend ausgeschöpft. Pro Browser sind bis zu 8 Suchläufe mit 3 unterschiedlichen PLZ innerhalb von 24 Stunden möglich; bei schnellen Abrufen greifen zusätzliche Kurzzeitlimits. Bitte warten Sie bis zur Freigabe. Das ist keine Aussage über verfügbare Ausschreibungen.";
   if (status === 403) return "Die Sicherheitsprüfung konnte nicht bestätigt werden. Bitte laden Sie die Seite neu und versuchen Sie es erneut.";
   if (status === 400 && text(body.message, 300)) return body.message;
   return "Die Suche ist gerade nicht verfügbar. Bitte versuchen Sie es später erneut. Es wurde kein verlässliches Suchergebnis geladen.";
@@ -65,7 +65,7 @@ export default function FinderPreview() {
     <form className="finder-search" onSubmit={submit}>
       <div className="finder-search-heading"><span className="finder-step" aria-hidden="true">01</span><div><h2>Ihr Suchgebiet</h2><p>PLZ eingeben, Umkreis wählen, echte Bekanntmachungen prüfen.</p></div></div>
       <div className="finder-controls">
-        <div className="finder-input-group"><label htmlFor="finder-postcode">Postleitzahl</label><input id="finder-postcode" name="postcode" inputMode="numeric" autoComplete="postal-code" pattern="[0-9]{5}" maxLength={5} placeholder="z. B. 18569" required value={postcode} disabled={pending} aria-describedby="finder-search-note" onChange={(event) => { setPostcode(event.target.value); reset(); }} /></div>
+        <div className="finder-input-group"><label htmlFor="finder-postcode">Postleitzahl</label><input id="finder-postcode" name="postcode" inputMode="numeric" autoComplete="postal-code" pattern="[0-9]{5}" maxLength={5} placeholder="Ihre PLZ" required value={postcode} disabled={pending} aria-describedby="finder-search-note" onChange={(event) => { setPostcode(event.target.value); reset(); }} /></div>
         <div className="finder-input-group"><label htmlFor="finder-radius">Umkreis</label><select id="finder-radius" name="radius" value={radiusKm} disabled={pending} onChange={(event) => { setRadiusKm(Number(event.target.value)); reset(); }}>{FINDER_RADII.map((radius) => <option key={radius} value={radius}>{radius} km</option>)}</select></div>
         <button type="submit" className="finder-primary" disabled={pending}>{pending ? "Suche läuft …" : "Ausschreibungen suchen"}<span aria-hidden="true">→</span></button>
       </div>
