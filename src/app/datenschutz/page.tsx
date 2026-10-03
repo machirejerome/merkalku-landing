@@ -306,6 +306,39 @@ export default function Datenschutz() {
             </p>
           </section>
 
+          <section id="ausschreibungsfinder">
+            <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
+              Ausschreibungsfinder und Schutz vor Massenabrufen
+            </h2>
+            <p>
+              Für die Umkreissuche senden wir die eingegebene Postleitzahl und den gewählten Radius an unseren
+              Server. Eine Anmeldung und Kontaktdaten sind dafür nicht erforderlich. Diese Suchangaben
+              übermitteln wir nicht als Analyseereignisse an Google Analytics.
+            </p>
+            <p className="mt-3">
+              Zum Schutz vor automatisiertem Auslesen verwenden wir Vercel BotID. Dabei werden technische
+              Angaben zur Verbindung, zum Browser und zur Anfrage verarbeitet, um automatisierte Zugriffe
+              zu erkennen. Informationen des Anbieters: <a href="https://vercel.com/legal/privacy-notice" className="underline">Vercel Privacy Notice</a>.
+              Die Bot-Prüfung kann eine Anfrage ablehnen; sie ersetzt keine fachliche Prüfung der Ausschreibung.
+            </p>
+            <p className="mt-3">
+              Nach einer erfolgreichen Browserprüfung setzen wir das geschützte Cookie „__Host-merkalku_finder“
+              mit zufälligen Kennungen. Es gilt höchstens 30 Tage; eine darin enthaltene Sitzungskennung
+              wird nach 24 Stunden erneuert. In einer getrennten Datenbank bei Neon speichern wir daraus und
+              aus der IP-Adresse mit einem geheimen Schlüssel abgeleitete Prüfwerte, Zeitpunkte und die
+              für Zugriffslimits erforderlichen Angaben zu Suchläufen und bereits angezeigten Treffern.
+              Die Finder-Datenbank erhält keine ungekürzten IP-Adressen. Diese Prüfwerte sind pseudonym,
+              nicht anonym. Sie dienen der Begrenzung von Massenabrufen und werden nicht mit Marketingprofilen verknüpft.
+            </p>
+            <p className="mt-3">
+              Gespeicherte Ergebnisseiten verfallen nach fünf Minuten, Suchlauf- und Sitzungsprotokolle nach
+              24 Stunden und die längerfristigen Kontingent-Prüfwerte spätestens nach 30 Tagen. Abgelaufene
+              Daten werden beim nächsten Bereinigungslauf entfernt; der tatsächliche Löschzeitpunkt kann
+              deshalb später liegen. Die allgemeinen technischen Protokolle unserer Hostinganbieter
+              sind davon getrennt. Informationen zum Datenbankanbieter: <a href="https://neon.com/privacy-policy" className="underline">Neon Privacy Policy</a>.
+            </p>
+          </section>
+
           {/* Ads-Landingpage + WhatsApp-Einwilligung */}
           <section>
             <h2 className="text-base font-semibold mb-3" style={{ color: "var(--color-text)" }}>
