@@ -163,3 +163,6 @@
   .article-editorial h2 { font-size: 9pt; }
   .article-editorial a { color: #111; }
 }
+
+/* Additional knowledge resources share the existing editorial card system. */
+.knowledge-article-card + .knowledge-article-card{margin-top:24px}.knowledge-finder-teaser{display:flex;align-items:center;justify-content:space-between;gap:30px;margin-top:32px;padding:30px;border:1px solid #cdded2;border-radius:18px;background:#edf5ef;color:inherit;text-decoration:none}.knowledge-finder-teaser h2{font-size:25px;line-height:1.25;margin:10px 0}.knowledge-finder-teaser p{max-width:620px;font-size:15px;line-height:1.65}.knowledge-finder-teaser .knowledge-card-link{white-space:nowrap}@media(max-width:600px){.knowledge-finder-teaser{padding:22px;display:block}.knowledge-finder-teaser h2{font-size:22px}.knowledge-header nav{gap:14px}}

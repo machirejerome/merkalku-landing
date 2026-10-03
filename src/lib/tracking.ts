@@ -32,8 +32,8 @@ export function sanitizeEvent(name: string, params: Record<string, unknown>): Re
 
 export function trackEvent(name: string, params: Record<string, string | number | undefined> = {}) {
   if (!canMeasure("analytics") && !canMeasure("marketing")) return;
-  const clean = sanitizeEvent(name, params);
   const path = safePagePath(window.location.pathname);
+  const clean = CONTENT_EVENTS.has(name) ? sanitizeContentEvent(name, params, path ?? undefined) : sanitizeEvent(name, params);
   if (!clean || !path) return;
   if (CONTENT_EVENTS.has(name) && !CONTENT_PATHS.has(path)) return;
   try {

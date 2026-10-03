@@ -265,3 +265,21 @@ test("knowledge actions never send worksheet notes, contacts, arbitrary URLs or 
   h.go("/wissen/private-client-name"); tracker.trackEvent("checklist_print_clicked");
   assert.equal(h.beacons.length, 4, "unknown paths do not enter any event payload");
 });
+
+test("new worksheets send only route-derived IDs and fixed actions, never numeric or textual inputs", async () => {
+  for (const [slug, event, source] of [
+    ["reinigungszeit-berechnen", "cleaning_time_calculated", "ral_wissen"],
+    ["excel-preisblatt-pruefen", "price_sheet_print_clicked", "excel_errors"],
+  ]) {
+    const h = browserHarness(`https://www.merkalku.de/wissen/${slug}?notes=PRIVATE`);
+    const tracker = h.load("tracking");
+    tracker.trackEvent(event, { content_id: "wrong-id", area: 98374, hours: 87654, notes: "PRIVATE", file: "PRIVATE" });
+    tracker.trackEvent("source_click", { source_id: source, url: "https://PRIVATE.invalid" });
+    tracker.trackEvent("checklist_edit_started", { notes: "PRIVATE" });
+    assert.equal(h.beacons.length, 2, "other worksheets' events are rejected");
+    const bodies = await Promise.all(h.beacons.map(async ({body}) => JSON.parse(await body.text())));
+    assert.equal(bodies[0].content_id, slug); assert.equal(bodies[1].source_id, source);
+    const serialized = JSON.stringify([h.commands(), bodies]);
+    for (const forbidden of ["PRIVATE", "98374", "87654", "wrong-id"]) assert.ok(!serialized.includes(forbidden));
+  }
+});

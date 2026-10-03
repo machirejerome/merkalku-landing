@@ -4,13 +4,13 @@ import Link from "next/link";
 import { trackEvent } from "@/lib/tracking";
 import type { ReactNode } from "react";
 
-type Props = { href: string; children: ReactNode; className?: string; kind: "source" | "product"; sourceId?: "ted_fields" | "ral_vergabe" };
+type Props = { href: string; children: ReactNode; className?: string; kind: "source" | "product"; contentId?: string; sourceId?: "ted_fields" | "ral_vergabe" | "ral_wissen" | "excel_errors" | "excel_recalculation" };
 
-export default function ContentLink({ href, children, className, kind, sourceId }: Props) {
+export default function ContentLink({ href, children, className, kind, sourceId, contentId = "ausschreibung-gebaeudereinigung-pruefen" }: Props) {
   function trackClick() {
     // Fixed identifiers only; never link text, URL parameters or checklist inputs.
     trackEvent(kind === "source" ? "source_click" : "content_product_click", {
-      content_id: "ausschreibung-gebaeudereinigung-pruefen", revision: 1,
+      content_id: contentId, revision: 1,
       ...(kind === "source" ? { source_id: sourceId } : {}),
     });
   }
