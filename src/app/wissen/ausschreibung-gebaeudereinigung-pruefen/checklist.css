@@ -1,0 +1,48 @@
+.knowledge-article.compact-checklist-article{max-width:900px;padding:32px 32px 64px}
+.compact-checklist-intro .knowledge-breadcrumb{margin-bottom:22px}
+.compact-checklist-intro .knowledge-eyebrow{margin-bottom:10px}
+.compact-checklist-intro h1{max-width:800px;font-size:clamp(28px,3.6vw,40px);line-height:1.23;letter-spacing:-1.2px;margin:0 0 16px;font-weight:600}
+.compact-checklist-lead{font-size:15px;line-height:1.75;color:#4d6456;max-width:760px;margin:0}
+.compact-checklist-meta{font-size:11px;line-height:1.6;color:#67796d;margin:12px 0 24px}
+.compact-checklist{background:#fff;border:1px solid #d8e4dc;border-radius:16px;padding:22px 25px}
+.compact-checklist-toolbar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center}
+.compact-checklist-toolbar h2{font-size:19px;letter-spacing:-.45px;margin:0;font-weight:600}
+.compact-checklist-print{font:inherit;font-size:12px;color:#05703c;background:none;border:0;padding:7px 0;cursor:pointer;white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+.compact-checklist-print span{margin-left:5px}
+.compact-checklist-progress{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:15px 0 6px;background:#edf5ef;border-radius:7px;padding:10px 12px;font-size:12px;color:#385d44}
+.compact-checklist-progress p{margin:0}.compact-checklist-progress>span{font-size:10px;color:#526d5a}
+.compact-checklist-items{list-style:none;margin:0;padding:0}
+.compact-checklist-items li+li{border-top:1px solid #e6ede8}
+.compact-checklist-items label{display:flex;align-items:flex-start;gap:13px;padding:16px 0;cursor:pointer}
+.compact-checklist-items input[type=checkbox]{appearance:auto;flex:none;width:21px;height:21px;margin:1px 0 0;accent-color:#05703c;cursor:pointer}
+.compact-checklist-label{display:block;font-size:14px;font-weight:650;line-height:1.5;color:#203a2b}
+.compact-checklist-help{display:block;font-size:12px;line-height:1.7;color:#556d5e;margin-top:5px}
+.compact-checklist-items .is-checked .compact-checklist-label{color:#05703c}
+.compact-checklist-foot{border-top:1px solid #e6ede8;padding-top:14px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.compact-checklist-foot p{font-size:10px;line-height:1.7;color:#65776a;margin:0;max-width:520px}
+.compact-checklist-foot button{font:inherit;font-size:11px;color:#526c5d;background:none;border:0;padding:6px 0;white-space:nowrap;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.compact-checklist-foot button:disabled{opacity:.45;cursor:default;text-decoration:none}
+.compact-checklist-next{font-size:13px;line-height:1.85;color:#53695b;margin:22px 0}
+.compact-checklist-detail{border-top:1px solid #dbe5df}.compact-checklist-detail:last-of-type{border-bottom:1px solid #dbe5df}
+.compact-checklist-detail>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:17px 0;color:#234d35;font-size:14px;font-weight:650;cursor:pointer}
+.compact-checklist-detail>summary::-webkit-details-marker{display:none}.compact-checklist-detail>summary>span{font-size:20px;font-weight:400}.compact-checklist-detail[open]>summary>span{transform:rotate(45deg)}
+.compact-checklist-detail>div{padding:0 0 19px;font-size:13px;line-height:1.85;color:#506658}.compact-checklist-detail p{margin:0}.compact-checklist-detail p+p{margin-top:12px}.compact-checklist-detail section{margin-top:16px}
+.compact-checklist-detail h2{font-size:13px;font-family:inherit;margin:0 0 5px;color:#05703c;font-weight:650}.compact-checklist-detail a{text-decoration:underline;text-underline-offset:3px}
+.compact-checklist-fiction{font-size:11px;color:#735f36;background:#f7f4eb;padding:7px 10px;border-radius:5px;display:inline-block;margin-bottom:12px!important}
+.compact-checklist-detail p.compact-checklist-source-date{font-size:11px;margin-top:16px;color:#65776a}
+.compact-checklist-related{display:flex;flex-wrap:wrap;gap:10px 20px;font-size:12px;margin-top:24px}.compact-checklist-related span{color:#607366}.compact-checklist-related a{color:#05703c;text-decoration:underline;text-underline-offset:3px}
+.compact-checklist-product{margin-top:23px;border-radius:10px;padding:17px 20px;background:#edf5ef;display:flex;align-items:center;justify-content:space-between;gap:20px}.compact-checklist-product p{font-size:12px;line-height:1.75;color:#4c6555;margin:0}.compact-checklist-product a{font-size:12px;font-weight:650;color:#05703c;white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+.compact-checklist-editorial{margin-top:24px;font-size:10px;line-height:1.8;color:#697a6e}.compact-checklist-editorial a{text-decoration:underline;text-underline-offset:2px}
+@media(max-width:600px){.knowledge-article.compact-checklist-article{padding:23px 20px 44px}.compact-checklist-intro .knowledge-breadcrumb{margin-bottom:16px}.compact-checklist-intro h1{font-size:28px;letter-spacing:-.8px;margin-bottom:13px}.compact-checklist-lead{font-size:13px;line-height:1.75}.compact-checklist-meta{font-size:10px;margin:10px 0 19px}.compact-checklist{padding:18px 17px;border-radius:12px}.compact-checklist-toolbar h2{font-size:17px}.compact-checklist-print{font-size:10px}.compact-checklist-toolbar{gap:10px}.compact-checklist-progress{font-size:11px;padding:9px 10px;gap:8px}.compact-checklist-progress>span{font-size:9px}.compact-checklist-items label{gap:11px;padding:15px 0}.compact-checklist-label{font-size:13px}.compact-checklist-help{font-size:11px}.compact-checklist-foot{align-items:flex-start;gap:12px;flex-direction:column}.compact-checklist-product{align-items:flex-start;flex-direction:column;gap:10px}.compact-checklist-related{gap:10px 16px;font-size:11px}.compact-checklist-related span{width:100%}}
+@media print{
+  @page checklist-compact{size:A4 portrait;margin:15mm}
+  .compact-checklist-article{page:checklist-compact}
+  .knowledge-article.compact-checklist-article{max-width:none;padding:0;font-size:10pt;line-height:1.45}
+  .compact-checklist-print-heading{margin-bottom:6mm}.compact-checklist-print-heading p{font-size:9pt;margin:0 0 3mm}.compact-checklist-print-heading h1{font-size:18pt;margin:0}
+  .compact-checklist{background:none;border:0;border-radius:0;padding:0}
+  .compact-checklist-printout h2{font-size:12pt;margin:5mm 0 2mm}.compact-checklist-printout>p{font-size:9pt;margin:0 0 3mm}
+  .compact-checklist-printout ol{list-style:decimal;margin:0;padding-left:6mm}.compact-checklist-printout ol li{padding:2mm 0;border-bottom:1px solid #ccc;break-inside:avoid}.compact-checklist-printout ol li>strong{float:right;font-size:8pt;margin-left:4mm}
+  .compact-checklist-printout ul{margin:0;padding-left:5mm}.compact-checklist-printout ul li{margin:0 0 3mm;break-inside:avoid}.compact-checklist-printout li>p{font-size:9pt;margin:1mm 0 0}
+  .compact-checklist-printout .compact-checklist-print-note{border-top:1px solid #ccc;padding-top:3mm;margin-top:5mm;font-size:8pt}
+  .compact-checklist-editorial{margin-top:4mm;font-size:8pt;color:#111;overflow-wrap:anywhere}
+}

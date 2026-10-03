@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CONTENT_REVISION } from "@/lib/content-events";
 import { trackEvent } from "@/lib/tracking";
 import type { ReactNode } from "react";
 
@@ -10,7 +11,7 @@ export default function ContentLink({ href, children, className, kind, sourceId,
   function trackClick() {
     // Fixed identifiers only; never link text, URL parameters or checklist inputs.
     trackEvent(kind === "source" ? "source_click" : "content_product_click", {
-      content_id: contentId, revision: 1,
+      content_id: contentId, revision: CONTENT_REVISION,
       ...(kind === "source" ? { source_id: sourceId } : {}),
     });
   }

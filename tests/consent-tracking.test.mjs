@@ -259,7 +259,7 @@ test("knowledge actions never send worksheet notes, contacts, arbitrary URLs or 
   const payloads = JSON.stringify([h.commands(), bodies, h.events.map((event) => event.detail)]);
   assert.ok(!payloads.includes("PRIVATE")); assert.ok(!payloads.includes("98765"));
   assert.equal(bodies[0].content_id, "ausschreibung-gebaeudereinigung-pruefen");
-  assert.equal(bodies[0].revision, 1); assert.equal(bodies[0].schritt, undefined);
+  assert.equal(bodies[0].revision, 2); assert.equal(bodies[0].schritt, undefined);
   assert.equal(bodies[2].source_id, "ted_fields");
   assert.ok(!h.commands().some((cmd) => cmd[1] === "print_success"));
   h.go("/wissen/private-client-name"); tracker.trackEvent("checklist_print_clicked");

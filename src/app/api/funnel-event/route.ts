@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     // Rebuild rather than spread the request: even crafted requests cannot log notes.
     data = {
       e, p: data.p, sid: typeof data.sid === "string" && /^[a-f0-9]{24}$/.test(data.sid) ? data.sid : null,
-      quelle: "wissen", herkunft: clean.source_id ?? null, v: "1",
+      quelle: "wissen", herkunft: clean.source_id ?? null, v: String(clean.revision),
     };
   } else if (!ERLAUBT.has(e)) return new Response(null, { status: 204 });
 
