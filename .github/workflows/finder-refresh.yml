@@ -1,0 +1,45 @@
+name: Finder private refresh
+
+on:
+  workflow_dispatch:
+  # Deliberately disabled until the live pipeline is accepted.
+  # schedule:
+  #   - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: finder-private-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out reviewed code
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned dependencies without lifecycle scripts
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          python -m pip install --disable-pip-version-check --only-binary=:all: lxml==6.1.0
+      - name: Verify offline refresh boundaries
+        run: node --test tests/finder-refresh.test.mjs tests/finder-ted.test.mjs tests/finder-geodata.test.mjs
+      - name: Refresh private projection
+        env:
+          FINDER_IMPORT_DATABASE_URL: ${{ secrets.FINDER_IMPORT_DATABASE_URL }}
+          FINDER_SOURCE_TOKEN: ${{ secrets.FINDER_SOURCE_TOKEN }}
+          FINDER_SOURCE_ANON_KEY: ${{ secrets.FINDER_SOURCE_ANON_KEY }}
+        run: node scripts/finder/refresh.mjs
