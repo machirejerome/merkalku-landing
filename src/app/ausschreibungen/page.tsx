@@ -4,7 +4,9 @@ import FinderPreview from "@/components/finder/FinderPreview";
 import { pageMetadata } from "@/lib/seo";
 import "./finder.css";
 
-export const metadata = pageMetadata("/ausschreibungen", "Ausschreibungsfinder für Gebäudereinigung – Vorschau", "Die kostenlose Finder-Vorschau: PLZ und Umkreis ausprobieren, Angebots- und Teilnahmefrist unterscheiden. Mit eindeutig fiktiven Beispielen; Live-Suche noch nicht verfügbar.");
+const baseMetadata = pageMetadata("/ausschreibungen", "Ausschreibungsfinder für Gebäudereinigung – Vorschau", "Die kostenlose Finder-Vorschau: PLZ und Umkreis ausprobieren, Angebots- und Teilnahmefrist unterscheiden. Mit eindeutig fiktiven Beispielen; Live-Suche noch nicht verfügbar.");
+
+export const metadata = { ...baseMetadata, robots: { index: false, follow: true } };
 
 export default function FinderPage() {
   return <div className="finder-site">
