@@ -42,6 +42,7 @@ before(()=>{
   execFileSync(join(bin,'psql'),['-X','-q','-v','ON_ERROR_STOP=1','-f',resolve('scripts/finder/001-finder.sql')],{env,stdio:'pipe'});
   execFileSync(join(bin,'psql'),['-X','-q','-v','ON_ERROR_STOP=1','-f',resolve('scripts/finder/002-previous-batch.sql')],{env,stdio:'pipe'});
   execFileSync(join(bin,'psql'),['-X','-q','-v','ON_ERROR_STOP=1','-f',resolve('scripts/finder/003-refresh-claim.sql')],{env,stdio:'pipe'});
+  execFileSync(join(bin,'psql'),['-X','-q','-v','ON_ERROR_STOP=1','-f',resolve('scripts/finder/004-suspend-source.sql')],{env,stdio:'pipe'});
   sql(`SELECT finder_api.import_postcodes(${json(['76275','76276','76277','76278'].map(postcode=>({postcode,lat:49,lon:8.4,provenance:'Synthetic test coordinate',license:'Test-only invented data'})))});`,'finder_importer');
 });
 after(()=>{
@@ -223,4 +224,22 @@ dbtest('refresh claim is importer-only and persists a rolling one-hour attempt l
   assert.equal(denied.allowed,false); assert.equal(denied.reason,'limited'); assert.ok(denied.retryAfterSeconds>3500 && denied.retryAfterSeconds<=3600);
   sql("UPDATE finder_private.control SET last_refresh_started_at=clock_timestamp()-interval '61 minutes';");
   assert.equal(value('SELECT finder_api.claim_refresh();','finder_importer').allowed,true);
+});
+
+
+dbtest('full tombstone store cannot prevent importer suspension of all entry/search results',()=>{
+  reset(1);
+  assert.equal(value(search()).candidates.length,1);
+  sql("INSERT INTO finder_private.revocations SELECT 'retained-revocation-'||i,clock_timestamp() FROM generate_series(1,1000) i;");
+  assert.throws(()=>sql(`SELECT finder_api.import_batch('[]',${json([candidate(1).canonicalUnitId])});`,'finder_importer'),/Pilot projection capacity exceeded/);
+  assert.equal(sql('SELECT revoked FROM finder_private.units;'),'f'); // Failed import rolled back its attempted revocation.
+  assert.throws(()=>sql('SELECT finder_api.suspend_source();','finder_runtime'),/permission denied/);
+  assert.throws(()=>sql('SELECT finder_api.suspend_source();','finder_unrelated'),/permission denied/);
+  assert.deepEqual(value('SELECT finder_api.suspend_source();','finder_importer'),{suspended:true});
+  assert.equal(value(`SELECT finder_api.entry(${quote(hash('ip1'))});`).reason,'unavailable');
+  assert.equal(value(search()).reason,'unavailable');
+  assert.throws(()=>sql('UPDATE finder_private.control SET source_enabled=true;','finder_importer'),/permission denied/);
+  assert.deepEqual(value('SELECT finder_api.suspend_source();','finder_importer'),{suspended:true}); // Idempotent disable only.
+  sql('BEGIN; SELECT pg_advisory_xact_lock(1936028270,1718183012); UPDATE finder_private.control SET source_enabled=true; COMMIT;');
+  assert.equal(value(search()).candidates.length,1); // Explicit test-owner re-enable, never an importer function.
 });

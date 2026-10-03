@@ -15,6 +15,7 @@ function fixture({previous=[candidate(1)],batch={candidates:[candidate(2)],revok
     async previous(){calls.push({kind:'previous'});return {candidates:previous};},
     async importBatch(candidates,revoked){calls.push({kind:'import',candidates,revoked});return {imported:candidates.length,revoked:revoked.length};},
     async cleanup(){calls.push({kind:'cleanup'});},
+    async suspend(){calls.push({kind:'suspend'});return {suspended:true};},
   };
   const deps={db,async fetchSeeds(){calls.push({kind:'source'});return seed;},async runCli(name,args){
     calls.push({kind:'cli',name});const output=args[args.indexOf('--output')+1];directory=dirname(output);
@@ -84,9 +85,9 @@ test('failed later import stops further chunks and revokes attempted chunk even 
   assert.equal(JSON.stringify(result).includes('SECRET'),false);assert.equal(f.calls.at(-1).kind,'cleanup');
 });
 
-test('revocation failure never proceeds to candidates, surfaces incomplete fail-closed cleanup',async()=>{
+test('revocation failure stops candidates and suspends the source before cleanup',async()=>{
   const f=fixture();f.deps.db.importBatch=async()=>{throw new Error('secret-source-token');};
-  const result=await runRefresh(f.deps);assert.equal(result.exitCode,1);assert.equal(result.imported,0);assert.equal(result.revocationFailed,true);assert.equal(f.calls.at(-1).kind,'cleanup');
+  const result=await runRefresh(f.deps);assert.equal(result.exitCode,1);assert.equal(result.imported,0);assert.equal(result.revocationFailed,true);assert.equal(result.sourceSuspended,true);assert.deepEqual(f.calls.slice(-2),[{kind:'suspend'},{kind:'cleanup'}]);
 });
 
 test('hourly claim denies before all source/network work but cleanup still runs',async()=>{
@@ -117,4 +118,13 @@ test('private TED report contributes aggregate counters while raw report is remo
   const f=fixture({exit:2});const result=await runRefresh(f.deps);
   assert.equal(result.exitCode,2);assert.equal(result.diagnostics.available,true);assert.equal(result.diagnostics.requests,6);assert.equal(result.diagnostics.acceptedCount,1);
   assert.deepEqual(result.diagnostics.httpStatusCounts,{'200':6});await assert.rejects(stat(f.getDirectory()),{code:'ENOENT'});
+});
+
+
+test('failed or malformed suspension is explicit and never prevents cleanup',async()=>{
+  for(const suspend of [async()=>{throw new Error('private_db_failure');},async()=>({suspended:false}),async()=>null]) {
+    const f=fixture();f.deps.db.importBatch=async()=>{throw new Error('revocation_failed');};f.deps.db.suspend=suspend;
+    const result=await runRefresh(f.deps);assert.equal(result.exitCode,1);assert.equal(result.revocationFailed,true);assert.equal(result.sourceSuspended,false);assert.equal(f.calls.at(-1).kind,'cleanup');
+    assert.equal(JSON.stringify(result).includes('private_db_failure'),false);
+  }
 });

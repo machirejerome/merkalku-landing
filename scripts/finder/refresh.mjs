@@ -135,6 +135,7 @@ export function createDatabase(config) {
       return rows[0]?.result;
     },
     async cleanup() { const sql = client(); await sql`SELECT finder_api.cleanup()`; },
+    async suspend() { const sql = client(); const rows = await sql`SELECT finder_api.suspend_source() AS result`; return rows[0]?.result; },
   };
 }
 
@@ -195,7 +196,11 @@ export async function runRefresh(deps, { geodataPath } = {}) {
     result.status = 'failed'; result.code = error instanceof RefreshError ? error.code : 'refresh_failed'; result.exitCode = 1;
     // A fatal run never renews old freshness. Exclude the known projection when reachable.
     if (claimed && previousLoaded) {
-      try { await revoke(knownIds); } catch { result.revocationFailed = true; }
+      try { await revoke(knownIds); } catch {
+        result.revocationFailed = true;
+        try { result.sourceSuspended = (await deps.db.suspend())?.suspended === true; }
+        catch { result.sourceSuspended = false; }
+      }
     }
   } finally {
     try { await deps.db.cleanup(); } catch { result.cleanupFailed = true; result.status = 'failed'; result.exitCode = 1; }
@@ -209,7 +214,7 @@ export async function runRefresh(deps, { geodataPath } = {}) {
 
 export async function main(args = process.argv.slice(2), env = process.env) {
   if (args.length === 1 && args[0] === '--help') {
-    console.log('Usage: node scripts/finder/refresh.mjs [--geodata PRIVATE_GEODATA.json]\nPrivate refresh; requires FINDER_IMPORT_DATABASE_URL, FINDER_SOURCE_TOKEN, FINDER_SOURCE_ANON_KEY and SQL migrations001–003. One claimed attempt/hour, no public artifacts. Exit0 complete/skipped,2 safe partial batch applied,1 failed.');
+    console.log('Usage: node scripts/finder/refresh.mjs [--geodata PRIVATE_GEODATA.json]\nPrivate refresh; requires FINDER_IMPORT_DATABASE_URL, FINDER_SOURCE_TOKEN, FINDER_SOURCE_ANON_KEY and SQL migrations 001–004. One claimed attempt/hour, no public artifacts. Exit0 complete/skipped,2 safe partial batch applied,1 failed.');
     return 0;
   }
   if (args.length !== 0 && (args.length !== 2 || args[0] !== '--geodata' || !args[1] || args[1].startsWith('--'))) fail('invalid_arguments');
