@@ -41,4 +41,4 @@ jobs:
           FINDER_IMPORT_DATABASE_URL: ${{ secrets.FINDER_IMPORT_DATABASE_URL }}
           FINDER_SOURCE_TOKEN: ${{ secrets.FINDER_SOURCE_TOKEN }}
           FINDER_SOURCE_ANON_KEY: ${{ secrets.FINDER_SOURCE_ANON_KEY }}
-        run: node scripts/finder/refresh.mjs
+        run: node scripts/finder/refresh.mjs --geodata scripts/finder/data/geonames-de-2026-10-03.json
