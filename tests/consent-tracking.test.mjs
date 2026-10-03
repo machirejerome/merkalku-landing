@@ -269,7 +269,7 @@ test("knowledge actions never send worksheet notes, contacts, arbitrary URLs or 
 test("new worksheets send only route-derived IDs and fixed actions, never numeric or textual inputs", async () => {
   for (const [slug, event, source] of [
     ["reinigungszeit-berechnen", "cleaning_time_calculated", "ral_wissen"],
-    ["excel-preisblatt-pruefen", "price_sheet_print_clicked", "excel_errors"],
+    ["excel-preisblatt-pruefen", "price_sheet_example_changed", "excel_errors"],
   ]) {
     const h = browserHarness(`https://www.merkalku.de/wissen/${slug}?notes=PRIVATE`);
     const tracker = h.load("tracking");

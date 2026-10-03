@@ -117,31 +117,32 @@ successful processing after release before claiming indexation is fixed.
 
 ## Knowledge content
 
-`/wissen` lists the first guide, `/wissen/ausschreibung-gebaeudereinigung-pruefen`.
-The public text is in `src/content/checkliste.json`; internal research notes are
-not imported. The editorial revision and source review date are 2026-10-02.
-The first public release was verified on 2026-10-02; Article `datePublished` and
-Open Graph `publishedTime` use that date. Deployment timestamps must not replace
-the first publication or editorial dates in structured data or the sitemap.
+`/wissen` links three published guides: `/wissen/ausschreibung-gebaeudereinigung-pruefen`,
+`/wissen/reinigungszeit-berechnen` and `/wissen/excel-preisblatt-pruefen`.
+The checklist uses five checkboxes, the cleaning-time calculator starts with two
+numeric inputs (extra minutes are optional), and the fictional price-sheet exercise
+reveals three errors with one click and no input fields.
 
-The checklist holds editable rows in React memory only: no account, upload,
-autosave, localStorage or submission endpoint. Reloading loses the entries.
-External source links open in a separate tab so the worksheet and its entries
-remain open. The Praxischeck link uses Next.js client navigation to `/#termin`,
-preserving the current analytics runtime while navigating to the calendar.
-The real browser print dialog prints current values in a separate table (so
-long text is not clipped inside textareas), followed by two clearly fictional
-example rows. Saving a PDF is a browser print-dialog option, not a generated download.
+The checklist's first publication is 2026-10-02 and its editorial revision is
+2026-10-03; its source review remains 2026-10-02. Both new articles first publish
+on 2026-10-03. Article/OG dates and sitemap dates are explicit editorial values,
+never generated from deployment timestamps. Internal research notes are not imported.
 
-Content events are `checklist_edit_started` (once per mounted worksheet),
-`checklist_print_clicked` (opening the dialog, not successful printing),
-`source_click` and `content_product_click`. Client and server use a shared
-allowlist; worksheet text, names, deadlines and arbitrary URLs are discarded.
-No database migration is needed: event/path identify the guide; the known
-source identifier uses the existing `herkunft` field.
+Inputs and checkbox states remain in React memory only: no account, upload,
+autosave, localStorage or submission endpoint. Reloading clears them. Source links
+open separately; the Praxischeck link uses Next.js navigation to `/#termin`.
+The checklist print view shows current check states and open points. The time
+calculator print view shows the current result and assumptions. A print-dialog click
+is not evidence of a completed print or saved PDF.
 
-Before release, test desktop/mobile input, resetting, the real print dialog
-with a long synthetic note, source and Praxischeck links, and the existing
-manual privacy control. Verify network payloads contain no entered text.
-The first guide must be checked on its public URL after publishing; no links
-to unimplemented follow-up guides should be added.
+Content measurement uses revision 2 and shared client/server allowlists. Actions
+include `checklist_edit_started`, `checklist_print_clicked`, `cleaning_time_calculated`,
+`cleaning_time_example_loaded`, `cleaning_time_print_clicked`,
+`price_sheet_example_changed`, `source_click` and `content_product_click`.
+Numeric inputs, individual check states and arbitrary text/URLs are never included.
+No database migration is required. Product clicks are not bookings.
+
+Before release, verify calculations, reset/recalculation, print layouts, links,
+mobile use and payload exclusion. Check public HTTP responses, www canonicals,
+indexability, article dates and sitemap after deployment. The fictional tender
+finder remains a separate preview and is not included in this content release.
